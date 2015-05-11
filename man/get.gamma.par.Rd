@@ -1,0 +1,154 @@
+\name{get.gamma.par}
+\alias{get.gamma.par}
+\title{Fitting parameters of a gamma distribution from two or more quantiles}
+\usage{
+  get.gamma.par(p=c(0.025,0.5,0.975), q, show.output=TRUE,
+    plot=TRUE, tol=0.001,
+    fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
+}
+\arguments{
+  \item{p}{numeric, single value or vector of
+  probabilities.}
+
+  \item{q}{numeric, single value or vector of quantiles
+  corresponding to p.}
+
+  \item{show.output}{logical, if \code{TRUE} the
+  \code{optim} result will be printed (default value is
+  \code{TRUE}).}
+
+  \item{plot}{logical, if \code{TRUE} the graphical
+  diagnostics will be plotted (default value is
+  \code{TRUE}).}
+
+  \item{tol}{numeric, single positive value giving the
+  absolute convergence tolerance for reaching zero (default
+  value is \code{0.001}).}
+
+  \item{fit.weights}{numerical vector of the same length as
+  a probabilities vector \code{p} containing positive
+  values for weighting quantiles. By default all quantiles
+  will be weighted by 1.}
+
+  \item{scaleX}{numerical vector of the length 2 containing
+  values (from the open interval (0,1)). for scaling
+  quantile-axis (relevant only if \code{plot=TRUE}). The
+  smaller the left value, the further the graph is
+  extrapolated within the lower percentile, the greater the
+  right value, the further it goes within the upper
+  percentile.}
+
+  \item{...}{further arguments passed to the functions
+  \code{plot} and \code{points} (relevant only if
+  \code{plot=TRUE}).}
+}
+\value{
+  Returns fitted parameters of a gamma distribution or
+  missing values (\code{NA}'s) if the distribution cannot
+  fit the specified quantiles.
+}
+\description{
+  \code{get.gamma.par} returns the parameters of a gamma
+  distribution where the \code{p}th percentiles match with
+  the quantiles \code{q}.
+}
+\details{
+  The number of probabilities, the number of quantiles and
+  the number of weightings must be identical and should be
+  at least two. Using the default \code{p}, the three
+  corresponding quantiles are the 2.5th percentile, the
+  median and the 97.5th percentile, respectively.
+  \code{get.gamma.par} uses the R function \code{optim}
+  with the method \code{L-BFGS-B}. If this method fails the
+  optimization method \code{BFGS} will be invoked. \cr \cr
+  If \code{show.output=TRUE} the output of the function
+  \code{optim} will be shown. The item \code{convergence}
+  equal to 0 means the successful completion of the
+  optimization procedure, otherwise it indicates a
+  convergence error. The item \code{value} displays the
+  achieved minimal value of the functions that were
+  minimized. \cr \cr The estimated distribution parameters
+  returned by the function \code{optim} are accepted if the
+  achieved value of the minimized function (output
+  component \code{value} of \code{optim}) is smaller than
+  the argument \code{tol}. \cr \cr The items of the
+  probability vector \code{p} should lie between 0 and 1.
+  \cr \cr The items of the weighting vector
+  \code{fit.weights} should be positive values. \cr \cr The
+  function which will be minimized is defined as a sum of
+  squared differences between the given probabilities and
+  the theoretical probabilities of the specified
+  distribution evaluated at the given quantile points
+  (least squares estimation).
+}
+\note{
+  it should be noted that there might be deviations between
+  the estimated and the theoretical distribution parameters
+  in certain circumstances. This is because the estimation
+  of the parameters is based on a numerical optimization
+  method and depends strongly on the initial values. In
+  addition, one must always keep in mind that a
+  distribution for different combinations of parameters may
+  look very similar. Therefore, the optimization method
+  cannot always find the "right" distribution, but a
+  "similar" one. \cr \cr If the function terminates with
+  the error massage "convergence error occured or specified
+  tolerance not achieved", one may try to set the
+  convergence tolerance to a higher value. It is yet to be
+  noted, that good till very good fits of parameters could
+  only be obtained for tolerance values that are smaller
+  than 0.001.
+}
+\examples{
+\donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=10,rate=10)
+X11(width=9,height=6)
+par(mfrow=c(2,3))
+get.gamma.par(q=q)
+get.gamma.par(q=q,scaleX=c(0.00001,0.9999))
+get.gamma.par(q=q,fit.weights=c(100,1,100))
+get.gamma.par(q=q,fit.weights=c(10,1,10))
+get.gamma.par(q=q,fit.weights=c(1,100,1))
+get.gamma.par(q=q,fit.weights=c(1,10,1))}
+
+\donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=0.1,rate=0.1)
+X11(width=9,height=6)
+par(mfrow=c(2,3))
+get.gamma.par(q=q)
+get.gamma.par(q=q,fit.weights=c(100,1,100))
+get.gamma.par(q=q,fit.weights=c(10,1,10))
+get.gamma.par(q=q,fit.weights=c(1,100,1))
+get.gamma.par(q=q,fit.weights=c(1,10,1))}
+
+\donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=1,rate=1)
+X11(width=9,height=6)
+par(mfrow=c(2,3))
+get.gamma.par(q=q)
+get.gamma.par(q=q,fit.weights=c(100,1,100))
+get.gamma.par(q=q,fit.weights=c(10,1,10))
+get.gamma.par(q=q,fit.weights=c(1,100,1))
+get.gamma.par(q=q,fit.weights=c(1,10,1))}
+
+# example with only two quantiles
+\donttest{q<-qgamma(p=c(0.025,0.975),shape=10,rate=10)
+X11(width=9,height=6)
+par(mfrow=c(2,3))
+get.gamma.par(p=c(0.025,0.975),q=q)
+get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
+get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
+get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
+get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))}
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Katharina Schueller
+  \email{schueller@stat-up.de} (\acronym{STAT-UP}
+  Statistical Consulting), \cr Natalia Belgorodski
+  \email{belgorodski@stat-up.de} (\acronym{STAT-UP}
+  Statistical Consulting)
+}
+\seealso{
+  See \code{pgamma} for distribution implementation
+  details.
+}
+\keyword{fitpercentiles}
+

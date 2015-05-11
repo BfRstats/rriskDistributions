@@ -1,0 +1,46 @@
+\name{fit.cont}
+\alias{fit.cont}
+\title{GUI for fitting continuous distributions to given data}
+\usage{
+  fit.cont(data2fit)
+}
+\arguments{
+  \item{data2fit}{numerical vector, data to be fitted.}
+}
+\value{
+  Returns chosen continuous distribution, estimated
+  parameters and data, on which the fitting is based.
+}
+\description{
+  This function provides a GUI for choosing a most
+  appropriate continuous distribution fitted to given data.
+}
+\note{
+  This function is used for defining a Monte-Carlo random
+  variate item (\code{mcrv}) in the \code{rrisk} project.
+}
+\examples{
+\donttest{
+res1<-fit.cont(data2fit=rgamma(374,4,0.08))
+res1
+
+res2<-fit.cont(data2fit=rbeta(300,shape1=1,shape2=2))
+res2
+
+res3<-fit.cont(data2fit=rtriang(300,min=1,mode=3,max=10))
+res3
+
+res4<-fit.cont(data2fit=rnorm(300))
+res4}
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Kristin Tolksdorf
+  \email{kristin.tolksdorf@bfr.bund.de} (BfR), \cr
+  Katharina Schueller \email{schueller@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting), \cr Natalia
+  Belgorodski \email{belgorodski@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting)
+}
+\keyword{gui}
+

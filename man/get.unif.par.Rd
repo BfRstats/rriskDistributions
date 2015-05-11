@@ -1,0 +1,84 @@
+\name{get.unif.par}
+\alias{get.unif.par}
+\title{Fitting parameters of a uniform distribution from two or more quantiles}
+\usage{
+  get.unif.par(p=c(0.025,0.975), q, plot=TRUE,
+    scaleX=c(0.1,0.9),...)
+}
+\arguments{
+  \item{p}{numeric, single value or vector of
+  probabilities.}
+
+  \item{q}{numeric, single value or vector of quantiles
+  corresponding to p.}
+
+  \item{plot}{logical, if \code{TRUE} the graphical
+  diagnostics will be plotted (default value is
+  \code{TRUE})}
+
+  \item{scaleX}{numerical vector of the length 2 containing
+  values (from the open interval (0,1)) for scaling
+  quantile-axis (relevant only if \code{plot=TRUE}). The
+  smaller the left value, the further the graph is
+  extrapolated within the lower percentile, the greater the
+  right value, the further it goes within the upper
+  percentile.}
+
+  \item{...}{further arguments passed to the functions
+  \code{plot} and \code{points} (relevant only if
+  \code{plot=TRUE})}
+}
+\value{
+  Returns fitted parameters of a uniform distribution.
+}
+\description{
+  \code{get.unif.par} returns the parameters of a uniform
+  distribution where the \code{p}th percentiles match with
+  the quantiles \code{q}.
+}
+\details{
+  The number of probabilities and the number of quantiles
+  must be identical and should be at least two. Using the
+  default \code{p}, the three corresponding quantiles are
+  the 2.5th percentile, the median and the 97.5th
+  percentile, respectively. \cr \cr Parameters of the
+  uniform distribution are estimated exactly. \cr \cr The
+  items of the probability vector \code{p} should lie
+  between 0 and 1.
+}
+\note{
+  it should be noted that there might be deviations between
+  the estimated and the theoretical distribution parameters
+  in certain circumstances. This is because the estimation
+  of the parameters is based on a numerical optimization
+  method and depends strongly on the initial values. In
+  addition, one must always keep in mind that a
+  distribution for different combinations of parameters may
+  look very similar. Therefore, the optimization method
+  cannot always find the "right" distribution, but a
+  "similar" one. \cr \cr If the function terminates with
+  the error massage "convergence error occured or specified
+  tolerance not achieved", one may try to set the
+  convergence tolerance to a higher value. It is yet to be
+  noted, that good till very good fits of parameters could
+  only be obtained for tolerance values that are smaller
+  than 0.001.
+}
+\examples{
+q<-qunif(p=c(0.025,0.975),min=0,max=5)
+get.unif.par(q=q)
+get.unif.par(q=q,scaleX=c(0.001,0.999))
+
+q<-qunif(p=c(0.025,0.975),min=-6,max=5)
+get.unif.par(q=q)
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Katharina Schueller
+  \email{schueller@stat-up.de} (\acronym{STAT-UP}
+  Statistical Consulting), \cr Natalia Belgorodski
+  \email{belgorodski@stat-up.de} (\acronym{STAT-UP}
+  Statistical Consulting)
+}
+\keyword{fitpercentiles}
+

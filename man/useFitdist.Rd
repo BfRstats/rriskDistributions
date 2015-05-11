@@ -1,0 +1,52 @@
+\name{useFitdist}
+\alias{useFitdist}
+\title{Fitting amount continuous distributions to given univariate data.}
+\usage{
+  useFitdist(data2fit,show.output=TRUE,distributions)
+}
+\arguments{
+  \item{data2fit}{numerical vector, data to be fitted.}
+
+  \item{show.output}{logical value, if \code{TRUE} the
+  output will be printed.}
+
+  \item{distributions}{simple character or character vector
+  giving the names of distribution families, that should be
+  fitted to the data. The possible values are: \code{norm},
+  \code{cauchy}, \code{logis}, \code{beta}, \code{exp},
+  \code{chisq}, \code{unif}, \code{gamma}, \code{lnorm},
+  \code{weibull}, \code{f}, \code{t}, \code{gompertz},
+  \code{triang}.}
+}
+\value{
+  Returns matrix with fitting results. More information...
+}
+\description{
+  Fitting amount continuous distributions to given
+  univariate data
+}
+\details{
+  This function is not intended to be called directly but
+  is internally called in \code{fit.cont}.
+}
+\examples{
+\donttest{
+x1 <- rgamma(374,4,0.08)
+res1<-useFitdist(data2fit=x1)
+res1
+
+x2<-rbeta(300,shape1=1,shape2=2)
+res2<-useFitdist(data2fit=x2)
+res2}
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Kristin Tolksdorf
+  \email{kristin.tolksdorf@bfr.bund.de} (BfR), \cr
+  Katharina Schueller \email{schueller@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting), \cr Natalia
+  Belgorodski \email{belgorodski@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting)
+}
+\keyword{others}
+

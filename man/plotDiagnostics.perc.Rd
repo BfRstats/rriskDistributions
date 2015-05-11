@@ -1,0 +1,69 @@
+\name{plotDiagnostics.perc}
+\alias{plotDiagnostics.perc}
+\title{Graphical tools for choosing distribution by given quantiles}
+\usage{
+  plotDiagnostics.perc(fit.results,tolPlot=0.1)
+}
+\arguments{
+  \item{fit.results}{a list containing fitting results as
+  an output of the function \code{rriskFitdist.perc}.}
+
+  \item{tolPlot}{numerical value, if the sums of the
+  differences between the distribution percentiles and the
+  given percentiles are smaller than this value, the
+  distribution will be plotted.}
+}
+\value{
+  Only graphical output.
+}
+\description{
+  Diagnostic plot for choosing a most appropriate
+  continuous probability for known quantiles
+}
+\details{
+  This function plots distribution whose percentiles go
+  through the given percentiles \code{q}. The argument
+  \code{tolPlot} controls this match.
+}
+\examples{
+\donttest{
+p<-c(0.025,0.5,0.975)
+q<-c(9.68,29.20,50.98)
+fit.results1<-rriskFitdist.perc(p=p,q=q,show.output=FALSE,tolConv=0.5)
+X11(width=10,height=5)
+par(mfrow=c(1,2))
+plotDiagnostics.perc(fit.results1)
+plotDiagnostics.perc(fit.results1,tolPlot=5)
+
+p<-c(0.2,0.7)
+q<-c(2.6,19.1)
+fit.results2<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+plotDiagnostics.perc(fit.results2)
+
+p<-c(0.3,0.8,0.9)
+q<-c(10,20,40)
+fit.results3<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+plotDiagnostics.perc(fit.results3)
+
+p<-c(0.3,0.8,0.9)
+q<-c(10,30,40)
+fit.results4<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+plotDiagnostics.perc(fit.results4)
+
+# Example with fittes beta pert distribution
+p<-c(0.025,0.5,0.6,0.975)
+q<-qpert(p=p,min=0,mode=3,max=10,shape=5)
+fit.results5<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+plotDiagnostics.perc(fit.results5)}
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Kristin Tolksdorf
+  \email{kristin.tolksdorf@bfr.bund.de} (BfR), \cr
+  Katharina Schueller \email{schueller@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting), \cr Natalia
+  Belgorodski \email{belgorodski@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting)
+}
+\keyword{others}
+

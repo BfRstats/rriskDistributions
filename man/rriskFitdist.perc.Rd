@@ -1,0 +1,79 @@
+\name{rriskFitdist.perc}
+\alias{rriskFitdist.perc}
+\title{Fitting an amount of distribution families by given quantiles}
+\usage{
+  rriskFitdist.perc(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),
+    show.output=TRUE,
+    tolConv=0.001,fit.weights=rep(1,length(p)))
+}
+\arguments{
+  \item{p}{numerical vector giving probabilities.}
+
+  \item{q}{numerical vector giving percentiles.}
+
+  \item{show.output}{logical, if \code{TRUE} the
+  \code{optim} result will be printed (default value is
+  \code{TRUE}).}
+
+  \item{tolConv}{positive numerical value, the absolute
+  convergence tolerance for reaching zero by fitting
+  distributions \code{get.norm.par} will be shown.}
+
+  \item{fit.weights}{numerical vector of the same length as
+  a probabilities vector \code{p} containing positive
+  values for weighting quantiles. By default all quantiles
+  will be weighted by 1.}
+}
+\value{
+  Returns a list containing the data frame with the input
+  vectors \code{p} and \code{q} and the results matrix
+  giving fitted distributions, estimated parameters and a
+  vector of theoretical percentiles calculated based on the
+  estimated parameters. If the consistency check of input
+  parameters fails the function returns \code{NA}.
+}
+\description{
+  This function fits the amount of distribution families to
+  given quantiles and returns diagnostics that allow user
+  to choose a most appropriate probability.
+}
+\details{
+  Both inputs \code{p} and \code{q} should be of the same
+  length. The items of the probability vector \code{p}
+  should lie between 0 and 1.
+}
+\examples{
+\donttest{
+fit.results1<-rriskFitdist.perc(show.output=FALSE)
+fit.results1
+
+fit.results2<-rriskFitdist.perc(show.output=FALSE,tolConv=0.6)
+fit.results2
+
+p<-c(0.2,0.7)
+q<-c(2.6,19.1)
+fit.results3<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+fit.results3
+
+p<-c(0.3,0.8,0.9)
+q<-c(10,20,40)
+fit.results4<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+fit.results4
+
+# Example with fitted pert distribution
+p<-c(0.025,0.5,0.6,0.975)
+q<-qpert(p=p,min=0,mode=3,max=10,shape=5)
+fit.results5<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
+fit.results5}
+}
+\author{
+  Matthias Greiner \email{matthias.greiner@bfr.bund.de}
+  (BfR), \cr Kristin Tolksdorf
+  \email{kristin.tolksdorf@bfr.bund.de} (BfR), \cr
+  Katharina Schueller \email{schueller@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting), \cr Natalia
+  Belgorodski \email{belgorodski@stat-up.de}
+  (\acronym{STAT-UP} Statistical Consulting)
+}
+\keyword{fitdistrplus}
+

@@ -1,0 +1,35 @@
+Package: rriskDistributions
+Type: Package
+Title: Fitting Distributions to Given Data or Known Quantiles
+Maintainer: Matthias Greiner <matthias.greiner@bfr.bund.de>
+Description:
+    Collection of functions for fitting distributions to given data or
+    by known quantiles. Two main functions fit.perc() and fit.cont() provide
+    users a GUI that allows to choose a most appropriate distribution without
+    any knowledge of the R syntax. Note, this package is a part of the 'rrisk'
+    project.
+License: GPL(>=3)
+LazyLoad: yes
+URL: http://www.bfr.bund.de/cd/52158
+Depends:
+    R(>= 2.11.0),
+    mc2d,
+    eha,
+    msm,
+    tcltk,
+    tkrplot
+SystemRequirements: Tcl/Tk (>= 8.5), Tktable (>= 2.9)
+Authors@R:
+    c(person(given="Natalia", family="Belgorodski", email="belgorodski@stat-up.de",
+             role=c("aut"), comment="STAT-UP Statistical Consulting"),
+      person(given="Matthias", family="Greiner", email="matthias.greiner@bfr.bund.de",
+             role=c("aut", "cre"), comment="Federal Institute for Risk Assessment, Germany"),
+      person(given="Kristin", family="Tolksdorf", email="kristin.tolksdorf@bfr.bund.de",
+             role=c("aut"), comment="Federal Institute for Risk Assessment, Germany"),
+      person(given="Katharina", family="Schueller", email="schueller@stat-up.de",
+             role=c("aut"), comment="STAT-UP Statistical Consulting"))
+Version: 2.0
+Date: 2014-12-03
+Collate:
+    'rriskDistributions-package.R'
+    'rriskDistributions_functions_v1.9.1.R'
