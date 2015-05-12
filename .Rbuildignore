@@ -3,5 +3,5 @@
 ^cran-comments.md$
 ^TODO.md$
 ^README\.Rmd$
-^README-*\.png$
+^README-.*\.png$
 ^.*\.xcf$
