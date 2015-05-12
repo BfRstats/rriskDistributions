@@ -4,8 +4,8 @@
 ################################################################################
 ################################################################################
 # R-Funktionen zum rriskDistributions Paket (rrisk Projekt)
-# Auftraggeber: Bundesinstitut f?r Risikobewertung, Berlin
-# Auftragnehmer: Stat-Up, M?nchen
+# Auftraggeber: Bundesinstitut für Risikobewertung, Berlin
+# Auftragnehmer: Stat-Up, München
 # ------------------------------------------------------------------------------
 # Autor: Natalia Belgorodski, Stat-Up
 # Anpassungen von Lutz Göhring, Lutz Göhring Consulting
@@ -708,7 +708,7 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
 #' fit.results4<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
 #' plotDiagnostics.perc(fit.results4)
 #'
-#' # Example with fittes beta pert distribution
+#' # Example with fitted beta pert distribution
 #' p<-c(0.025,0.5,0.6,0.975)
 #' q<-mc2d::qpert(p=p,min=0,mode=3,max=10,shape=5)
 #' fit.results5<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
@@ -5934,7 +5934,7 @@ useFitdist<-function(data2fit,show.output=TRUE,
   if(length(fit.list)==0)
   {
     on.exit(return(invisible(NULL)))
-    stop("\n Neither continuous distribution could be fittes to the data \n",call.=FALSE)
+    stop("\n Neither continuous distribution could be fitted to the data \n",call.=FALSE)
   }
   
   #-----------------------------------------------------------------------------
