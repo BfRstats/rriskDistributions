@@ -19,7 +19,7 @@ output: html_document
         4. ~~LG: kreiert neuen branch: "re-submission"~~
         5. ~~LG: pushed seine Überarbeitete Version auf branch "re-submission"~~
         6. ~~LG: pull request in master branch~~
-        7. MF: bearbeitet pull request und merged in master branch
+        7. ~~MF: bearbeitet pull request und merged in master branch~~
     2. andernfalls:
         1. LG: schickt seine überarbeitete Paket Version (als .tar.gz )an MF
         2. MF: merged mit letztem release
