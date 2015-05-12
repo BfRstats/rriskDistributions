@@ -4,11 +4,12 @@
 ################################################################################
 ################################################################################
 # R-Funktionen zum rriskDistributions Paket (rrisk Projekt)
-# Auftraggeber: Bundesinstitut für Risikobewertung, Berlin
-# Auftragnehmer: Stat-Up, München
+# Auftraggeber: Bundesinstitut f?r Risikobewertung, Berlin
+# Auftragnehmer: Stat-Up, M?nchen
 # ------------------------------------------------------------------------------
 # Autor: Natalia Belgorodski, Stat-Up
-# Letztes Update: 23.12.2013 (Bearbeitungen zum CRAN-Upload)
+# Anpassungen von Lutz GÃ¶hring, Lutz GÃ¶hring Consulting
+# Letztes Update: 05.05.2015 (Anpassungen an CRAN Forderungen)
 ################################################################################
 ################################################################################
 
@@ -61,27 +62,29 @@
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
-#' chosenDistr1<-fit.perc()
-#' chosenDistr1
+# \donttest{
+#' \dontrun{
+#'   chosenDistr1<-fit.perc()
+#'   chosenDistr1
 #'
-#' chosenDistr2<-fit.perc(tolPlot=5)
-#' chosenDistr2
+#'   chosenDistr2<-fit.perc(tolPlot=5)
+#'   chosenDistr2
 #'
-#' chosenDistr3<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,20,40))
-#' chosenDistr3
+#'   chosenDistr3<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,20,40))
+#'   chosenDistr3
 #'
-#' chosenDistr4<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,30,40))
-#' chosenDistr4
+#'   chosenDistr4<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,30,40))
+#'   chosenDistr4
 #'
-#' chosenDistr5<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,30,40),tolPlot=10)
-#' chosenDistr5
+#'   chosenDistr5<-fit.perc(p=c(0.3,0.8,0.9),q=c(10,30,40),tolPlot=10)
+#'   chosenDistr5
 #'
-#' # Example with fittes pert distribution
-#' p<-c(0.025,0.5,0.6,0.975)
-#' q<-round(qpert(p=p,min=0,mode=3,max=10,shape=5),digits=2)
-#' chosenDistr6<-fit.perc(p=p,q=q,tolPlot=10)
-#' chosenDistr6}
+#'   # Fitting a PERT distribution
+#'   p<-c(0.025,0.5,0.6,0.975)
+#'   q<-round(mc2d::qpert(p=p,min=0,mode=3,max=10,shape=5),digits=2)
+#'   chosenDistr6<-fit.perc(p=p,q=q,tolPlot=10)
+#'   chosenDistr6
+#' }
 
 fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1,tolConv=0.001,fit.weights=rep(1,length(p)))
 {
@@ -124,12 +127,13 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, all items of the argument 'fit.weights' should be positive!",call.=FALSE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # load required libraries
   #-----------------------------------------------------------------------------
-  suppressWarnings(tclRequire("Tktable"))
-
+  #suppressWarnings(tcltk::tclRequire("Tktable"))
+  if( class(tcltk::tclRequire("Tktable"))!="tclObj" )
+    stop("Tcl package \"Tktable\" required. Please install it.")
   #-----------------------------------------------------------------------------
   # define help variables for output
   #-----------------------------------------------------------------------------
@@ -138,7 +142,7 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
   assign("chosenD",value=NA,envir=tempEnvir)
   assign("allParameters",value=NA,envir=tempEnvir)
   assign("fittedParams",value=NA,envir=tempEnvir)
-
+  
   #-----------------------------------------------------------------------------
   # define help variables for tk commands and objects
   #-----------------------------------------------------------------------------
@@ -148,29 +152,29 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
   tolPlotLabel<-"Plotting tolerance"
   tolConvLabel<-"Fitting tolerance"
   textWidth<-max(nchar(pLabel),nchar(qLabel),nchar(tolPlotLabel))
-  headingFont1<-tkfont.create(size=12,weight="bold")
-  headingFont2<-tkfont.create(weight="bold",size=10)
+  headingFont1<-tcltk::tkfont.create(size=12,weight="bold")
+  headingFont2<-tcltk::tkfont.create(weight="bold",size=10)
   pDefault<-round(p,digits=2)
   qDefault<-round(q,digits=2)
   wDefault<-round(fit.weights,digits=2)
   tolPlotDefault<-tolPlot
   tolConvDefault<-tolConv
-  p.tclVar<-tclVar(pDefault)
-  q.tclVar<-tclVar(qDefault)
-  w.tclVar<-tclVar(wDefault)
-  tolPlot.tclVar<-tclVar(tolPlot)
-  tolConv.tclVar<-tclVar(tolConv)
-  tclarray<-tclArray()
-
+  p.tclVar<-tcltk::tclVar(pDefault)
+  q.tclVar<-tcltk::tclVar(qDefault)
+  w.tclVar<-tcltk::tclVar(wDefault)
+  tolPlot.tclVar<-tcltk::tclVar(tolPlot)
+  tolConv.tclVar<-tcltk::tclVar(tolConv)
+  tclarray<-tcltk::tclArray()
+  
   #-----------------------------------------------------------------------------
   # what happends by pressing "cancel" button
   #-----------------------------------------------------------------------------
   onCancel<-function(...)
   {
-     #assign("chosenD",value=tclvalue(tkget(chooseCombobox)),envir=tempEnvir)
-     tkdestroy(fitpercWindow)
+    #assign("chosenD",value=tcltk::tclvalue(tcltk::tkget(chooseCombobox)),envir=tempEnvir)
+    tcltk::tkdestroy(fitpercWindow)
   } # end of onCancel()
-
+  
   #-----------------------------------------------------------------------------
   # what happends by pressing "cancel" button
   #-----------------------------------------------------------------------------
@@ -179,12 +183,12 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
     fittedParams.temp<-get("allParameters",envir=tempEnvir)
     if(!prod(is.na(fittedParams.temp)))
     {
-      assign("chosenD",value=tclvalue(tkget(chooseCombobox)),envir=tempEnvir)
+      assign("chosenD",value=tcltk::tclvalue(tcltk::tkget(chooseCombobox)),envir=tempEnvir)
       chosenD<-get("chosenD",envir=tempEnvir)
       if(nchar(chosenD)>0)
       {
         fittedParams<-fittedParams.temp[colnames(fittedParams.temp)==chosenD]
-
+        
         if(colnames(fittedParams)=="norm")
         { fittedParams<-c(mean=fittedParams[1,1],sd=fittedParams[2,1])
         } else if(colnames(fittedParams)=="beta")
@@ -223,170 +227,170 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
         assign("fittedParams",value=fittedParams,envir=tempEnvir)
       } else chosenD<-"NA"
     }
-    tkdestroy(fitpercWindow)
+    tcltk::tkdestroy(fitpercWindow)
   } # end of onCancel()
-
+  
   #-----------------------------------------------------------------------------
   # what happends by pressing "reset" button
   #-----------------------------------------------------------------------------
   onReset<-function(...)
   {
-    p.tclVar<-tclVar(pDefault)
-    q.tclVar<-tclVar(qDefault)
-    w.tclVar<-tclVar(wDefault)
-    tolPlot.tclVar<-tclVar(tolPlotDefault)
-    tolConv.tclVar<-tclVar(tolConvDefault)
-    tkconfigure(pEntry,text=p.tclVar)
-    tkconfigure(qEntry,text=q.tclVar)
-    tkconfigure(wEntry,text=w.tclVar)
-    tkconfigure(tolPlotEntry,text=tolPlot.tclVar)
-    tkconfigure(tolConvEntry,text=tolConv.tclVar)
+    p.tclVar<-tcltk::tclVar(pDefault)
+    q.tclVar<-tcltk::tclVar(qDefault)
+    w.tclVar<-tcltk::tclVar(wDefault)
+    tolPlot.tclVar<-tcltk::tclVar(tolPlotDefault)
+    tolConv.tclVar<-tcltk::tclVar(tolConvDefault)
+    tcltk::tkconfigure(pEntry,text=p.tclVar)
+    tcltk::tkconfigure(qEntry,text=q.tclVar)
+    tcltk::tkconfigure(wEntry,text=w.tclVar)
+    tcltk::tkconfigure(tolPlotEntry,text=tolPlot.tclVar)
+    tcltk::tkconfigure(tolConvEntry,text=tolConv.tclVar)
   }  # end of onReset()
-
+  
   #-----------------------------------------------------------------------------
   # what happends by pressing "clear" button
   #-----------------------------------------------------------------------------
   onClear<-function(...)
   {
-     p.tclVar<-tclVar("")
-     q.tclVar<-tclVar("")
-     w.tclVar<-tclVar("")
-     tolPlot.tclVar<-tclVar("")
-     tolConv.tclVar<-tclVar("")
-     tkconfigure(pEntry,text=p.tclVar)
-     tkconfigure(qEntry,text=q.tclVar)
-     tkconfigure(wEntry,text=q.tclVar)
-     tkconfigure(tolPlotEntry,text=tolPlot.tclVar)
-     tkconfigure(tolConvEntry,text=tolConv.tclVar)
+    p.tclVar<-tcltk::tclVar("")
+    q.tclVar<-tcltk::tclVar("")
+    w.tclVar<-tcltk::tclVar("")
+    tolPlot.tclVar<-tcltk::tclVar("")
+    tolConv.tclVar<-tcltk::tclVar("")
+    tcltk::tkconfigure(pEntry,text=p.tclVar)
+    tcltk::tkconfigure(qEntry,text=q.tclVar)
+    tcltk::tkconfigure(wEntry,text=q.tclVar)
+    tcltk::tkconfigure(tolPlotEntry,text=tolPlot.tclVar)
+    tcltk::tkconfigure(tolConvEntry,text=tolConv.tclVar)
   } # end of onClear()
-
+  
   #-----------------------------------------------------------------------------
   # what happends by pressing "fit" button
   #-----------------------------------------------------------------------------
   onFit<-function(...)
   {
     # define help variable for p
-    pTemp<-tclvalue(tkget(pEntry))
+    pTemp<-tcltk::tclvalue(tcltk::tkget(pEntry))
     pTemp<-strsplit(pTemp," ")[[1]]
     pTemp<-c(apply(matrix(pTemp,nrow=1),1,function(x) sub(x,pattern=" ",replacement="")))
     toRemove<-which(pTemp=="")
     if(length(toRemove>0)) pTemp<-pTemp[-toRemove]
     p<-as.numeric(pTemp)
-
+    
     # define help variables for q
-    qTemp<-tclvalue(tkget(qEntry))
+    qTemp<-tcltk::tclvalue(tcltk::tkget(qEntry))
     qTemp<-strsplit(qTemp," ")[[1]]
     qTemp<-c(apply(matrix(qTemp,nrow=1),1,function(x) sub(x,pattern=" ",replacement="")))
     toRemove<-which(qTemp=="")
     if(length(toRemove>0)) qTemp<-qTemp[-toRemove]
     q<-as.numeric(qTemp)
-
+    
     # define help variables for w(fit.weights)
-    wTemp<-tclvalue(tkget(wEntry))
+    wTemp<-tcltk::tclvalue(tcltk::tkget(wEntry))
     wTemp<-strsplit(wTemp," ")[[1]]
     wTemp<-c(apply(matrix(wTemp,nrow=1),1,function(x) sub(x,pattern=" ",replacement="")))
     toRemove<-which(wTemp=="")
     if(length(toRemove>0)) wTemp<-wTemp[-toRemove]
     fit.weights<-as.numeric(wTemp)
-
+    
     # define help variable for tolPlot
-    tolPlotTemp<-tclvalue(tkget(tolPlotEntry))
+    tolPlotTemp<-tcltk::tclvalue(tcltk::tkget(tolPlotEntry))
     tolPlotTemp<-strsplit(tolPlotTemp," ")[[1]]
     tolPlotTemp<-c(apply(matrix(tolPlotTemp,nrow=1),1,function(x) sub(x,pattern=" ",replacement="")))
     toRemove<-which(tolPlotTemp=="")
     if(length(toRemove>0)) tolPlotTemp<-tolPlotTemp[-toRemove]
     tolPlot<-as.numeric(tolPlotTemp)
-
+    
     # define help variable for tolConv
-    tolConvTemp<-tclvalue(tkget(tolConvEntry))
+    tolConvTemp<-tcltk::tclvalue(tcltk::tkget(tolConvEntry))
     tolConvTemp<-strsplit(tolConvTemp," ")[[1]]
     tolConvTemp<-c(apply(matrix(tolConvTemp,nrow=1),1,function(x) sub(x,pattern=" ",replacement="")))
     toRemove<-which(tolConvTemp=="")
     if(length(toRemove>0)) tolConvTemp<-tolConvTemp[-toRemove]
     tolConv<-as.numeric(tolConvTemp)
-
+    
     # check input data consistency
     if(length(p)==0)
-    { tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
-      tkfocus(pEntry)
+    { tcltk::tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
+      tcltk::tkfocus(pEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(length(q)==0)
-    { tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
-      tkfocus(qEntry)
+    { tcltk::tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
+      tcltk::tkfocus(qEntry)
       stop("")
     }
     if(length(fit.weights)==0)
-    { tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
-      tkfocus(wEntry)
+    { tcltk::tkmessageBox(message="The inputs are empty! Please correct your input!",icon="error")
+      tcltk::tkfocus(wEntry)
       stop("")
     }
     if(any(is.na(p)))
-    { tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
-      tkfocus(pEntry)
+    { tcltk::tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
+      tcltk::tkfocus(pEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if( any(is.na(q)))
-    { tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
-      tkfocus(qEntry)
+    { tcltk::tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
+      tcltk::tkfocus(qEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if( any(is.na(fit.weights)))
-    { tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
-      tkfocus(wEntry)
+    { tcltk::tkmessageBox(message="One or more item(s) is not numeric, please correct your input!",icon="error")
+      tcltk::tkfocus(wEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if( any((fit.weights)<=0))
-    { tkmessageBox(message="All weights should be positive, please correct your input!",icon="error")
-      tkfocus(wEntry)
+    { tcltk::tkmessageBox(message="All weights should be positive, please correct your input!",icon="error")
+      tcltk::tkfocus(wEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(length(p)!=length(q) | length(p)!=length(fit.weights) | length(q)!=length(fit.weights))
-    { tkmessageBox(message="The vectors of percentiles, probabilities and weights are not of the same lengths! Please correct your input!",icon="error")
-      tkfocus(pEntry)
+    { tcltk::tkmessageBox(message="The vectors of percentiles, probabilities and weights are not of the same lengths! Please correct your input!",icon="error")
+      tcltk::tkfocus(pEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(prod(order(p)==seq(1:length(p)))==0)
     {
-      tkmessageBox(message="The vector of probabilities ist not ordered! Please correct your input!",icon="error")
-      tkfocus(pEntry)
+      tcltk::tkmessageBox(message="The vector of probabilities ist not ordered! Please correct your input!",icon="error")
+      tcltk::tkfocus(pEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(prod(order(q)==seq(1:length(q)))==0)
     {
-      tkmessageBox(message="The vector of quantiles ist not ordered! Please correct your input!",icon="error")
-      tkfocus(qEntry)
+      tcltk::tkmessageBox(message="The vector of quantiles ist not ordered! Please correct your input!",icon="error")
+      tcltk::tkfocus(qEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(min(p)<0 | max(p)>1)
     {
-      tkmessageBox(message="Items of the probability vector should lie between 0 and 1! Please correct your input!",icon="error")
-      tkfocus(pEntry)
+      tcltk::tkmessageBox(message="Items of the probability vector should lie between 0 and 1! Please correct your input!",icon="error")
+      tcltk::tkfocus(pEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(!prod(is.numeric(tolPlot)) | length(tolPlot)!=1 | any(tolPlot<0))
     {
-      tkmessageBox(message="The tolerance for diagnostic plotting should be a single positive numerical value! Please correct your input!",icon="error")
-      tkfocus(tolPlotEntry)
+      tcltk::tkmessageBox(message="The tolerance for diagnostic plotting should be a single positive numerical value! Please correct your input!",icon="error")
+      tcltk::tkfocus(tolPlotEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
     if(!prod(is.numeric(tolConv)) | length(tolConv)!=1 | any(tolConv<0))
     {
-      tkmessageBox(message="The tolerance for distributions fitting should be a single positive numerical value! Please correct your input!",icon="error")
-      tkfocus(tolConvEntry)
+      tcltk::tkmessageBox(message="The tolerance for distributions fitting should be a single positive numerical value! Please correct your input!",icon="error")
+      tcltk::tkfocus(tolConvEntry)
       stop("INVALID INPUT",call.=FALSE)
     }
-
+    
     # clear image, table and combobox
-    tkconfigure(chooseCombobox,values=c(""))
-    tkset(chooseCombobox,c(""))
-    tkconfigure(fitResultTable,variable=tclArray())
-    tkrreplot(imgPlot,hscale=1.4,vscale=1.2,
-      fun=function(){plot(rnorm(20),col="white",xlab="Percentile",ylab="Percent",main="Graphical diagnostics")})
-
+    tcltk::tkconfigure(chooseCombobox,values=c(""))
+    tcltk::tkset(chooseCombobox,c(""))
+    tcltk::tkconfigure(fitResultTable,variable=tcltk::tclArray())
+    tkrplot::tkrreplot(imgPlot,hscale=1.4,vscale=1.2,
+                       fun=function(){plot(rnorm(20),col="white",xlab="Percentile",ylab="Percent",main="Graphical diagnostics")})
+    
     # calculate results matrix
     fit.results<-rriskFitdist.perc(p,q,show.output=FALSE,tolConv=tolConv,fit.weights)
-
+    
     if(!prod(is.na(fit.results))) # if res.matrix is not empty
     {
       res.matrix<-fit.results$results
@@ -394,22 +398,22 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
       comboDistributions<-colnames(res.matrix)[!apply(res.matrix,2,function(x) ifelse(all(is.na(x)),TRUE,FALSE))]
       comboDistributions<-comboDistributions[-c(1,2)]
       assign("comboDistributions",value=comboDistributions,envir=tempEnvir)
-
+      
       # formatting results
       res.matrix<-as.matrix(apply(res.matrix,c(1,2),
-      function(x)
-      {if(!is.na(x))
-        {if(x>10000)
-          {x<-"+infty"
-          }else if(x<(-10000))
-          {x<-"-infty"
-          }
-          else x<-x
-        } }))
+                                  function(x)
+                                  {if(!is.na(x))
+                                  {if(x>10000)
+                                  {x<-"+infty"
+                                  }else if(x<(-10000))
+                                  {x<-"-infty"
+                                  }
+                                    else x<-x
+                                  } }))
       res.matrix<-cbind(rownames(res.matrix),res.matrix)
       res.matrix<-rbind(colnames(res.matrix),res.matrix)
       res.matrix[1,1]<-"Percent"
-
+      
       # define data fÂ¸r tktable
       for (i in 0:(nrow(res.matrix)-1))
       {
@@ -419,121 +423,128 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
           tclarray[[i,j]]<-temp
         }
       }
-      tkrreplot(imgPlot,fun=function(){plotDiagnostics.perc(fit.results,tolPlot=tolPlot)},hscale=1.4,vscale=1.2)
-      tkconfigure(fitResultTable,variable=tclarray,rows=nrow(res.matrix))
-      tkconfigure(chooseCombobox,values=get("comboDistributions",envir=tempEnvir))
-      tkset(chooseCombobox,get("comboDistributions",envir=tempEnvir)[1])
+      # changed by LG: cf. comment in method plotDiagnostics.perc() where the message is produced:
+      withCallingHandlers(
+        tkrplot::tkrreplot(imgPlot,
+                           fun=function() plotDiagnostics.perc(fit.results,tolPlot=tolPlot),
+                           hscale=1.4, vscale=1.2),
+        message=function(m) 
+          tcltk::tkmessageBox(message=m$message,icon="error")
+      )
+      tcltk::tkconfigure(fitResultTable,variable=tclarray,rows=nrow(res.matrix))
+      tcltk::tkconfigure(chooseCombobox,values=get("comboDistributions",envir=tempEnvir))
+      tcltk::tkset(chooseCombobox,get("comboDistributions",envir=tempEnvir)[1])
     } else # if results matrix is empty
     {
-       allParameters.temp<-get("allParameters",envir=tempEnvir)
-       allParameters.temp<-apply(allParameters.temp,c(1,2),function(x)x<-NA)
-       assign("allParameters",value=allParameters.temp,envir=tempEnvir)
-       tkraise(fitpercWindow)
-       tkmessageBox(message="Sorry, no pdfs found that match with the specified percentiles!",icon="error")
-       tkfocus(pEntry)
-       stop("no pdfs found that match with the specified percentiles")
+      allParameters.temp<-get("allParameters",envir=tempEnvir)
+      allParameters.temp<-apply(allParameters.temp,c(1,2),function(x)x<-NA)
+      assign("allParameters",value=allParameters.temp,envir=tempEnvir)
+      tcltk::tkraise(fitpercWindow)
+      tcltk::tkmessageBox(message="Sorry, no pdfs found that match with the specified percentiles!",icon="error")
+      tcltk::tkfocus(pEntry)
+      stop("no pdfs found that match with the specified percentiles")
     }
-
+    
     #to.remove<-as.matrix(apply(res.mat,2,function(x) ifelse(all(is.na(x)),TRUE,FALSE)))
     #res.mat<-res.mat[,which(to.remove==FALSE)]
-    tkraise(fitpercWindow)
+    tcltk::tkraise(fitpercWindow)
   } # end of onFit()
-
+  
   #-----------------------------------------------------------------------------
   # create GUI window and frames
   #-----------------------------------------------------------------------------
-  fitpercWindow<-tktoplevel(width=860,height=580)
-  tkwm.title(fitpercWindow,"Fitting continuous distributions to given percentiles")
-  tkwm.resizable(fitpercWindow,0,0)  # fixed size, not resizeable
-  #tkwm.maxsize(fitpercWindow,880,580)
-  #tkwm.minsize(fitpercWindow,880,580)
-  allFrame<-tkframe(fitpercWindow)
-  InputImageFrame<-tkframe(allFrame)
-
+  fitpercWindow<-tcltk::tktoplevel(width=860,height=580)
+  tcltk::tkwm.title(fitpercWindow,"Fitting continuous distributions to given percentiles")
+  tcltk::tkwm.resizable(fitpercWindow,0,0)  # fixed size, not resizeable
+  #tcltk::tkwm.maxsize(fitpercWindow,880,580)
+  #tcltk::tkwm.minsize(fitpercWindow,880,580)
+  allFrame<-tcltk::tkframe(fitpercWindow)
+  InputImageFrame<-tcltk::tkframe(allFrame)
+  
   #-----------------------------------------------------------------------------
   # create contents of input frame
   #-----------------------------------------------------------------------------
-  fitFrame<-tkframe(InputImageFrame,relief="groove",borderwidth=4)
-  inputFrame<-tkframe(fitFrame)
-
-  tkpack(tklabel(inputFrame,text="Input frame",font=headingFont1),pady=c(0,10))
-  tkpack(tklabel(inputFrame,text=pLabel,width=30),pady=c(0,10))
-  pEntry<-tkentry(inputFrame,width=30,text=p.tclVar,textvariable=p.tclVar)
-  tkpack(pEntry,pady=c(0,10))
-
-  tkpack(tklabel(inputFrame,text=qLabel,width=30))
-  qEntry<-tkentry(inputFrame,width=30,text=q.tclVar,textvariable=q.tclVar)
-  tkpack(qEntry,pady=c(0,10))
-
-  tkpack(tklabel(inputFrame,text=wLabel,width=30))
-  wEntry<-tkentry(inputFrame,width=30,text=w.tclVar,textvariable=w.tclVar)
-  tkpack(wEntry,pady=c(0,10))
-
-  tkpack(tklabel(inputFrame,text=tolPlotLabel,width=30))
-  tolPlotEntry<-tkentry(inputFrame,width=30,text=tolPlot.tclVar,textvariable=tolPlot.tclVar)
-  tkpack(tolPlotEntry)
-  tkpack(inputFrame,side="top",padx=c(5,5),pady=c(5,5))
-  tkpack(fitFrame)
-
-  tkpack(tklabel(inputFrame,text=tolConvLabel,width=30))
-  tolConvEntry<-tkentry(inputFrame,width=30,text=tolConv.tclVar,textvariable=tolConv.tclVar)
-  tkpack(tolConvEntry)
-  tkpack(inputFrame,side="top",padx=c(5,5),pady=c(5,5))
-  tkpack(fitFrame)
-
-  buttonsFrame1<-tkframe(fitFrame)
-  fitButton<-ttkbutton(buttonsFrame1,width=8,text="Fit",command=onFit)
-  clearButton<-ttkbutton(buttonsFrame1,width=8,text="Clear",command=onClear)
-  resetButton<-ttkbutton(buttonsFrame1,width=8,text="Reset",command=onReset)
-  tkpack(fitButton,side="left",padx=c(0,10))
-  tkpack(clearButton,side="left",padx=c(0,10))
-  tkpack(resetButton,side="left",padx=c(0,0))
-  tkpack(buttonsFrame1,side="bottom",pady=c(0,15))
-  tkpack(fitFrame,side="right")
-
+  fitFrame<-tcltk::tkframe(InputImageFrame,relief="groove",borderwidth=4)
+  inputFrame<-tcltk::tkframe(fitFrame)
+  
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text="Input frame",font=headingFont1),pady=c(0,10))
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text=pLabel,width=30),pady=c(0,10))
+  pEntry<-tcltk::tkentry(inputFrame,width=30,text=p.tclVar,textvariable=p.tclVar)
+  tcltk::tkpack(pEntry,pady=c(0,10))
+  
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text=qLabel,width=30))
+  qEntry<-tcltk::tkentry(inputFrame,width=30,text=q.tclVar,textvariable=q.tclVar)
+  tcltk::tkpack(qEntry,pady=c(0,10))
+  
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text=wLabel,width=30))
+  wEntry<-tcltk::tkentry(inputFrame,width=30,text=w.tclVar,textvariable=w.tclVar)
+  tcltk::tkpack(wEntry,pady=c(0,10))
+  
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text=tolPlotLabel,width=30))
+  tolPlotEntry<-tcltk::tkentry(inputFrame,width=30,text=tolPlot.tclVar,textvariable=tolPlot.tclVar)
+  tcltk::tkpack(tolPlotEntry)
+  tcltk::tkpack(inputFrame,side="top",padx=c(5,5),pady=c(5,5))
+  tcltk::tkpack(fitFrame)
+  
+  tcltk::tkpack(tcltk::tklabel(inputFrame,text=tolConvLabel,width=30))
+  tolConvEntry<-tcltk::tkentry(inputFrame,width=30,text=tolConv.tclVar,textvariable=tolConv.tclVar)
+  tcltk::tkpack(tolConvEntry)
+  tcltk::tkpack(inputFrame,side="top",padx=c(5,5),pady=c(5,5))
+  tcltk::tkpack(fitFrame)
+  
+  buttonsFrame1<-tcltk::tkframe(fitFrame)
+  fitButton<-tcltk::ttkbutton(buttonsFrame1,width=8,text="Fit",command=onFit)
+  clearButton<-tcltk::ttkbutton(buttonsFrame1,width=8,text="Clear",command=onClear)
+  resetButton<-tcltk::ttkbutton(buttonsFrame1,width=8,text="Reset",command=onReset)
+  tcltk::tkpack(fitButton,side="left",padx=c(0,10))
+  tcltk::tkpack(clearButton,side="left",padx=c(0,10))
+  tcltk::tkpack(resetButton,side="left",padx=c(0,0))
+  tcltk::tkpack(buttonsFrame1,side="bottom",pady=c(0,15))
+  tcltk::tkpack(fitFrame,side="right")
+  
   #-----------------------------------------------------------------------------
   # create contents of image frame
   #-----------------------------------------------------------------------------
-  imgPlot<-tkrplot(InputImageFrame,hscale=1.4,vscale=1.2,
-    fun=function(){plot(rnorm(20),col="white",xlab="Percentile",ylab="Percent",main="Graphical diagnostics")})
-  tkpack(imgPlot,side="left")
-  tkpack(InputImageFrame)
-
+  imgPlot<-tkrplot::tkrplot(InputImageFrame,hscale=1.4,vscale=1.2,
+                            fun=function(){plot(rnorm(20),col="white",xlab="Percentile",ylab="Percent",main="Graphical diagnostics")})
+  tcltk::tkpack(imgPlot,side="left")
+  tcltk::tkpack(InputImageFrame)
+  
   #-----------------------------------------------------------------------------
   # create table frame
   #-----------------------------------------------------------------------------
-  TableFrame<-tkframe(allFrame)
-  fitResultTable <- tkwidget(TableFrame,"table",variable=tclArray(),
-    height=10,rows=12,cols=20, background="white",borderwidth=2,state="disabled",titlerows=1,
-    titlecols=1,resizeborders="none",colwidth=6, maxwidth=1200,
-    yscrollcommand=function(...)tkset(yscr,...),selectmode="extended")
-  yscr<-tkscrollbar(TableFrame,command=function(...)tkyview(fitResultTable,...))
-  tkgrid(fitResultTable,yscr,sticky="ns")
-  tkpack(TableFrame)
-
+  TableFrame<-tcltk::tkframe(allFrame)
+  fitResultTable <- tcltk::tkwidget(TableFrame,"table",variable=tcltk::tclArray(),
+                                    height=10,rows=12,cols=20, background="white",borderwidth=2,state="disabled",titlerows=1,
+                                    titlecols=1,resizeborders="none",colwidth=6, maxwidth=1200,
+                                    yscrollcommand=function(...)tcltk::tkset(yscr,...),selectmode="extended")
+  yscr<-tcltk::tkscrollbar(TableFrame,command=function(...)tcltk::tkyview(fitResultTable,...))
+  tcltk::tkgrid(fitResultTable,yscr,sticky="ns")
+  tcltk::tkpack(TableFrame)
+  
   #-----------------------------------------------------------------------------
   # create buttons and combobox frame
   #-----------------------------------------------------------------------------
-  buttonsFrame2<-tkframe(allFrame)
-  okButton<-ttkbutton(buttonsFrame2,width=10,text="Ok",command=onOk)
-  cancelButton<-ttkbutton(buttonsFrame2,width=10,text="Cancel",command=onCancel)
-  chooseCombobox<-ttkcombobox(buttonsFrame2,values=get("comboDistributions",envir=tempEnvir),width=10,state="readonly")
-  tkpack(tklabel(buttonsFrame2,text="chosen distribution",font=headingFont2,width=15),side="left",padx=c(0,15))
-  tkpack(chooseCombobox,side="left",padx=c(0,200))
-  tkpack(okButton,side="left",padx=c(0,15))
-  tkpack(cancelButton,side="left",padx=c(0,15))
-  tkpack(buttonsFrame2,pady=c(10,0))
-
+  buttonsFrame2<-tcltk::tkframe(allFrame)
+  okButton<-tcltk::ttkbutton(buttonsFrame2,width=10,text="Ok",command=onOk)
+  cancelButton<-tcltk::ttkbutton(buttonsFrame2,width=10,text="Cancel",command=onCancel)
+  chooseCombobox<-tcltk::ttkcombobox(buttonsFrame2,values=get("comboDistributions",envir=tempEnvir),width=10,state="readonly")
+  tcltk::tkpack(tcltk::tklabel(buttonsFrame2,text="chosen distribution",font=headingFont2,width=15),side="left",padx=c(0,15))
+  tcltk::tkpack(chooseCombobox,side="left",padx=c(0,200))
+  tcltk::tkpack(okButton,side="left",padx=c(0,15))
+  tcltk::tkpack(cancelButton,side="left",padx=c(0,15))
+  tcltk::tkpack(buttonsFrame2,pady=c(10,0))
+  
   #-----------------------------------------------------------------------------
   # place allFrame on GUI window
   #-----------------------------------------------------------------------------
-  tkpack(allFrame, padx=c(15,15),pady=c(0,10))
-
+  tcltk::tkpack(allFrame, padx=c(15,15),pady=c(0,10))
+  
   #-----------------------------------------------------------------------------
   # create matrix with fitting results
   #-----------------------------------------------------------------------------
   fit.results<-rriskFitdist.perc(pDefault,qDefault,show.output=FALSE,tolConv=tolConv,fit.weights=wDefault)
-
+  
   #-----------------------------------------------------------------------------
   # fill image and table with fitting results
   #-----------------------------------------------------------------------------
@@ -544,26 +555,26 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
     comboDistributions<-colnames(res.matrix)[!apply(res.matrix,2,function(x) ifelse(all(is.na(x)),TRUE,FALSE))]
     comboDistributions<-comboDistributions[-c(1,2)]
     assign("comboDistributions",value=comboDistributions,envir=tempEnvir)
-    tkconfigure(chooseCombobox,values=get("comboDistributions",envir=tempEnvir))
-    tkset(chooseCombobox,get("comboDistributions",envir=tempEnvir)[1])
+    tcltk::tkconfigure(chooseCombobox,values=get("comboDistributions",envir=tempEnvir))
+    tcltk::tkset(chooseCombobox,get("comboDistributions",envir=tempEnvir)[1])
     #-----------------------------------------------------------------------------
     # formatting results
     #-----------------------------------------------------------------------------
     res.matrix<-as.matrix(apply(res.matrix,c(1,2),
-    function(x)
-    {if(!is.na(x))
-      {if(x>10000)
-        {x<-"+infty"
-        }else if(x<(-10000))
-        {x<-"-infty"
-        }
-        else x<-x
-    } }))
+                                function(x)
+                                {if(!is.na(x))
+                                {if(x>10000)
+                                {x<-"+infty"
+                                }else if(x<(-10000))
+                                {x<-"-infty"
+                                }
+                                  else x<-x
+                                } }))
     res.matrix<-cbind(rownames(res.matrix),res.matrix)
     res.matrix<-rbind(colnames(res.matrix),res.matrix)
     res.matrix[1,1]<-"Percent"
     tableRows<-nrow(res.matrix)
-
+    
     #-----------------------------------------------------------------------------
     # create data (tclarray) for tktable
     #-----------------------------------------------------------------------------
@@ -575,17 +586,24 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
         tclarray[[i,j]]<-temp
       }
     }
-    tkrreplot(imgPlot,fun=function(){plotDiagnostics.perc(fit.results,tolPlot=tolPlot)},hscale=1.4,vscale=1.2)
-    tkconfigure(fitResultTable,variable=tclarray,rows=tableRows)
+    # changed by LG: cf. comment in method plotDiagnostics.perc() where the message is produced:
+    withCallingHandlers(
+      tkrplot::tkrreplot(imgPlot,
+                         fun=function() plotDiagnostics.perc(fit.results,tolPlot=tolPlot),
+                         hscale=1.4,vscale=1.2),
+      message=function(m) 
+        tcltk::tkmessageBox(message=m$message,icon="error")
+    )
+    tcltk::tkconfigure(fitResultTable,variable=tclarray,rows=tableRows)
   }else
-    {
-    tkmessageBox(message="Sorry, no pdfs found that match with the specified percentiles!",icon="error")
-    tkfocus(pEntry)
+  {
+    tcltk::tkmessageBox(message="Sorry, no pdfs found that match with the specified percentiles!",icon="error")
+    tcltk::tkfocus(pEntry)
   }
-
-  tkfocus(fitpercWindow)
-  tkwait.window(fitpercWindow)
-
+  
+  tcltk::tkfocus(fitpercWindow)
+  tcltk::tkwait.window(fitpercWindow)
+  
   #-----------------------------------------------------------------------------
   # generate output
   #-----------------------------------------------------------------------------
@@ -593,38 +611,38 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
   fittedParams<-get("fittedParams",envir=tempEnvir)
   output<-list(data.frame(p,q),chosenD,fittedParams)
   names(output)<-c("p/q","chosenDistr","fittedParams")
-
+  
   #-----------------------------------------------------------------------------
   # output message
   #-----------------------------------------------------------------------------
   print.on.exit<-function(chosenD)
   {
-     if(!is.na(chosenD))
-     { exitMessage<-""
-      if(chosenD=="norm")           exitMessage<-"Normal (norm)"
-      else if(chosenD=="beta")      exitMessage<-"Beta (beta)"
-      else if(chosenD=="cauchy")    exitMessage<-"Cauchy (cauchy)"
-      else if(chosenD=="logis")     exitMessage<-"Logistic (logis)"
-      else if(chosenD=="t")         exitMessage<-"Student's t (t)"
-      else if(chosenD=="chisq")     exitMessage<-"Chi-squared (chisq)"
-      else if(chosenD=="chisqnc")   exitMessage<-"Non-central chi-squared (chisqnc)"
-      else if(chosenD=="exp")       exitMessage<-"Exponential (exp)"
-      else if(chosenD=="f")         exitMessage<-"F (f)"
-      else if(chosenD=="gamma")     exitMessage<-"Gamma (gamma)"
-      else if(chosenD=="lnorm")     exitMessage<-"Log-normal (lnorm)"
-      else if(chosenD=="unif")      exitMessage<-"Uniform (unif)"
-      else if(chosenD=="weibull")   exitMessage<-"Weibull (weibull)"
-      else if(chosenD=="triang")    exitMessage<-"Triangular (triang)"
-      else if(chosenD=="gompertz")  exitMessage<-"Gompertz (gompertz)"
-      else if(chosenD=="pert")      exitMessage<-"Beta-pert (pert)"
-      else if(chosenD=="tnorm")     exitMessage<-"Truncated normal (tnorm)"
-     } else exitMessage<-chosenD
-     cat(paste("Chosen continuous distribution is: ", exitMessage))
-     cat("\nFitted parameters are: \n")
-     print(fittedParams)
-     cat("--------------------------------------------------------------------\n")
+    if(!is.na(chosenD))
+    { exitMessage<-""
+    if(chosenD=="norm")           exitMessage<-"Normal (norm)"
+    else if(chosenD=="beta")      exitMessage<-"Beta (beta)"
+    else if(chosenD=="cauchy")    exitMessage<-"Cauchy (cauchy)"
+    else if(chosenD=="logis")     exitMessage<-"Logistic (logis)"
+    else if(chosenD=="t")         exitMessage<-"Student's t (t)"
+    else if(chosenD=="chisq")     exitMessage<-"Chi-squared (chisq)"
+    else if(chosenD=="chisqnc")   exitMessage<-"Non-central chi-squared (chisqnc)"
+    else if(chosenD=="exp")       exitMessage<-"Exponential (exp)"
+    else if(chosenD=="f")         exitMessage<-"F (f)"
+    else if(chosenD=="gamma")     exitMessage<-"Gamma (gamma)"
+    else if(chosenD=="lnorm")     exitMessage<-"Log-normal (lnorm)"
+    else if(chosenD=="unif")      exitMessage<-"Uniform (unif)"
+    else if(chosenD=="weibull")   exitMessage<-"Weibull (weibull)"
+    else if(chosenD=="triang")    exitMessage<-"Triangular (triang)"
+    else if(chosenD=="gompertz")  exitMessage<-"Gompertz (gompertz)"
+    else if(chosenD=="pert")      exitMessage<-"Beta-pert (pert)"
+    else if(chosenD=="tnorm")     exitMessage<-"Truncated normal (tnorm)"
+    } else exitMessage<-chosenD
+    cat(paste("Chosen continuous distribution is: ", exitMessage))
+    cat("\nFitted parameters are: \n")
+    print(fittedParams)
+    cat("--------------------------------------------------------------------\n")
   }
-
+  
   #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
@@ -656,13 +674,21 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
 # @seealso nothing...
 #' @keywords others
 #' @export
+#' @importFrom mc2d qtriang
+#' @importFrom mc2d ptriang
+#' @importFrom mc2d qpert
+#' @importFrom mc2d ppert
+#' @importFrom eha qgompertz
+#' @importFrom eha pgompertz
+#' @importFrom msm qtnorm
+#' @importFrom msm ptnorm
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' p<-c(0.025,0.5,0.975)
 #' q<-c(9.68,29.20,50.98)
 #' fit.results1<-rriskFitdist.perc(p=p,q=q,show.output=FALSE,tolConv=0.5)
-#' X11(width=10,height=5)
+# X11(width=10,height=5)
 #' par(mfrow=c(1,2))
 #' plotDiagnostics.perc(fit.results1)
 #' plotDiagnostics.perc(fit.results1,tolPlot=5)
@@ -684,9 +710,10 @@ fit.perc<-function(p=c(0.025,0.5,0.975),q=qnorm(p),show.output=FALSE,tolPlot=0.1
 #'
 #' # Example with fittes beta pert distribution
 #' p<-c(0.025,0.5,0.6,0.975)
-#' q<-qpert(p=p,min=0,mode=3,max=10,shape=5)
+#' q<-mc2d::qpert(p=p,min=0,mode=3,max=10,shape=5)
 #' fit.results5<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
-#' plotDiagnostics.perc(fit.results5)}
+#' plotDiagnostics.perc(fit.results5)
+# }
 
 plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
 {
@@ -701,7 +728,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   {
     stop("INVALID INPUT, the argument 'tolPlot' should be a single positive numerical value!",call.=FALSE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # loading required packages
   #-----------------------------------------------------------------------------
@@ -710,7 +737,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   #suppressWarnings(require(eha))
   #suppressWarnings(require(mc2d))
   #suppressWarnings(require(tcltk))
-
+  
   #-----------------------------------------------------------------------------
   # creating help variables
   #-----------------------------------------------------------------------------
@@ -720,7 +747,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   len<-max(q)-min(q)
   min<-min(q)-len*1.5
   max<-max(q)+len*1.5
-
+  
   #-----------------------------------------------------------------------------
   # plotting quantile points
   #-----------------------------------------------------------------------------
@@ -728,9 +755,9 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   leg.col <- NULL
   leg.txt <- NULL
   plot(p~q,type="p",cex=1.5,pch=19,lwd=2,xlim=c(min,max),
-    ylim=c(0,1),xlab="Percentile",ylab="Percent",col="lightblue",
-    main="Graphical diagnostics")
-
+       ylim=c(0,1),xlab="Percentile",ylab="Percent",col="lightblue",
+       main="Graphical diagnostics")
+  
   #-----------------------------------------------------------------------------
   # defining color for each distribution
   #-----------------------------------------------------------------------------
@@ -751,7 +778,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   pert.color<-"hotpink4"
   tnorm.color<-"gold2"
   chisqnc.color<-"gold4"
-
+  
   #-----------------------------------------------------------------------------
   # plotting chisqnc distribution
   #-----------------------------------------------------------------------------
@@ -774,7 +801,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
     try(if(sum(abs(test.quantiles-q)) < tolPlot)
     {
       lines(ptnorm(xx,mean=res.mat$tnorm[1],sd=res.mat$tnorm[2],
-        lower=res.mat$tnorm[3],upper=res.mat$tnorm[4])~xx,col=tnorm.color,lwd=2)
+                   lower=res.mat$tnorm[3],upper=res.mat$tnorm[4])~xx,col=tnorm.color,lwd=2)
       leg.txt <- c(leg.txt,"trunc. normal")
       leg.col <- c(leg.col,tnorm.color)
     },silent=TRUE)
@@ -787,7 +814,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
     test.quantiles<-suppressWarnings(qpert(p,min=res.mat$pert[1],mode=res.mat$pert[2],max=res.mat$pert[3],shape=res.mat$pert[4]))
     try(if(sum(abs(test.quantiles-q)) < tolPlot)
     { lines(ppert(xx,min=res.mat$pert[1],mode=res.mat$pert[2],
-        max=res.mat$pert[3],shape=res.mat$pert[4])~xx,col=pert.color,lwd=2)
+                  max=res.mat$pert[3],shape=res.mat$pert[4])~xx,col=pert.color,lwd=2)
       leg.txt <- c(leg.txt,"Beta pert")
       leg.col <- c(leg.col,pert.color)
     },silent=TRUE)
@@ -797,12 +824,12 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   #-----------------------------------------------------------------------------
   if(!is.na(res.mat$triang[1]))
   { test.quantiles<-suppressWarnings(qtriang(p,min=res.mat$triang[1],mode=res.mat$triang[2],max=res.mat$triang[3]))
-    try(if(sum(abs(test.quantiles-q)) < tolPlot)
-    { lines(ptriang(xx,min=res.mat$triang[1],mode=res.mat$triang[2],
-        max=res.mat$triang[3])~xx,col=triang.color,lwd=2)
-      leg.txt <- c(leg.txt,"Triangular")
-      leg.col <- c(leg.col,triang.color)
-    },silent=TRUE)
+  try(if(sum(abs(test.quantiles-q)) < tolPlot)
+  { lines(ptriang(xx,min=res.mat$triang[1],mode=res.mat$triang[2],
+                  max=res.mat$triang[3])~xx,col=triang.color,lwd=2)
+    leg.txt <- c(leg.txt,"Triangular")
+    leg.col <- c(leg.col,triang.color)
+  },silent=TRUE)
   }
   #-----------------------------------------------------------------------------
   # fitting gompertz distribution
@@ -973,7 +1000,7 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
       leg.col <- c(leg.col,unif.color)
     },silent=TRUE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # creating legend
   #-----------------------------------------------------------------------------
@@ -983,9 +1010,12 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
   }
   else
   {
-    tkmessageBox(message="Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!",icon="error")
-    cat("Warning: Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!\n")
-
+    # change by LG: Now, the tkmessageBox is produced in method fit.perc(): there the call of 
+    # plotDiagnostics.perc() is checked if the message produced below is thrown. Given that case 
+    # the message is caugth and the tkmessageBox with this message produced:
+    #tcltk::tkmessageBox(message="Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!",icon="error")
+    #cat("Warning: Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!\n")
+    message("Warning: Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!\n")
   }
 } # end of plotDiagnostics.perc()
 
@@ -1023,9 +1053,13 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
 # @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
+#' @importFrom mc2d qtriang
+#' @importFrom mc2d qpert
+#' @importFrom eha qgompertz
+#' @importFrom msm qtnorm
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' fit.results1<-rriskFitdist.perc(show.output=FALSE)
 #' fit.results1
 #'
@@ -1044,9 +1078,10 @@ plotDiagnostics.perc<-function(fit.results,tolPlot=0.1)
 #'
 #' # Example with fitted pert distribution
 #' p<-c(0.025,0.5,0.6,0.975)
-#' q<-qpert(p=p,min=0,mode=3,max=10,shape=5)
+#' q<-mc2d::qpert(p=p,min=0,mode=3,max=10,shape=5)
 #' fit.results5<-rriskFitdist.perc(p=p,q=q,show.output=FALSE)
-#' fit.results5}
+#' fit.results5
+# }
 
 rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.output=TRUE,tolConv=0.001,fit.weights=rep(1,length(p)))
 {
@@ -1091,7 +1126,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, all items of the argument 'fit.weights' should be positive!",call.=FALSE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # defining help variables
   #-----------------------------------------------------------------------------
@@ -1103,14 +1138,14 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   Perc <- Perc[!duplicated(Perc)]
   Perc<-round(Perc,digits=4)
   res.mat <- data.frame(weight=rep(0,length(Perc)+4), Quantiles=c(rep(NA,4),Quantiles),
-        norm=NA, beta=NA,cauchy=NA,logis=NA,t=NA,chisq=NA,chisqnc=NA,exp=NA,f=NA,
-        gamma=NA,lnorm=NA,unif=NA,weibull=NA,triang=NA,gompertz=NA,pert=NA,tnorm=NA)
+                        norm=NA, beta=NA,cauchy=NA,logis=NA,t=NA,chisq=NA,chisqnc=NA,exp=NA,f=NA,
+                        gamma=NA,lnorm=NA,unif=NA,weibull=NA,triang=NA,gompertz=NA,pert=NA,tnorm=NA)
   rownames(res.mat) <- c(paste("Para",1:4,sep=""),Perc*100)
   res.mat[as.character(p*100),"weight"] <- fit.weights
-
+  
   cat("\n----------------------------------------------------------------------- \n")
   cat("Begin fitting distributions...\n")
-
+  
   # tnorm
   par <- suppressWarnings(get.tnorm.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1122,7 +1157,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: truncated normal distribution could not be fitted! \n")
   }
-
+  
   # chisqnc
   par <- suppressWarnings(get.chisqnc.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1134,7 +1169,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: non-central chi-square distribution could not be fitted! \n")
   }
-
+  
   # pert
   par <- suppressWarnings(get.pert.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1146,7 +1181,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Pert distribution could not be fitted! \n")
   }
-
+  
   #triang
   par <- suppressWarnings(get.triang.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1158,7 +1193,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Triangular distribution could not be fitted! \n")
   }
-
+  
   # gompertz
   par <- suppressWarnings(get.gompertz.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1170,7 +1205,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Gompertz distribution could not be fitted! \n")
   }
-
+  
   #normal
   par <- suppressWarnings(get.norm.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1182,7 +1217,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Normal distribution could not be fitted! \n")
   }
-
+  
   # beta
   par <- suppressWarnings(get.beta.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1194,7 +1229,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Beta distribution could not be fitted! \n")
   }
-
+  
   # cauchy
   par <- suppressWarnings(get.cauchy.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1206,7 +1241,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Cauchy distribution could not be fitted! \n")
   }
-
+  
   # chisq
   par <- suppressWarnings(get.chisq.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1214,11 +1249,11 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
     cat("Chi-square distribution has been fitted successfully! \n")
     res.mat$chisq[1] <- par
     res.mat$chisq[-c(1:4)] <- qchisq(p=Perc,df=par["df"])
-   } else
+  } else
   {
     cat("Warning: Chi-square distribution could not be fitted! \n")
   }
-
+  
   # logis
   par <- suppressWarnings(get.logis.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1230,7 +1265,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Logistic distribution could not be fitted! \n")
   }
-
+  
   # t
   par <- suppressWarnings(get.t.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1242,7 +1277,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Student's t distribution could not be fitted! \n")
   }
-
+  
   # exp
   par <- suppressWarnings(get.exp.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1254,7 +1289,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Exponential distribution could not be fitted! \n")
   }
-
+  
   # F
   par <- suppressWarnings(get.f.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1262,11 +1297,11 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
     cat("F distribution has been fitted successfully! \n")
     res.mat$f[1:2] <- par
     res.mat$f[-c(1:4)] <- qf(p=Perc,df1=par["df1"],df2=par["df2"])
-   } else
+  } else
   {
     cat("Warning: F distribution could not be fitted! \n")
   }
-
+  
   # gamma
   par <- suppressWarnings(get.gamma.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1274,11 +1309,11 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
     cat("Gamma distribution has been fitted successfully! \n")
     res.mat$gamma[1:2] <- par
     res.mat$gamma[-c(1:4)] <- qgamma(p=Perc,shape=par["shape"],rate=par["rate"])
-   } else
+  } else
   {
     cat("Warning: Gamma distribution could not be fitted! \n")
   }
-
+  
   # Weibull
   par <- suppressWarnings(get.weibull.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1290,7 +1325,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Weibull distribution could not be fitted! \n")
   }
-
+  
   # Lognormal
   par <- suppressWarnings(get.lnorm.par(p=p,q=q,show.output=show.output,plot=FALSE,tol=tolConv,fit.weights=fit.weights))
   if(!any(is.na(par)))
@@ -1302,7 +1337,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Lognormal distribution could not be fitted! \n")
   }
-
+  
   # Unif
   par <- suppressWarnings(get.unif.par(p=p,q=q,plot=FALSE))
   if(!any(is.na(par)))
@@ -1314,10 +1349,10 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
   {
     cat("Warning: Uniform distribution could not be fitted! \n")
   }
-
+  
   cat("End fitting distributions...\n")
   cat("----------------------------------------------------------------------- \n")
-
+  
   if(all(is.na(res.mat[1:4,-1])))
   {
     if(is.element("package:rrisk",search())) # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
@@ -1329,7 +1364,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
       on.exit(return(invisible(NA)))
       stop("\n\nSorry, no pdfs found that match with the specified percentiles\n",call.=FALSE)
     }
-   }
+  }
   res.mat<-data.frame(apply(res.mat,c(1,2),function(x) round(x,digits=2)))
   output<-list(data.frame(p,q),res.mat)
   names(output)<-c("p/q","results")
@@ -1405,8 +1440,9 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qbeta(p=c(0.025,0.5,0.975),shape1=2,shape2=3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qbeta(p=c(0.025,0.5,0.975),shape1=2,shape2=3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.beta.par(q=q)
 #' get.beta.par(q=q,scaleX=c(0.001,0.999))
@@ -1416,7 +1452,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
 #' get.beta.par(q=q,fit.weights=c(1,100,1))
 #'
 #' q<-qbeta(p=c(0.025,0.5,0.975),shape1=1,shape2=1)
-#' X11(width=9,height=6)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.beta.par(q=q)
 #' get.beta.par(q=q,fit.weights=c(10,1,10))
@@ -1425,7 +1461,7 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
 #' get.beta.par(q=q,fit.weights=c(1,100,1))
 #'
 #' q<-qbeta(p=c(0.025,0.5,0.975),shape1=0.3,shape2=0.1)
-#' X11(width=9,height=6)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.beta.par(q=q)
 #' get.beta.par(q=q,fit.weights=c(10,1,10))
@@ -1435,13 +1471,14 @@ rriskFitdist.perc<-function(p=c(0.025,0.5,0.975),q=c(9.68,29.20,50.98),show.outp
 #'
 #' # example with only two quantiles
 #' q<-qbeta(p=c(0.025,0.975),shape1=2,shape2=3)
-#' X11(width=9,height=6)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.beta.par(p=c(0.025,0.975),q=q)
 #' get.beta.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
 #' get.beta.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
 #' get.beta.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
-#' get.beta.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))}
+#' get.beta.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
+# }
 
 get.beta.par <- function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001, fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -1504,15 +1541,15 @@ get.beta.par <- function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(minimize,method="CG"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'CG' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'CG' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("shape1","shape2")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'CG' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'CG' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("shape1","shape2")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -1524,16 +1561,16 @@ get.beta.par <- function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("shape1=",round(Par["shape1"],digits=2))
-    main2<-paste("shape2=",round(Par["shape2"],digits=2))
-    main<-paste("Beta (",main1,", ",main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qbeta(p=min(p)*scaleX[1],shape1=Par["shape1"],shape2=Par["shape2"]),
-                     qbeta(p=(max(p)+(1-max(p))*scaleX[2]),shape1=Par["shape1"],shape2=Par["shape2"]))
-    #Support <- seq(Support.lim[1],Support.lim[2],length=200)
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pbeta(Support,Par["shape1"],Par["shape2"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("shape2=",round(Par["shape2"],digits=2))
+  main<-paste("Beta (",main1,", ",main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qbeta(p=min(p)*scaleX[1],shape1=Par["shape1"],shape2=Par["shape2"]),
+                 qbeta(p=(max(p)+(1-max(p))*scaleX[2]),shape1=Par["shape1"],shape2=Par["shape2"]))
+  #Support <- seq(Support.lim[1],Support.lim[2],length=200)
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pbeta(Support,Par["shape1"],Par["shape2"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -1610,43 +1647,51 @@ get.beta.par <- function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qcauchy(p=c(0.025,0.5,0.975),location=0,scale=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qcauchy(p=c(0.025,0.5,0.975),location=0,scale=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.cauchy.par(q=q)
 #' get.cauchy.par(q=q,scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.5,0.5))
-#' get.cauchy.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))}
+#' get.cauchy.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))
+# }
 #'
-#' \donttest{q<-qcauchy(p=c(0.025,0.5,0.975),location=3,scale=5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qcauchy(p=c(0.025,0.5,0.975),location=3,scale=5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.cauchy.par(q=q,scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.5,0.5))
-#' get.cauchy.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))}
+#' get.cauchy.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))
+# }
 #'
-#' \donttest{q<-qcauchy(p=c(0.025,0.5,0.975),location=0.1,scale=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qcauchy(p=c(0.025,0.5,0.975),location=0.1,scale=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.cauchy.par(q=q,scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q, fit.weights=c(1,10,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q, fit.weights=c(1,100,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(q=q, fit.weights=c(10,1,10),scaleX=c(0.5,0.5))
-#' get.cauchy.par(q=q, fit.weights=c(100,1,100),scaleX=c(0.5,0.5))}
+#' get.cauchy.par(q=q, fit.weights=c(100,1,100),scaleX=c(0.5,0.5))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qcauchy(p=c(0.025,0.975),location=0.1,scale=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qcauchy(p=c(0.025,0.975),location=0.1,scale=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.cauchy.par(p=c(0.025,0.975),q=q,scaleX=c(0.5,0.5))
 #' get.cauchy.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1),scaleX=c(0.5,0.5))
 #' get.cauchy.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10),scaleX=c(0.5,0.5))
-#' get.cauchy.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100),scaleX=c(0.5,0.5))}
+#' get.cauchy.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100),scaleX=c(0.5,0.5))
+# }
 
 get.cauchy.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001, fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -1692,12 +1737,12 @@ get.cauchy.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand<- suppressWarnings(pcauchy(q=q,location=theta[1],scale=theta[2])-p)
-    summand<-summand*fit.weights
-    sum(summand^2)
+  summand<-summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,1),minimize,method="L-BFGS-B",lower=c(-10000,0.001),upper=c(10000,10000)), silent=TRUE)
-
+  
   #-----------------------------------------------------------------------------
   # checkung resulty
   #-----------------------------------------------------------------------------
@@ -1705,15 +1750,15 @@ get.cauchy.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=start,minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("location","scale")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("location","scale")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -1725,15 +1770,15 @@ get.cauchy.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("location=",round(Par["location"],digits=2))
-    main2<-paste("scale=",round(Par["scale"],digits=2))
-    main<-paste("Cauchy (",main1,", ",main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qcauchy(p=min(p)*scaleX[1],location=Par["location"],scale=Par["scale"]),
-                     qcauchy(p=(max(p)+(1-max(p))*scaleX[2]),location=Par["location"],scale=Par["scale"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pcauchy(Support,Par["location"],Par["scale"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("scale=",round(Par["scale"],digits=2))
+  main<-paste("Cauchy (",main1,", ",main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qcauchy(p=min(p)*scaleX[1],location=Par["location"],scale=Par["scale"]),
+                 qcauchy(p=(max(p)+(1-max(p))*scaleX[2]),location=Par["location"],scale=Par["scale"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pcauchy(Support,Par["location"],Par["scale"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -1808,40 +1853,48 @@ get.cauchy.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisq.par(q=q)
 #' get.chisq.par(q=q,fit.weights=c(10,1,10))
 #' get.chisq.par(q=q,fit.weights=c(100,1,100))
 #' get.chisq.par(q=q,fit.weights=c(1,10,1))
-#' get.chisq.par(q=q,fit.weights=c(1,100,1))}
+#' get.chisq.par(q=q,fit.weights=c(1,100,1))
+# }
 #'
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisq.par(q=q,scaleX=c(0.1,0.1))
 #' get.chisq.par(q=q,fit.weights=c(10,1,10))
 #' get.chisq.par(q=q,fit.weights=c(100,1,100))
 #' get.chisq.par(q=q,fit.weights=c(1,10,1))
-#' get.chisq.par(q=q,fit.weights=c(1,100,1))}
+#' get.chisq.par(q=q,fit.weights=c(1,100,1))
+# }
 #'
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=20)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=20)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisq.par(q=q)
 #' get.chisq.par(q=q,fit.weights=c(10,1,10))
 #' get.chisq.par(q=q,fit.weights=c(100,1,100))
 #' get.chisq.par(q=q,fit.weights =c(1,10,1))
-#' get.chisq.par(q=q,fit.weights =c(1,100,1))}
+#' get.chisq.par(q=q,fit.weights =c(1,100,1))
+# }
 #'
 #' # example with only one quantile
-#' \donttest{q<-qchisq(p=c(0.025),df=20)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qchisq(p=c(0.025),df=20)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.chisq.par(p=c(0.025),q=q)
 #' get.chisq.par(p=c(0.025),q=q,fit.weights=10)
-#' get.chisq.par(p=c(0.025),q=q,fit.weights=100)}
+#' get.chisq.par(p=c(0.025),q=q,fit.weights=100)
+# }
 
 get.chisq.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001, fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -1891,8 +1944,8 @@ get.chisq.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand<-suppressWarnings(pchisq(q=q,df=theta)-p)
-    summand<-summand*fit.weights
-    sum(summand^2)
+  summand<-summand*fit.weights
+  sum(summand^2)
   }
   suppressWarnings(lm <- lm(q~p)    )
   suppressWarnings(m <- predict(lm,newdata=list(p=.5))[[1]])
@@ -1907,15 +1960,15 @@ get.chisq.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=start,minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("df")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("df")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -1927,13 +1980,13 @@ get.chisq.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("df=",round(Par["df"],digits=2))
-    main<-paste("Chi-square (",main1,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qchisq(p=min(p)*scaleX[1],df=Par["df"]),qchisq(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pchisq(Support,Par["df"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main<-paste("Chi-square (",main1,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qchisq(p=min(p)*scaleX[1],df=Par["df"]),qchisq(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pchisq(Support,Par["df"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -2009,43 +2062,51 @@ get.chisq.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=2,ncp=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=2,ncp=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisqnc.par(q=q)
 #' get.chisqnc.par(q=q,scaleX=c(0.1,0.9999999))
 #' get.chisqnc.par(q=q,fit.weights=c(100,1,100))
 #' get.chisqnc.par(q=q,fit.weights=c(10,1,10))
 #' get.chisqnc.par(q=q,fit.weights=c(1,100,1))
-#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))}
+#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=0.1,ncp=0.4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=0.1,ncp=0.4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisqnc.par(q=q)
 #' get.chisqnc.par(q=q,fit.weights=c(100,1,100))
 #' get.chisqnc.par(q=q,fit.weights=c(10,1,10))
 #' get.chisqnc.par(q=q,fit.weights=c(1,100,1))
-#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))}
+#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qchisq(p=c(0.025,0.5,0.975),df=1,ncp=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.5,0.975),df=1,ncp=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisqnc.par(q=q)
 #' get.chisqnc.par(q=q,fit.weights=c(100,1,100))
 #' get.chisqnc.par(q=q,fit.weights=c(10,1,10))
 #' get.chisqnc.par(q=q,fit.weights=c(1,100,1))
-#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))}
+#' get.chisqnc.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantile
-#' \donttest{q<-qchisq(p=c(0.025,0.95),df=20,ncp=20)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qchisq(p=c(0.025,0.95),df=20,ncp=20)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.chisqnc.par(p=c(0.025,0.975),q=q)
 #' get.chisqnc.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
 #' get.chisqnc.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
 #' get.chisqnc.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
-#' get.chisqnc.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))}
+#' get.chisqnc.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
+# }
 
 get.chisqnc.par<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -2095,8 +2156,8 @@ get.chisqnc.par<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,tol=
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pchisq(q=q,df=theta[1],ncp=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,1),minimize,method="L-BFGS-B",lower=c(0.001,0.00001),upper=c(10000,10000)), silent=TRUE)
@@ -2107,15 +2168,15 @@ get.chisqnc.par<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,tol=
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,1),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     }  else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("df","ncp")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    }  else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("df","ncp")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -2132,7 +2193,7 @@ get.chisqnc.par<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,tol=
     main<-paste("non-central chi-square (",main1,",",main2,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qchisq(p=min(p)*scaleX[1],df=Par["df"]),
-                     qchisq(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
+                   qchisq(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- pchisq(Support,Par["df"],Par["ncp"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -2212,49 +2273,59 @@ get.chisqnc.par<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,tol=
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qexp(p=c(0.025,0.5,0.975),rate=2)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qexp(p=c(0.025,0.5,0.975),rate=2)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.exp.par(q=q)
 #' get.exp.par(q=q, fit.weights=c(100,1,100))
 #' get.exp.par(q=q, fit.weights=c(10,1,10))
 #' get.exp.par(q=q, fit.weights=c(1,100,1))
-#' get.exp.par(q=q, fit.weights=c(1,10,1))}
+#' get.exp.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qexp(p=c(0.025,0.5,0.975),rate=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qexp(p=c(0.025,0.5,0.975),rate=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.exp.par(q=q)
 #' get.exp.par(q=q, fit.weights=c(100,1,100))
 #' get.exp.par(q=q, fit.weights=c(10,1,10))
 #' get.exp.par(q=q, fit.weights=c(1,100,1))
-#' get.exp.par(q=q, fit.weights=c(1,10,1))}
+#' get.exp.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qexp(p=c(0.025,0.5,0.975),rate=0.001)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qexp(p=c(0.025,0.5,0.975),rate=0.001)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.exp.par(q=q)
 #' get.exp.par(q=q, fit.weights=c(100,1,100))
 #' get.exp.par(q=q, fit.weights=c(10,1,10))
 #' get.exp.par(q=q, fit.weights=c(1,100,1))
-#' get.exp.par(q=q, tol=0.2, fit.weights=c(1,10,1))}
+#' get.exp.par(q=q, tol=0.2, fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qexp(p=c(0.025,0.5,0.975),rate=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qexp(p=c(0.025,0.5,0.975),rate=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.exp.par(q=q)
 #' get.exp.par(q=q, fit.weights=c(100,1,100))
 #' get.exp.par(q=q, fit.weights=c(10,1,10))
 #' get.exp.par(q=q, fit.weights=c(1,100,1))
-#' get.exp.par(q=q, fit.weights=c(1,10,1))}
+#' get.exp.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only one quantile
-#' \donttest{q<-qexp(p=c(0.025),rate=2)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qexp(p=c(0.025),rate=2)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.exp.par(p=c(0.025),q=q)
 #' get.exp.par(p=c(0.025),q=q,fit.weights=10)
-#' get.exp.par(p=c(0.025),q=q,fit.weights=100)}
+#' get.exp.par(p=c(0.025),q=q,fit.weights=100)
+# }
 
 get.exp.par<-function(p=c(0.025,0.50,.975),q,show.output=TRUE,plot=TRUE,tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -2305,8 +2376,8 @@ get.exp.par<-function(p=c(0.025,0.50,.975),q,show.output=TRUE,plot=TRUE,tol=0.00
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(par)
   { summand<-suppressWarnings(pexp(q=q,rate=par)-p)
-    summand<-summand*fit.weights
-    sum(summand^2)
+  summand<-summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   Start <- 1/mean(q)
@@ -2318,15 +2389,15 @@ get.exp.par<-function(p=c(0.025,0.50,.975),q,show.output=TRUE,plot=TRUE,tol=0.00
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=Start,minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine Ausgabe
-     { if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-       Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("rate")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine Ausgabe
+    { if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("rate")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -2338,14 +2409,14 @@ get.exp.par<-function(p=c(0.025,0.50,.975),q,show.output=TRUE,plot=TRUE,tol=0.00
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("rate=",round(Par["rate"],digits=2))
-    main<-paste("Exponential (",main1,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qexp(p=min(p)*scaleX[1],rate=Par["rate"]),
-                     qexp(p=(max(p)+(1-max(p))*scaleX[2]),rate=Par["rate"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pexp(Support,Par["rate"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main<-paste("Exponential (",main1,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qexp(p=min(p)*scaleX[1],rate=Par["rate"]),
+                 qexp(p=(max(p)+(1-max(p))*scaleX[2]),rate=Par["rate"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pexp(Support,Par["rate"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -2423,40 +2494,48 @@ get.exp.par<-function(p=c(0.025,0.50,.975),q,show.output=TRUE,plot=TRUE,tol=0.00
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qf(p=c(0.025,0.5,0.975),df1=2, df2=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qf(p=c(0.025,0.5,0.975),df1=2, df2=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.f.par(q=q,scaleX=c(0.1,0.5))
 #' get.f.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.1,0.5))
 #' get.f.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.1,0.5))
 #' get.f.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.1,0.5))
-#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.5))}
+#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.5))
+# }
 #'
-#' \donttest{q<-qf(p=c(0.025,0.5,0.975),df1=0.2, df2=0.3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qf(p=c(0.025,0.5,0.975),df1=0.2, df2=0.3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.f.par(q=q,scaleX=c(0.1,0.2))
 #' get.f.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.1,0.999))
 #' get.f.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.1,0.2))
 #' get.f.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.1,0.9999))
-#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.9999))}
+#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.9999))
+# }
 #'
-#' \donttest{q<-qf(p=c(0.025,0.5,0.975),df1=1, df2=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qf(p=c(0.025,0.5,0.975),df1=1, df2=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.f.par(q=q,scaleX=c(0.1,0.2))
 #' get.f.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.1,0.2))
 #' get.f.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.1,0.2))
 #' get.f.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.1,0.2))
-#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.2))}
+#' get.f.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.1,0.2))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qf(p=c(0.025,0.975),df1=2, df2=3)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qf(p=c(0.025,0.975),df1=2, df2=3)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.f.par(p=c(0.025,0.975),q=q)
 #' get.f.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
-#' get.f.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))}
+#' get.f.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
+# }
 
 get.f.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001, fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -2507,8 +2586,8 @@ get.f.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pf(q=q,df1=theta[1],df2=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,1),minimize,method="L-BFGS-B",lower=c(0.001,0.001),upper=c(10000,10000)), silent=TRUE)
@@ -2519,15 +2598,15 @@ get.f.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,1),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine Ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("df1","df2")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine Ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("df1","df2")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -2539,15 +2618,15 @@ get.f.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("df1=",round(Par["df1"],digits=2))
-    main2<-paste("df2=",round(Par["df2"],digits=2))
-    main<-paste("F (",main1,", ", main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qf(p=min(p)*scaleX[1],df1=Par["df1"],df2=Par["df2"]),
-                     qf(p=(max(p)+(1-max(p))*scaleX[2]),df1=Par["df1"],df2=Par["df2"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pf(Support,Par["df1"],Par["df2"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("df2=",round(Par["df2"],digits=2))
+  main<-paste("F (",main1,", ", main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qf(p=min(p)*scaleX[1],df1=Par["df1"],df2=Par["df2"]),
+                 qf(p=(max(p)+(1-max(p))*scaleX[2]),df1=Par["df1"],df2=Par["df2"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pf(Support,Par["df1"],Par["df2"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -2624,43 +2703,51 @@ get.f.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=10,rate=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qgamma(p=c(0.025,0.5,0.975),shape=10,rate=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gamma.par(q=q)
 #' get.gamma.par(q=q,scaleX=c(0.00001,0.9999))
 #' get.gamma.par(q=q,fit.weights=c(100,1,100))
 #' get.gamma.par(q=q,fit.weights=c(10,1,10))
 #' get.gamma.par(q=q,fit.weights=c(1,100,1))
-#' get.gamma.par(q=q,fit.weights=c(1,10,1))}
+#' get.gamma.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=0.1,rate=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qgamma(p=c(0.025,0.5,0.975),shape=0.1,rate=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gamma.par(q=q)
 #' get.gamma.par(q=q,fit.weights=c(100,1,100))
 #' get.gamma.par(q=q,fit.weights=c(10,1,10))
 #' get.gamma.par(q=q,fit.weights=c(1,100,1))
-#' get.gamma.par(q=q,fit.weights=c(1,10,1))}
+#' get.gamma.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qgamma(p=c(0.025,0.5,0.975),shape=1,rate=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qgamma(p=c(0.025,0.5,0.975),shape=1,rate=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gamma.par(q=q)
 #' get.gamma.par(q=q,fit.weights=c(100,1,100))
 #' get.gamma.par(q=q,fit.weights=c(10,1,10))
 #' get.gamma.par(q=q,fit.weights=c(1,100,1))
-#' get.gamma.par(q=q,fit.weights=c(1,10,1))}
+#' get.gamma.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qgamma(p=c(0.025,0.975),shape=10,rate=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qgamma(p=c(0.025,0.975),shape=10,rate=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gamma.par(p=c(0.025,0.975),q=q)
 #' get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
 #' get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
 #' get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
-#' get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))}
+#' get.gamma.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
+# }
 
 get.gamma.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -2710,8 +2797,8 @@ get.gamma.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pgamma(q=q,shape=theta[1],rate=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,1),minimize,method="L-BFGS-B",lower=c(0.001,0.001),upper=c(10000,10000)), silent=TRUE)
@@ -2722,15 +2809,15 @@ get.gamma.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,1),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("shape","rate")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("shape","rate")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -2747,7 +2834,7 @@ get.gamma.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
     main<-paste("Gamma (",main1,", ",main2,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qgamma(p=min(p)*scaleX[1],shape=Par["shape"],rate=Par["rate"]),
-                     qgamma(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],rate=Par["rate"]))
+                   qgamma(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],rate=Par["rate"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- pgamma(Support,Par["shape"],Par["rate"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -2826,47 +2913,58 @@ get.gamma.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
-#' @seealso See \code{pgompertz} from the package \pkg{eha} for distribution implementation details.
+#' @seealso See \code{\link[eha:pgompertz]{pgompertz}} from the package \pkg{eha} for distribution 
+#' implementation details.
 #' @keywords fitpercentiles
 #' @export
+#' @importFrom eha qgompertz
+#' @importFrom eha pgompertz
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qgompertz(p=c(0.025,0.5,0.975),shape=2,scale=5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-eha::qgompertz(p=c(0.025,0.5,0.975),shape=2,scale=5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gompertz.par(q=q)
 #' get.gompertz.par(q=q,fit.weights=c(100,1,100))
 #' get.gompertz.par(q=q,fit.weights=c(10,1,10))
 #' get.gompertz.par(q=q,fit.weights=c(1,100,1))
-#' get.gompertz.par(q=q,fit.weights=c(1,10,1))}
+#' get.gompertz.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qgompertz(p=c(0.025,0.5,0.975),shape=0.2,scale=0.5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-eha::qgompertz(p=c(0.025,0.5,0.975),shape=0.2,scale=0.5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gompertz.par(q=q)
 #' get.gompertz.par(q=q,fit.weights=c(100,1,100))
 #' get.gompertz.par(q=q,fit.weights=c(10,1,10))
 #' get.gompertz.par(q=q,fit.weights=c(1,100,1))
-#' get.gompertz.par(q=q,fit.weights=c(1,10,1))}
+#' get.gompertz.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qgompertz(p=c(0.025,0.5,0.975),shape=1,scale=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-eha::qgompertz(p=c(0.025,0.5,0.975),shape=1,scale=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gompertz.par(q=q)
 #' get.gompertz.par(q=q,fit.weights=c(100,1,100))
 #' get.gompertz.par(q=q,fit.weights=c(10,1,10))
 #' get.gompertz.par(q=q,fit.weights=c(1,100,1))
-#' get.gompertz.par(q=q,fit.weights=c(1,10,1))}
+#' get.gompertz.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qgompertz(p=c(0.025,0.975),shape=2,scale=5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-eha::qgompertz(p=c(0.025,0.975),shape=2,scale=5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.gompertz.par(p=c(0.025,0.975),q=q)
 #' get.gompertz.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1),scaleX=c(0.0001,0.9999))
 #' get.gompertz.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
 #' get.gompertz.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
-#' get.gompertz.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))}
+#' get.gompertz.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
+# }
 
 get.gompertz.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -2919,12 +3017,12 @@ get.gompertz.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE,
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pgompertz(q=q,shape=theta[1],scale=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,1),minimize,method="L-BFGS-B",
-    lower=c(0.001,0.001),upper=c(10000,10000)), silent=TRUE)
+                             lower=c(0.001,0.001),upper=c(10000,10000)), silent=TRUE)
   #-----------------------------------------------------------------------------
   # checking results
   #-----------------------------------------------------------------------------
@@ -2932,15 +3030,15 @@ get.gompertz.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE,
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,1),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("shape","scale")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("shape","scale")
+      if(show.output) print(fit)
+    }
   }else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -2957,7 +3055,7 @@ get.gompertz.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE,
     main<-paste("Gompertz (",main1,", ",main2,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qgompertz(p=min(p)*scaleX[1],shape=Par["shape"],scale=Par["scale"]),
-                    qgompertz(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],scale=Par["scale"]))
+                   qgompertz(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],scale=Par["scale"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- pgompertz(Support,Par["shape"],Par["scale"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -3037,24 +3135,28 @@ get.gompertz.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE,
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qhyper(p=c(0.025,0.5,0.975),m=5,n=3,k=3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qhyper(p=c(0.025,0.5,0.975),m=5,n=3,k=3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.hyper.par(q=q)
 #' get.hyper.par(q=q,tol=1)
 #' get.hyper.par(q=q,fit.weights=c(100,1,100))
 #' get.hyper.par(q=q,fit.weights=c(10,1,10))
 #' get.hyper.par(q=q,fit.weights=c(1,100,1))
-#' get.hyper.par(q=q,fit.weights=c(1,10,1))}
+#' get.hyper.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qhyper(p=c(0.025,0.5,0.975),m=10,n=5,k=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qhyper(p=c(0.025,0.5,0.975),m=10,n=5,k=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.hyper.par(q=q)
 #' get.hyper.par(q=q,fit.weights=c(100,1,100))
 #' get.hyper.par(q=q,fit.weights=c(10,1,10))
 #' get.hyper.par(q=q,fit.weights=c(1,100,1))
-#' get.hyper.par(q=q,fit.weights=c(1,10,1))}
+#' get.hyper.par(q=q,fit.weights=c(1,10,1))
+# }
 
 get.hyper.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -3104,8 +3206,8 @@ get.hyper.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(phyper(q=q,m=theta[1],n=theta[2],k=theta[3])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(9,6,7),minimize,method="L-BFGS-B",lower=c(0.001,0.001,0.001),upper=c(10000,10000,10000)), silent=TRUE)
@@ -3116,15 +3218,15 @@ get.hyper.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   {if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(9,6,7),minimize,method="SANN"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'SANN' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'SANN' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("m","n","k")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'SANN' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'SANN' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("m","n","k")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -3142,7 +3244,7 @@ get.hyper.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
     main<-paste("Hypergeo (",main1,", ",main2,", ",main3,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qhyper(p=min(p)*scaleX[1],m=Par["m"],n=Par["n"],k=Par["k"]),
-                     qhyper(p=(max(p)+(1-max(p))*scaleX[2]),m=Par["m"],n=Par["n"],k=Par["k"]))
+                   qhyper(p=(max(p)+(1-max(p))*scaleX[2]),m=Par["m"],n=Par["n"],k=Par["k"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- phyper(Support,Par["m"],Par["n"],Par["k"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -3227,51 +3329,61 @@ get.hyper.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=4,sdlog=0.8)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=4,sdlog=0.8)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.lnorm.par(q=q)
 #' get.lnorm.par(q=q,fit.weights=c(100,1,100))
 #' get.lnorm.par(q=q,fit.weights=c(10,1,10))
 #' get.lnorm.par(q=q,fit.weights=c(1,100,1))
-#' get.lnorm.par(q=q,fit.weights=c(1,10,1))}
+#' get.lnorm.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=-4,sdlog=0.8)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=-4,sdlog=0.8)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.lnorm.par(q=q)
 #' get.lnorm.par(q=q,fit.weights=c(100,1,100))
 #' get.lnorm.par(q=q,fit.weights=c(10,1,10))
 #' get.lnorm.par(q=q,fit.weights=c(1,100,1))
-#' get.lnorm.par(q=q,fit.weights=c(1,10,1))}
+#' get.lnorm.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=1,sdlog=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=1,sdlog=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.lnorm.par(q=q)
 #' get.lnorm.par(q=q,fit.weights=c(100,1,100))
 #' get.lnorm.par(q=q,fit.weights=c(10,1,10))
 #' get.lnorm.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.000001,0.99999999))
-#' get.lnorm.par(q=q,fit.weights=c(1,10,1))}
+#' get.lnorm.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=0.1,sdlog=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlnorm(p=c(0.025,0.5,0.975),meanlog=0.1,sdlog=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.lnorm.par(q=q)
 #' get.lnorm.par(q=q,fit.weights=c(100,1,100))
 #' get.lnorm.par(q=q,fit.weights=c(10,1,10))
 #' get.lnorm.par(q=q,fit.weights=c(1,100,1))
-#' get.lnorm.par(q=q,fit.weights=c(1,10,1))}
+#' get.lnorm.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qlnorm(p=c(0.025,0.975),meanlog=4,sdlog=0.8)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlnorm(p=c(0.025,0.975),meanlog=4,sdlog=0.8)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.lnorm.par(p=c(0.025,0.975),q=q)
 #' get.lnorm.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1),scaleX=c(0.1,0.001))
 #' get.lnorm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100),scaleX=c(0.1,0.001))
 #' get.lnorm.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
-#' get.lnorm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))}
+#' get.lnorm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
+# }
 
 get.lnorm.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -3321,8 +3433,8 @@ get.lnorm.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(plnorm(q=q,meanlog=theta[1],sdlog=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,0.35),minimize,method="L-BFGS-B",lower=c(-10000,0.001),upper=c(10000,10000)), silent=TRUE)
@@ -3333,15 +3445,15 @@ get.lnorm.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,3),minimize,method="Nelder-Mead"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'Nelder-Mead' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("meanlog","sdlog")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'Nelder-Mead' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("meanlog","sdlog")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -3358,7 +3470,7 @@ get.lnorm.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
     main<-paste("Lognormal (",main1,", ",main2,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qlnorm(p=min(p)*scaleX[1],meanlog=Par["meanlog"],sdlog=Par["sdlog"]),
-                     qlnorm(p=(max(p)+(1-max(p))*scaleX[2]),meanlog=Par["meanlog"],sdlog=Par["sdlog"]))
+                   qlnorm(p=(max(p)+(1-max(p))*scaleX[2]),meanlog=Par["meanlog"],sdlog=Par["sdlog"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- plnorm(Support,Par["meanlog"],Par["sdlog"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -3438,32 +3550,38 @@ get.lnorm.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qlogis(p=c(0.025,0.5,0.975),location=0,scale=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlogis(p=c(0.025,0.5,0.975),location=0,scale=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.logis.par(q=q)
 #' get.logis.par(q=q,scaleX=c(0.5,0.5))
 #' get.logis.par(q=q, fit.weights=c(100,1,100))
 #' get.logis.par(q=q, fit.weights=c(10,1,10))
 #' get.logis.par(q=q, fit.weights=c(1,100,1))
-#' get.logis.par(q=q, fit.weights=c(1,10,1))}
+#' get.logis.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qlogis(p=c(0.025,0.5,0.975),location=0,scale=3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qlogis(p=c(0.025,0.5,0.975),location=0,scale=3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.logis.par(q=q)
 #' get.logis.par(q=q, fit.weights=c(100,1,100))
 #' get.logis.par(q=q, fit.weights=c(10,1,10))
 #' get.logis.par(q=q, fit.weights=c(1,100,1))
-#' get.logis.par(q=q, fit.weights=c(1,10,1))}
+#' get.logis.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qlogis(p=c(0.025,0.975),location=0,scale=3)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qlogis(p=c(0.025,0.975),location=0,scale=3)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.logis.par(p=c(0.025,0.975),q=q)
 #' get.logis.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
-#' get.logis.par(p=c(0.025,0.975), q=q, fit.weights=c(10,1))}
+#' get.logis.par(p=c(0.025,0.975), q=q, fit.weights=c(10,1))
+# }
 
 get.logis.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001, fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -3510,8 +3628,8 @@ get.logis.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(plogis(q=q,location=theta[1],scale=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   lm <- lm(q~p)
   suppressWarnings(m <- predict(lm,newdata=list(p=.5))[[1]])
@@ -3525,15 +3643,15 @@ get.logis.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(m,s),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("location","scale")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") || fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("location","scale")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -3550,7 +3668,7 @@ get.logis.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
     main<-paste("Logistic (",main1,", ",main2, ")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qlogis(p=min(p)*scaleX[1],location=Par["location"],scale=Par["scale"]),
-                     qlogis(p=(max(p)+(1-max(p))*scaleX[2]),location=Par["location"],scale=Par["scale"]))
+                   qlogis(p=(max(p)+(1-max(p))*scaleX[2]),location=Par["location"],scale=Par["scale"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- plogis(Support,Par["location"],Par["scale"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -3630,42 +3748,50 @@ get.logis.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, to
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qnbinom(p=c(0.025,0.5,0.975),size=10,prob=0.5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnbinom(p=c(0.025,0.5,0.975),size=10,prob=0.5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.nbinom.par(q=q)
 #' get.nbinom.par(q=q,fit.weights=c(100,1,100))
 #' get.nbinom.par(q=q,fit.weights=c(1,100,1))
 #' get.nbinom.par(q=q,fit.weights=c(10,1,10))
-#' get.nbinom.par(q=q,fit.weights=c(1,10,1))}
+#' get.nbinom.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qnbinom(p=c(0.025,0.5,0.975),size=1,prob=0.5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnbinom(p=c(0.025,0.5,0.975),size=1,prob=0.5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.nbinom.par(q=q,tol=0.01)
 #' get.nbinom.par(q=q,fit.weights=c(100,1,100))
 #' get.nbinom.par(q=q,fit.weights=c(1,100,1),tol=0.01)
 #' get.nbinom.par(q=q,fit.weights=c(10,1,10),tol=0.01)
-#' get.nbinom.par(q=q,fit.weights=c(1,10,1),tol=0.01)}
+#' get.nbinom.par(q=q,fit.weights=c(1,10,1),tol=0.01)
+# }
 #'
-#' \donttest{q<-qnbinom(p=c(0.025,0.5,0.975),size=1,prob=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnbinom(p=c(0.025,0.5,0.975),size=1,prob=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.nbinom.par(q=q)
 #' get.nbinom.par(q=q,fit.weights=c(100,1,100))
 #' get.nbinom.par(q=q,fit.weights=c(1,100,1))
 #' get.nbinom.par(q=q,fit.weights=c(10,1,10))
-#' get.nbinom.par(q=q,fit.weights=c(1,10,1))}
+#' get.nbinom.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qnbinom(p=c(0.025,0.975),size=10,prob=0.5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnbinom(p=c(0.025,0.975),size=10,prob=0.5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.nbinom.par(p=c(0.025, 0.975),q=q,)
 #' get.nbinom.par(p=c(0.025, 0.975),q=q,fit.weights=c(100,1))
 #' get.nbinom.par(p=c(0.025, 0.975),q=q,fit.weights=c(1,100))
 #' get.nbinom.par(p=c(0.025, 0.975),q=q,fit.weights=c(10,1))
-#' get.nbinom.par(p=c(0.025, 0.975),q=q,fit.weights=c(1,10))}
+#' get.nbinom.par(p=c(0.025, 0.975),q=q,fit.weights=c(1,10))
+# }
 
 get.nbinom.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -3716,8 +3842,8 @@ get.nbinom.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pnbinom(q=q,size=theta[1],prob=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   sizeStart<-mean(q)^2/(sd(q)^2-mean(q))
@@ -3730,15 +3856,15 @@ get.nbinom.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   {if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(sizeStart,probStart),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("size","prob")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("size","prob")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -3750,15 +3876,15 @@ get.nbinom.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("size=",round(Par["size"],digits=2),sep="")
-    main2<-paste("prob=",round(Par["prob"],digits=2),sep="")
-    main<-paste("negbin (",main1,", ",main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qnbinom(p=min(p)*scaleX[1],size=Par["size"],prob=Par["prob"]),
-                   qnbinom(p=(max(p)+(1-max(p))*scaleX[2]),size=Par["size"],prob=Par["prob"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pnbinom(Support,Par["size"],Par["prob"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("prob=",round(Par["prob"],digits=2),sep="")
+  main<-paste("negbin (",main1,", ",main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qnbinom(p=min(p)*scaleX[1],size=Par["size"],prob=Par["prob"]),
+                 qnbinom(p=(max(p)+(1-max(p))*scaleX[2]),size=Par["size"],prob=Par["prob"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pnbinom(Support,Par["size"],Par["prob"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -3835,43 +3961,51 @@ get.nbinom.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qnorm(p=c(0.025,0.5,0.975),mean=12,sd=34)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.5,0.975),mean=12,sd=34)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.par(q=q)
 #' get.norm.par(q=q,scaleX=c(0.00001,0.99999))
 #' get.norm.par(q=q, fit.weights=c(10,1,10))
 #' get.norm.par(q=q, fit.weights = c(1,10,1))
 #' get.norm.par(q=q, fit.weights=c(100,1,100))
-#' get.norm.par(q=q, fit.weights = c(1,100,1))}
+#' get.norm.par(q=q, fit.weights = c(1,100,1))
+# }
 #'
-#' \donttest{q<-qnorm(p=c(0.025,0.5,0.975),mean=0,sd=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.5,0.975),mean=0,sd=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.par(q=q)
 #' get.norm.par(q=q, fit.weights=c(10,1,10))
 #' get.norm.par(q=q, fit.weights = c(1,10,1))
 #' get.norm.par(q=q, fit.weights=c(100,1,100))
-#' get.norm.par(q=q, fit.weights = c(1,100,1))}
+#' get.norm.par(q=q, fit.weights = c(1,100,1))
+# }
 #'
-#' \donttest{q<-qnorm(p=c(0.025,0.5,0.975),mean=0.1,sd=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.5,0.975),mean=0.1,sd=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.par(q=q)
 #' get.norm.par(q=q, fit.weights=c(10,1,10))
 #' get.norm.par(q=q, fit.weights = c(1,10,1))
 #' get.norm.par(q=q, fit.weights=c(100,1,100))
-#' get.norm.par(q=q, fit.weights = c(1,100,1))}
+#' get.norm.par(q=q, fit.weights = c(1,100,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qnorm(p=c(0.025,0.975),mean=12,sd=34)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.975),mean=12,sd=34)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.par(p=c(0.025,0.975),q=q)
 #' get.norm.par(p=c(0.025,0.975),q=q,fit.weights=c(10,1))
 #' get.norm.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
 #' get.norm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,10))
-#' get.norm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))}
+#' get.norm.par(p=c(0.025,0.975),q=q,fit.weights=c(1,100))
+# }
 
 get.norm.par<-function(p=c(0.025,0.5,0.975),q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -3920,8 +4054,8 @@ get.norm.par<-function(p=c(0.025,0.5,0.975),q, show.output=TRUE, plot=TRUE, tol=
   suppressWarnings(s<-(predict(lm,newdata=list(p=.975))[[1]] - m)/1.96)
   minimize <- function(theta)
   { summand<-suppressWarnings(pnorm(q=q,mean=theta[1],sd=theta[2])-p)
-    summand<-summand*fit.weights
-    sum(summand^2)
+  summand<-summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(m,s),minimize,method="L-BFGS-B",lower=c(-10000,0.001),upper=c(10000,10000)), silent=TRUE)
@@ -3932,15 +4066,15 @@ get.norm.par<-function(p=c(0.025,0.5,0.975),q, show.output=TRUE, plot=TRUE, tol=
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(m,s),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("mean","sd")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("mean","sd")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -3952,15 +4086,15 @@ get.norm.par<-function(p=c(0.025,0.5,0.975),q, show.output=TRUE, plot=TRUE, tol=
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("mean=",round(Par["mean"],digits=2))
-    main2<-paste("sd=",round(Par["sd"],digits=2))
-    main<-paste("Normal (",main1,", ",main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qnorm(p=min(p)*scaleX[1],mean=Par["mean"],sd=Par["sd"]),
-                     qnorm(p=(max(p)+(1-max(p))*scaleX[2]),mean=Par["mean"],sd=Par["sd"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pnorm(Support,Par["mean"],Par["sd"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("sd=",round(Par["sd"],digits=2))
+  main<-paste("Normal (",main1,", ",main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qnorm(p=min(p)*scaleX[1],mean=Par["mean"],sd=Par["sd"]),
+                 qnorm(p=(max(p)+(1-max(p))*scaleX[2]),mean=Par["mean"],sd=Par["sd"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pnorm(Support,Par["mean"],Par["sd"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -4015,50 +4149,58 @@ get.norm.par<-function(p=c(0.025,0.5,0.975),q, show.output=TRUE, plot=TRUE, tol=
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qnorm(p=c(0.025,0.5,0.975),mean=0,sd=2)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.5,0.975),mean=0,sd=2)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.sd(q=q)
 #' get.norm.sd(q=q,scaleX=c(0.0001,0.9999))
 #' get.norm.sd(q=q,fit.weights=c(10,1,10))
 #' get.norm.sd(q=q,fit.weights=c(1,10,1))
 #' get.norm.sd(q=q,fit.weights=c(100,1,100))
-#' get.norm.sd(q=q,fit.weights=c(1,100,1))}
+#' get.norm.sd(q=q,fit.weights=c(1,100,1))
+# }
 #'
-#' \donttest{q<-qnorm(p=c(0.025,0.5,0.975),mean=176,sd=15)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qnorm(p=c(0.025,0.5,0.975),mean=176,sd=15)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.sd(q=q)
 #' get.norm.sd(q=q, fit.weights=c(10,1,10))
 #' get.norm.sd(q=q, fit.weights=c(1,10,1))
 #' get.norm.sd(q=q, fit.weights=c(100,1,100))
-#' get.norm.sd(q=q, fit.weights=c(1,100,1))}
+#' get.norm.sd(q=q, fit.weights=c(1,100,1))
+# }
 #'
 #' # The estimating model is not suitable for the following quantiles.
 #' # Because the quantile is unsymmetrical, which could not be from a normally distributed data.
-#' \donttest{q<-c(-2,30,31)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-c(-2,30,31)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.sd(q=q)
 #' get.norm.sd(q=q,fit.weights=c(10,1,10))
 #' get.norm.sd(q=q, fit.weights=c(1,10,1),scaleX=c(0.0001,0.9999))
 #' get.norm.sd(q=q,fit.weights=c(100,1,100))
-#' get.norm.sd(q=q, fit.weights=c(1,100,1),scaleX=c(0.0001,0.9999))}
+#' get.norm.sd(q=q, fit.weights=c(1,100,1),scaleX=c(0.0001,0.9999))
+# }
 #'
 #' # The estimating from an actually exponetial distributed data
-#' \donttest{x.exp<-rexp(n=10,rate=5)
+# \donttest{
+#' x.exp<-rexp(n=10,rate=5)
 #' mean(x.exp)
 #' sd(x.exp)
 #' q<-quantile(x.exp,c(0.025,0.5,0.975))
-#' X11(width=9,height=6)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.norm.sd(q=q)
 #' get.norm.sd(q=q,fit.weights=c(1,10,1))
 #' get.norm.sd(q=q,fit.weights=c(10,1,10))
 #' get.norm.sd(q=q,fit.weights=c(1,100,1))
-#' get.norm.sd(q=q,fit.weights=c(100,1,100))}
+#' get.norm.sd(q=q,fit.weights=c(100,1,100))
+# }
 #'
-#' # other exmamples
+#' # other examples
 #' q<-qnorm(p=c(0.025,0.5,0.975),mean=1,sd=1)
 #' get.norm.sd(q=q)
 #'
@@ -4105,7 +4247,7 @@ get.norm.sd<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,fit.weig
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, the argument 'plot' should be logical!",call.=FALSE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # estimating procedure
   #-----------------------------------------------------------------------------
@@ -4122,20 +4264,20 @@ get.norm.sd<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,fit.weig
     lmodel$par<-c(lmodel$coeff[1][[1]], lmodel$coeff[2][[1]])
     names(lmodel$par)<-c("mean","sd")
   }
-
+  
   #-----------------------------------------------------------------------------
   # creating graphical diagnostics
   #-----------------------------------------------------------------------------
   if(prod(!is.na(lmodel$par)) & plot)
   { main1<-paste("mean=",round(lmodel$par["mean"],digits=2), "sd=",round(lmodel$par["sd"],digits=2))
-    main<-paste("Normal (",main1,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qnorm(p=min(p)*scaleX[1],sd=lmodel$par["sd"],mean=lmodel$par["mean"]),
-                  qnorm(p=(max(p)+(1-max(p))*scaleX[2]),sd=lmodel$par["sd"],mean=lmodel$par["mean"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pnorm(Support,mean=lmodel$par["mean"],sd=lmodel$par["sd"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main<-paste("Normal (",main1,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qnorm(p=min(p)*scaleX[1],sd=lmodel$par["sd"],mean=lmodel$par["mean"]),
+                 qnorm(p=(max(p)+(1-max(p))*scaleX[2]),sd=lmodel$par["sd"],mean=lmodel$par["mean"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pnorm(Support,mean=lmodel$par["mean"],sd=lmodel$par["sd"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -4208,47 +4350,58 @@ get.norm.sd<-function(p=c(0.025,0.5,0.975),q,show.output=TRUE,plot=TRUE,fit.weig
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
-#' @seealso See \code{ppert} from the package \pkg{mc2d} for distribution implementation details.
+#' @seealso See \code{\link[mc2d:ppert]{ppert}} from the package \pkg{mc2d} for distribution 
+#' implementation details.
 #' @keywords fitpercentiles
 #' @export
+#' @importFrom mc2d qpert
+#' @importFrom mc2d ppert
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qpert(p=c(0.025,0.5,0.6,0.975),min=0,mode=3,max=10,shape=5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qpert(p=c(0.025,0.5,0.6,0.975),min=0,mode=3,max=10,shape=5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pert.par(q=q)
 #' get.pert.par(q=q,fit.weights=c(100,1,1,100))
 #' get.pert.par(q=q,fit.weights=c(10,1,1,10))
 #' get.pert.par(q=q,fit.weights=c(1,100,1,1))
-#' get.pert.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.pert.par(q=q,fit.weights=c(1,10,1,1))
+# }
 #'
-#' \donttest{q<-qpert(p=c(0.025,0.5,0.6,0.975),min=1,mode=5,max=10,shape=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qpert(p=c(0.025,0.5,0.6,0.975),min=1,mode=5,max=10,shape=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pert.par(q=q)
 #' get.pert.par(q=q,scaleX=c(0.0001,0.999999))
 #' get.pert.par(q=q,fit.weights=c(100,1,1,100))
 #' get.pert.par(q=q,fit.weights=c(10,1,1,10))
 #' get.pert.par(q=q,fit.weights=c(1,100,1,1))
-#' get.pert.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.pert.par(q=q,fit.weights=c(1,10,1,1))
+# }
 #'
-#' \donttest{q<-qpert(p=c(0.025,0.5,0.6,0.975),min=-10,mode=5,max=10,shape=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qpert(p=c(0.025,0.5,0.6,0.975),min=-10,mode=5,max=10,shape=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pert.par(q=q)
 #' get.pert.par(q=q,fit.weights=c(100,1,1,100))
 #' get.pert.par(q=q,fit.weights=c(10,1,1,10))
 #' get.pert.par(q=q,fit.weights=c(1,100,1,1))
-#' get.pert.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.pert.par(q=q,fit.weights=c(1,10,1,1))
+# }
 #'
-#' \donttest{q<-qpert(p=c(0.025,0.5,0.6,0.975),min=-10,mode=5,max=10,shape=0.4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qpert(p=c(0.025,0.5,0.6,0.975),min=-10,mode=5,max=10,shape=0.4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pert.par(q=q)
 #' get.pert.par(q=q,fit.weights=c(100,1,1,100))
 #' get.pert.par(q=q,fit.weights=c(10,1,1,10))
 #' get.pert.par(q=q,fit.weights=c(1,100,1,1))
-#' get.pert.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.pert.par(q=q,fit.weights=c(1,10,1,1))
+# }
 
 get.pert.par<-function(p=c(0.025,0.5,0.6,0.975),q,show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -4297,28 +4450,28 @@ get.pert.par<-function(p=c(0.025,0.5,0.6,0.975),q,show.output=TRUE, plot=TRUE, t
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(ppert(q=q,min=theta[1],mode=theta[2],max=theta[3],shape=theta[4])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,5,10,4),minimize,method="L-BFGS-B",
-    lower=c(-10000,-10000,-10000,0.001),upper=c(10000,10000,10000,1000)), silent=TRUE)
+                             lower=c(-10000,-10000,-10000,0.001),upper=c(10000,10000,10000,1000)), silent=TRUE)
   #-----------------------------------------------------------------------------
   # checking results
   #-----------------------------------------------------------------------------
   if(inherits(try.result, "try-error") | fit$value >= tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
-     fit<-c();fit$value<-tol+1
-     try.result<-try(fit<-optim(par=c(1,5,10,4),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     }  else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("min","mode","max","shape")
-       if(show.output) print(fit)
-     }
+    fit<-c();fit$value<-tol+1
+    try.result<-try(fit<-optim(par=c(1,5,10,4),minimize,method="BFGS"), silent=TRUE)
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    }  else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("min","mode","max","shape")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -4337,7 +4490,7 @@ get.pert.par<-function(p=c(0.025,0.5,0.6,0.975),q,show.output=TRUE, plot=TRUE, t
     main<-paste("Pert (",main1,", ",main2,", ",main3,", ", main4,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qpert(p=min(p)*scaleX[1],min=Par["min"],mode=Par["mode"],max=Par["max"],shape=Par["shape"]),
-                     qpert(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],mode=Par["mode"],max=Par["max"],shape=Par["shape"]))
+                   qpert(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],mode=Par["mode"],max=Par["max"],shape=Par["shape"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- ppert(Support,Par["min"],Par["mode"],Par["max"],shape=Par["shape"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -4417,41 +4570,49 @@ get.pert.par<-function(p=c(0.025,0.5,0.6,0.975),q,show.output=TRUE, plot=TRUE, t
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qpois(p=c(0.025,0.5,0.975),lambda=3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qpois(p=c(0.025,0.5,0.975),lambda=3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pois.par(q=q)
 #' get.pois.par(q=q,fit.weights=c(100,1,100))
 #' get.pois.par(q=q,fit.weights=c(10,1,10))
 #' get.pois.par(q=q,fit.weights=c(1,100,1))
-#' get.pois.par(q=q,fit.weights=c(1,10,1))}
+#' get.pois.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qpois(p=c(0.025,0.5,0.975),lambda=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qpois(p=c(0.025,0.5,0.975),lambda=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pois.par(q=q)
 #' get.pois.par(q=q,fit.weights=c(100,1,100))
 #' get.pois.par(q=q,fit.weights=c(10,1,10))
 #' get.pois.par(q=q,fit.weights=c(1,100,1))
-#' get.pois.par(q=q,fit.weights=c(1,10,1))}
+#' get.pois.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qpois(p=c(0.025,0.5,0.975),lambda=0.5)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qpois(p=c(0.025,0.5,0.975),lambda=0.5)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pois.par(q=q,tol=1)
 #' get.pois.par(q=q,fit.weights=c(100,1,100),tol=1)
 #' get.pois.par(q=q,fit.weights=c(10,1,10),tol=1)
 #' get.pois.par(q=q,fit.weights=c(1,100,1))
-#' get.pois.par(q=q,fit.weights=c(1,10,1),tol=0.01)}
+#' get.pois.par(q=q,fit.weights=c(1,10,1),tol=0.01)
+# }
 #'
-#' \donttest{q<-qpois(p=c(0.025,0.5,0.975),lambda=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qpois(p=c(0.025,0.5,0.975),lambda=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.pois.par(q=q,tol=0.01)
 #' get.pois.par(q=q,fit.weights=c(100,1,100),tol=0.01)
 #' get.pois.par(q=q,fit.weights=c(10,1,10),tol=0.01)
 #' get.pois.par(q=q,fit.weights=c(1,100,1))
-#' get.pois.par(q=q,fit.weights=c(1,10,1))}
+#' get.pois.par(q=q,fit.weights=c(1,10,1))
+# }
 
 get.pois.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -4501,8 +4662,8 @@ get.pois.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(lambda)
   { summand <- ppois(q=q,lambda=lambda)-p
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=1,minimize,method="L-BFGS-B",lower=0.001,upper=10000), silent=TRUE)
@@ -4527,7 +4688,7 @@ get.pois.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol
     main<-paste("Poisson (",main1,")",sep="")
     sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
     Support.lim<-c(qpois(p=min(p)*scaleX[1],lambda=Par["lambda"]),
-                     qpois(p=(max(p)+(1-max(p))*scaleX[2]),lambda=Par["lambda"]))
+                   qpois(p=(max(p)+(1-max(p))*scaleX[2]),lambda=Par["lambda"]))
     Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
     Probability <- ppois(Support,Par["lambda"])
     plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
@@ -4609,40 +4770,48 @@ get.pois.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qt(p=c(0.025,0.5,0.975),df=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qt(p=c(0.025,0.5,0.975),df=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.t.par(q=q)
 #' get.t.par(q=q,fit.weights=c(100,1,100))
 #' get.t.par(q=q,fit.weights=c(10,1,10))
 #' get.t.par(q=q,fit.weights=c(1,100,1))
-#' get.t.par(q=q,fit.weights=c(1,10,1))}
+#' get.t.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qt(p=c(0.025,0.5,0.975),df=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qt(p=c(0.025,0.5,0.975),df=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.t.par(q=q,scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.5,0.5))
-#' get.t.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))}
+#' get.t.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))
+# }
 #'
-#' \donttest{q<-qt(p=c(0.025,0.5,0.975),df=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qt(p=c(0.025,0.5,0.975),df=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.t.par(q=q,scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.5,0.5))
 #' get.t.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.5,0.5))
-#' get.t.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))}
+#' get.t.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.5,0.5))
+# }
 #'
 #' # example with only one quantile
-#' \donttest{q<-qt(p=c(0.025),df=3)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qt(p=c(0.025),df=3)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.t.par(p=c(0.025),q=q)
 #' get.t.par(p=c(0.025),q=q,fit.weights=10)
-#' get.t.par(p=c(0.025),q=q,fit.weights=100)}
+#' get.t.par(p=c(0.025),q=q,fit.weights=100)
+# }
 
 get.t.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -4689,8 +4858,8 @@ get.t.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   fit.weights<-fit.weights/sum(fit.weights)
   minimize <- function(par)
   { summand <- suppressWarnings(pt(q=q,df=par)-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=1,minimize,method="L-BFGS-B",lower=0.001,upper=10000), silent=TRUE)
@@ -4701,15 +4870,15 @@ get.t.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=1,minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     }  else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("df")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    }  else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("df")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -4721,13 +4890,13 @@ get.t.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("df=",round(Par["df"],digits=2))
-    main<-paste("Student (",main1,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qt(p=min(p)*scaleX[1],df=Par["df"]),qt(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pt(Support,Par["df"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main<-paste("Student (",main1,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qt(p=min(p)*scaleX[1],df=Par["df"]),qt(p=(max(p)+(1-max(p))*scaleX[2]),df=Par["df"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pt(Support,Par["df"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -4800,38 +4969,46 @@ get.t.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
-#' @seealso See \code{ptnorm} for distribution implementation details.
+#' @seealso See \code{\link[msm:ptnorm]{ptnomr}} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
+#' @importFrom msm qtnorm
+#' @importFrom msm ptnorm
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qtnorm(p=c(0.025,0.5,0.75,0.975),mean=3,sd=3,lower=0,upper=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-msm::qtnorm(p=c(0.025,0.5,0.75,0.975),mean=3,sd=3,lower=0,upper=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.tnorm.par(q=q)
 #' get.tnorm.par(q=q,scaleX=c(0.1,0.999999))
 #' get.tnorm.par(q=q,fit.weights=c(100,1,1,100))
 #' get.tnorm.par(q=q,fit.weights=c(10,1,1,10))
 #' get.tnorm.par(q=q,fit.weights=c(1,100,1,1))
-#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))
+# }
 #'
-#' \donttest{q<-qtnorm(p=c(0.025,0.5,0.75,0.975),mean=3,sd=0.1,lower=-1,upper=4)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-msm::qtnorm(p=c(0.025,0.5,0.75,0.975),mean=3,sd=0.1,lower=-1,upper=4)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.tnorm.par(q=q)
 #' get.tnorm.par(q=q,fit.weights=c(100,1,1,100))
 #' get.tnorm.par(q=q,fit.weights=c(10,1,1,10))
 #' get.tnorm.par(q=q,fit.weights=c(1,100,1,1))
-#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))
+# }
 #'
-#' \donttest{q<-qtnorm(p=c(0.025,0.5,0.75,0.975),mean=0,sd=1,lower=-2,upper=2)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-msm::qtnorm(p=c(0.025,0.5,0.75,0.975),mean=0,sd=1,lower=-2,upper=2)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.tnorm.par(q=q)
 #' get.tnorm.par(q=q,fit.weights=c(100,1,1,100))
 #' get.tnorm.par(q=q,fit.weights=c(10,1,1,10))
 #' get.tnorm.par(q=q,fit.weights=c(1,100,1,1))
-#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))}
+#' get.tnorm.par(q=q,fit.weights=c(1,10,1,1))
+# }
 
 get.tnorm.par<-function(p=c(0.025,0.5,0.75,0.975),q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -4881,7 +5058,8 @@ get.tnorm.par<-function(p=c(0.025,0.5,0.75,0.975),q, show.output=TRUE, plot=TRUE
   suppressWarnings(m<-predict(lm,newdata=list(p=0.5))[[1]])
   suppressWarnings(s<-(predict(lm,newdata=list(p=0.975))[[1]] - m)/1.96)
   minimize <- function(theta)
-  { summand <- suppressWarnings(ptnorm(q=q,mean=theta[1],sd=theta[2],lower=theta[3],upper=theta[4])-p)
+  { 
+    summand <- suppressWarnings(ptnorm(q=q,mean=theta[1],sd=theta[2],lower=theta[3],upper=theta[4])-p)
     summand <- summand*fit.weights
     sum(summand^2)
   }
@@ -4894,15 +5072,15 @@ get.tnorm.par<-function(p=c(0.025,0.5,0.75,0.975),q, show.output=TRUE, plot=TRUE
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(m,s,min(q)-s,max(q)+s),minimize,method="Nelder-Mead"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("mean","sd","lower","upper")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei Fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    { if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("mean","sd","lower","upper")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -4914,17 +5092,17 @@ get.tnorm.par<-function(p=c(0.025,0.5,0.75,0.975),q, show.output=TRUE, plot=TRUE
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("mean=",round(Par["mean"],digits=2))
-    main2<-paste("sd=",round(Par["sd"],digits=2))
-    main3<-paste("lower=",round(Par["lower"],digits=2))
-    main4<-paste("upper=",round(Par["upper"],digits=2))
-    main<-paste("trunc. normal (",main1,", ",main2,", ",main3,", ",main4,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qtnorm(p=min(p)*scaleX[1],mean=Par["mean"],sd=Par["sd"],lower=Par["lower"],upper=Par["upper"]),
-                     qtnorm(p=(max(p)+(1-max(p))*scaleX[2]),mean=Par["mean"],sd=Par["sd"],lower=Par["lower"],upper=Par["upper"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- ptnorm(Support,Par["mean"],Par["sd"],Par["lower"],Par["upper"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("sd=",round(Par["sd"],digits=2))
+  main3<-paste("lower=",round(Par["lower"],digits=2))
+  main4<-paste("upper=",round(Par["upper"],digits=2))
+  main<-paste("trunc. normal (",main1,", ",main2,", ",main3,", ",main4,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qtnorm(p=min(p)*scaleX[1],mean=Par["mean"],sd=Par["sd"],lower=Par["lower"],upper=Par["upper"]),
+                 qtnorm(p=(max(p)+(1-max(p))*scaleX[2]),mean=Par["mean"],sd=Par["sd"],lower=Par["lower"],upper=Par["upper"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- ptnorm(Support,Par["mean"],Par["sd"],Par["lower"],Par["upper"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -4996,43 +5174,52 @@ get.tnorm.par<-function(p=c(0.025,0.5,0.75,0.975),q, show.output=TRUE, plot=TRUE
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
-#' @seealso See \code{ptriang} from the package \pkg{mc2d} for distribution implementation details.
+#' @seealso See \code{\link[mc2d:ptriang]{ptriang}} from the package \pkg{mc2d} for distribution 
+#' implementation details.
 #' @keywords fitpercentiles
 #' @export
+#' @importFrom mc2d qtriang
+#' @importFrom mc2d ptriang
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qtriang(p=c(0.025,0.5,0.975),min=0,mode=3,max=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qtriang(p=c(0.025,0.5,0.975),min=0,mode=3,max=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.triang.par(q=q)
 #' get.triang.par(q=q,fit.weights=c(100,1,100))
 #' get.triang.par(q=q,fit.weights=c(10,1,10))
 #' get.triang.par(q=q,fit.weights=c(1,100,1))
-#' get.triang.par(q=q,fit.weights=c(1,10,1))}
+#' get.triang.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qtriang(p=c(0.025,0.5,0.975),min=1,mode=5,max=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qtriang(p=c(0.025,0.5,0.975),min=1,mode=5,max=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.triang.par(q=q)
 #' get.triang.par(q=q,scaleX=c(0.00001,0.99999))
 #' get.triang.par(q=q,fit.weights=c(100,1,100))
 #' get.triang.par(q=q,fit.weights=c(10,1,10))
 #' get.triang.par(q=q,fit.weights=c(1,100,1))
-#' get.triang.par(q=q,fit.weights=c(1,10,1))}
+#' get.triang.par(q=q,fit.weights=c(1,10,1))
+# }
 #'
 #' # bad fit for negative values
-#' \donttest{q<-qtriang(p=c(0.025,0.5,0.975),min=-20,mode=5,max=10)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-mc2d::qtriang(p=c(0.025,0.5,0.975),min=-20,mode=5,max=10)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.triang.par(q=q,tol=0.1)
 #' get.triang.par(q=q)
 #' get.triang.par(q=q,fit.weights=c(100,1,100))
 #' get.triang.par(q=q,fit.weights=c(10,1,10))
 #' get.triang.par(q=q,fit.weights=c(1,100,1),tol=1)
-#' get.triang.par(q=q,fit.weights=c(1,10,1),tol=1)}
+#' get.triang.par(q=q,fit.weights=c(1,10,1),tol=1)
+# }
 #'
 #' # other examples
-#' q<-qtriang(p=c(0.025,0.5,0.975),min=-20,mode=5,max=10)
+#' q<-mc2d::qtriang(p=c(0.025,0.5,0.975),min=-20,mode=5,max=10)
 #' get.triang.par(q=q,tol=0.3)
 
 get.triang.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
@@ -5082,12 +5269,12 @@ get.triang.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(ptriang(q=q,min=theta[1],mode=theta[2],max=theta[3])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(1,5,10),minimize,method="L-BFGS-B",
-    lower=c(-10000,-10000,-10000),upper=c(10000,10000,10000)), silent=TRUE)
+                             lower=c(-10000,-10000,-10000),upper=c(10000,10000,10000)), silent=TRUE)
   #-----------------------------------------------------------------------------
   # checking results
   #-----------------------------------------------------------------------------
@@ -5095,15 +5282,15 @@ get.triang.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=c(1,5,10),minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     } else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("min","mode","max")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    } else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("min","mode","max")
+      if(show.output) print(fit)
+    }
   }else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -5115,16 +5302,16 @@ get.triang.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, t
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("min=",round(Par["min"],digits=2),sep="")
-    main2<-paste("mode=",round(Par["mode"],digits=2),sep="")
-    main3<-paste("max=",round(Par["max"],digits=2),sep="")
-    main<-paste("Triangular (",main1,", ",main2,", ",main3,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qtriang(p=min(p)*scaleX[1],min=Par["min"],mode=Par["mode"],max=Par["max"]),
-                     qtriang(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],mode=Par["mode"],max=Par["max"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- ptriang(Support,Par["min"],Par["mode"],Par["max"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("mode=",round(Par["mode"],digits=2),sep="")
+  main3<-paste("max=",round(Par["max"],digits=2),sep="")
+  main<-paste("Triangular (",main1,", ",main2,", ",main3,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qtriang(p=min(p)*scaleX[1],min=Par["min"],mode=Par["mode"],max=Par["max"]),
+                 qtriang(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],mode=Par["mode"],max=Par["max"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- ptriang(Support,Par["min"],Par["mode"],Par["max"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -5215,7 +5402,7 @@ get.unif.par<-function(p=c(0.025,0.975), q, plot=TRUE,scaleX=c(0.1,0.9),...)
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, the argument 'plot' should be logical!",call.=FALSE)
   }
-
+  
   #-----------------------------------------------------------------------------
   # defining parameters
   #-----------------------------------------------------------------------------
@@ -5229,14 +5416,14 @@ get.unif.par<-function(p=c(0.025,0.975), q, plot=TRUE,scaleX=c(0.1,0.9),...)
   #-----------------------------------------------------------------------------
   if (plot)
   { main1<-paste("min=",round(Par["min"],digits=2),sep="")
-    main2<-paste("max=",round(Par["max"],digits=2),sep="")
-    main<-paste("Uniform (",main1,", ",main2,")",sep="")
-    Support.lim<-c(qunif(p=min(p)*scaleX[1],min=Par["min"],max=Par["max"]),
-                   qunif(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],max=Par["max"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- punif(Support,Par["min"],Par["max"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("max=",round(Par["max"],digits=2),sep="")
+  main<-paste("Uniform (",main1,", ",main2,")",sep="")
+  Support.lim<-c(qunif(p=min(p)*scaleX[1],min=Par["min"],max=Par["max"]),
+                 qunif(p=(max(p)+(1-max(p))*scaleX[2]),min=Par["min"],max=Par["max"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- punif(Support,Par["min"],Par["max"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # plot graphical diagnostics
@@ -5313,49 +5500,59 @@ get.unif.par<-function(p=c(0.025,0.975), q, plot=TRUE,scaleX=c(0.1,0.9),...)
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{q<-qweibull(p=c(0.025,0.5,0.975),shape=0.01,scale=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qweibull(p=c(0.025,0.5,0.975),shape=0.01,scale=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.weibull.par(q=q,scaleX=c(0.1,0.03))
 #' get.weibull.par(q=q, fit.weights=c(100,1,100),scaleX=c(0.1,0.99))
 #' get.weibull.par(q=q, fit.weights=c(10,1,10))
 #' get.weibull.par(q=q, fit.weights=c(1,100,1),scaleX=c(0.1,0.03))
-#' get.weibull.par(q=q, fit.weights=c(1,10,1),scaleX=c(0.1,0.03))}
+#' get.weibull.par(q=q, fit.weights=c(1,10,1),scaleX=c(0.1,0.03))
+# }
 #'
-#' \donttest{q<-qweibull(p=c(0.025,0.5,0.975),shape=0.1,scale=0.1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qweibull(p=c(0.025,0.5,0.975),shape=0.1,scale=0.1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.weibull.par(q=q,scaleX=c(0.1,0.05))
 #' get.weibull.par(q=q,fit.weights=c(100,1,100),scaleX=c(0.00000001,0.99999999999))
 #' get.weibull.par(q=q,fit.weights=c(10,1,10),scaleX=c(0.00000001,0.99999999999))
 #' get.weibull.par(q=q,fit.weights=c(1,100,1),scaleX=c(0.00000001,0.01))
-#' get.weibull.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.00000001,0.1))}
+#' get.weibull.par(q=q,fit.weights=c(1,10,1),scaleX=c(0.00000001,0.1))
+# }
 #'
-#' \donttest{q<-qweibull(p=c(0.025,0.5,0.975),shape=2,scale=3)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qweibull(p=c(0.025,0.5,0.975),shape=2,scale=3)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.weibull.par(q=q)
 #' get.weibull.par(q=q, fit.weights=c(100,1,100))
 #' get.weibull.par(q=q, fit.weights=c(10,1,10))
 #' get.weibull.par(q=q, fit.weights=c(1,100,1))
-#' get.weibull.par(q=q, fit.weights=c(1,10,1))}
+#' get.weibull.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
-#' \donttest{q<-qweibull(p=c(0.025,0.5,0.975),shape=1,scale=1)
-#' X11(width=9,height=6)
+# \donttest{
+#' q<-qweibull(p=c(0.025,0.5,0.975),shape=1,scale=1)
+# X11(width=9,height=6)
 #' par(mfrow=c(2,3))
 #' get.weibull.par(q=q)
 #' get.weibull.par(q=q, fit.weights=c(100,1,100))
 #' get.weibull.par(q=q, fit.weights=c(10,1,10))
 #' get.weibull.par(q=q, fit.weights=c(1,100,1))
-#' get.weibull.par(q=q, fit.weights=c(1,10,1))}
+#' get.weibull.par(q=q, fit.weights=c(1,10,1))
+# }
 #'
 #' # example with only two quantiles
-#' \donttest{q<-qweibull(p=c(0.025,0.975),shape=2,scale=1)
-#' X11(width=9,height=3)
+# \donttest{
+#' q<-qweibull(p=c(0.025,0.975),shape=2,scale=1)
+# X11(width=9,height=3)
 #' par(mfrow=c(1,3))
 #' get.weibull.par(p=c(0.025,0.975),q=q)
 #' get.weibull.par(p=c(0.025,0.975),q=q,fit.weights=c(100,1))
-#' get.weibull.par(p=c(0.025,0.975), q=q,fit.weights=c(10,1))}
+#' get.weibull.par(p=c(0.025,0.975), q=q,fit.weights=c(10,1))
+# }
 
 get.weibull.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, tol=0.001,fit.weights=rep(1,length(p)),scaleX=c(0.1,0.9),...)
 {
@@ -5406,8 +5603,8 @@ get.weibull.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, 
   fit.weights <- fit.weights/sum(fit.weights)
   minimize <- function(theta)
   { summand <- suppressWarnings(pweibull(q=q,shape=theta[1],scale=theta[2])-p)
-    summand <- summand*fit.weights
-    sum(summand^2)
+  summand <- summand*fit.weights
+  sum(summand^2)
   }
   fit<-c();fit$value<-tol+1
   try.result<-try(fit<-optim(par=c(0,1),minimize,method="L-BFGS-B",lower=c(0.001,0.001),upper=c(10000,10000)), silent=TRUE)
@@ -5418,15 +5615,15 @@ get.weibull.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, 
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
     fit<-c();fit$value<-tol+1
     try.result<-try(fit<-optim(par=1,minimize,method="BFGS"), silent=TRUE)
-     if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
-     {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
-        Par<-NA
-     }  else if (fit$value < tol)
-     {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
-       Par<-fit$par
-       names(Par)<-c("shape","scale")
-       if(show.output) print(fit)
-     }
+    if(inherits(try.result, "try-error") | fit$value >= tol) # bei fehlermeldung keine ausgabe
+    {  if(show.output)cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+      Par<-NA
+    }  else if (fit$value < tol)
+    {  if(show.output)cat("The fitting procedure 'BFGS' was successful ! \n")
+      Par<-fit$par
+      names(Par)<-c("shape","scale")
+      if(show.output) print(fit)
+    }
   } else if (fit$value < tol)
   { if(show.output)cat("The fitting procedure 'L-BFGS-B' was successful! \n")
     Par<-fit$par
@@ -5438,15 +5635,15 @@ get.weibull.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, 
   #-----------------------------------------------------------------------------
   if(prod(!is.na(Par)) & plot)
   { main1<-paste("shape=",round(Par["shape"],digits=2))
-    main2<-paste("scale=",round(Par["scale"],digits=2))
-    main<-paste("Weibull (",main1,", ", main2,")",sep="")
-    sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
-    Support.lim<-c(qweibull(p=min(p)*scaleX[1],shape=Par["shape"],scale=Par["scale"]),
-                     qweibull(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],scale=Par["scale"]))
-    Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
-    Probability <- pweibull(Support,Par["shape"],Par["scale"])
-    plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
-    points(x=q,y=p,pch=19,...)
+  main2<-paste("scale=",round(Par["scale"],digits=2))
+  main<-paste("Weibull (",main1,", ", main2,")",sep="")
+  sub=paste("fit.weights=c(",paste(fit.weights.original,collapse=", "),")",sep="")
+  Support.lim<-c(qweibull(p=min(p)*scaleX[1],shape=Par["shape"],scale=Par["scale"]),
+                 qweibull(p=(max(p)+(1-max(p))*scaleX[2]),shape=Par["shape"],scale=Par["scale"]))
+  Support <- seq(min(min(q),Support.lim[1]),max(max(q),Support.lim[2]),length=200)
+  Probability <- pweibull(Support,Par["shape"],Par["scale"])
+  plot(Support,Probability,type="l",xlim=range(Support.lim,q),main=main,xlab="Quantiles",sub=sub,...)
+  points(x=q,y=p,pch=19,...)
   }
   #-----------------------------------------------------------------------------
   # output
@@ -5500,18 +5697,19 @@ get.weibull.par<-function(p=c(0.025,0.5,0.975), q, show.output=TRUE, plot=TRUE, 
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' x1 <- rgamma(374,4,0.08)
 #' res1<-useFitdist(data2fit=x1)
 #' res1
 #'
 #' x2<-rbeta(300,shape1=1,shape2=2)
 #' res2<-useFitdist(data2fit=x2)
-#' res2}
+#' res2
+# }
 
 useFitdist<-function(data2fit,show.output=TRUE,
-  distributions=c("norm","cauchy","logis","beta","exp","chisq","unif","gamma",
-    "lnorm","weibull","f","t","gompertz","triang"))
+                     distributions=c("norm","cauchy","logis","beta","exp","chisq","unif","gamma",
+                                     "lnorm","weibull","f","t","gompertz","triang"))
 {
   #-----------------------------------------------------------------------------
   # checking input
@@ -5525,59 +5723,59 @@ useFitdist<-function(data2fit,show.output=TRUE,
   if(any(is.na(data2fit)))
     stop("'data2fit' contains missing values, fitting procedure is not possible!",call.=FALSE)
   if(!is.logical(show.output))
-     stop("'show.output' should be a simple logical value!",call.=FALSE)
-
+    stop("'show.output' should be a simple logical value!",call.=FALSE)
+  
   #-----------------------------------------------------------------------------
   # define variables
   #-----------------------------------------------------------------------------
   fit.list<-list()
   index<-1
-
+  
   #-----------------------------------------------------------------------------
   # internal function
   #-----------------------------------------------------------------------------
   trim.whitespace <- function(char)
   { char <- as.character(char)
-    n <- length(char)
-    out <- NULL
-    for (i in 1:n)
-    { c <- unlist(strsplit(char[i],split=" "))
-      b <- which(c == "")
-      if(length(b) > 0) c <- c[-b]
-      c <- paste(c,collapse=" ")
-      out <- c(out,c)
-    }
-    return(out)
+  n <- length(char)
+  out <- NULL
+  for (i in 1:n)
+  { c <- unlist(strsplit(char[i],split=" "))
+  b <- which(c == "")
+  if(length(b) > 0) c <- c[-b]
+  c <- paste(c,collapse=" ")
+  out <- c(out,c)
   }
-
+  return(out)
+  }
+  
   #-----------------------------------------------------------------------------
   # fitting procedures
   #-----------------------------------------------------------------------------
   if(show.output)  cat("\n-------------------------------------------------------------------\n")
   if(show.output) cat("Begin fitting distributions... \n")
-
+  
   # fit normal distributions
   if(is.element("norm",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"norm")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Normal distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Normal"
-      index<-index+1
-    } else if(show.output) cat("Warning: Normal distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Normal distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Normal"
+    index<-index+1
+  } else if(show.output) cat("Warning: Normal distribution couldn't be fitted! \n")
   }
-
+  
   # fit cauchy distribution
   if(is.element("cauchy",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"cauchy")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Cauchy distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Cauchy"
-      index<-index+1
-    } else if(show.output) cat("Warning: Cauchy distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Cauchy distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Cauchy"
+    index<-index+1
+  } else if(show.output) cat("Warning: Cauchy distribution couldn't be fitted! \n")
   }
-
+  
   # fit logistic distribution
   if(is.element("logis",distributions))
   {
@@ -5589,91 +5787,91 @@ useFitdist<-function(data2fit,show.output=TRUE,
       index<-index+1
     } else if(show.output) cat("Warning: Logistic distribution couldn't be fitted! \n")
   }
-
+  
   # fit beta distribution
   if(is.element("beta",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"beta")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Beta distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Beta"
-      index<-index+1
-    } else if(show.output) cat("Warning: Beta distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Beta distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Beta"
+    index<-index+1
+  } else if(show.output) cat("Warning: Beta distribution couldn't be fitted! \n")
   }
-
+  
   # fit exponential distribution
   if(is.element("exp",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"exp")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Exponential distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Exponential"
-      index<-index+1
-    } else if(show.output) cat("Warning: Exponential distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Exponential distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Exponential"
+    index<-index+1
+  } else if(show.output) cat("Warning: Exponential distribution couldn't be fitted! \n")
   }
-
+  
   # fit exponential distribution
   if(is.element("chisq",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"chisq",start=mean(data2fit))), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Chi-square distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Chi-square"
-      index<-index+1
-    } else if(show.output) cat("Warning: Chi-square distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Chi-square distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Chi-square"
+    index<-index+1
+  } else if(show.output) cat("Warning: Chi-square distribution couldn't be fitted! \n")
   }
-
+  
   # fit uniform distribution
   if(is.element("unif",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"unif",method="mme")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Uniform distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Uniform"
-      index<-index+1
-    } else if(show.output) cat("Warning: Uniform distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Uniform distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Uniform"
+    index<-index+1
+  } else if(show.output) cat("Warning: Uniform distribution couldn't be fitted! \n")
   }
-
+  
   # fit gamma distribution
   if(is.element("gamma",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"gamma")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Gamma distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Gamma"
-      index<-index+1
-    } else if(show.output) cat("Warning: gamma distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Gamma distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Gamma"
+    index<-index+1
+  } else if(show.output) cat("Warning: gamma distribution couldn't be fitted! \n")
   }
-
+  
   # fit lognormal distribution
   if(is.element("lnorm",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"lnorm")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Lognormal distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Lognormal"
-      index<-index+1
-    } else if(show.output) cat("Warning: Lognormal distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Lognormal distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Lognormal"
+    index<-index+1
+  } else if(show.output) cat("Warning: Lognormal distribution couldn't be fitted! \n")
   }
-
+  
   # fit weibull distribution
   if(is.element("weibull",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"weibull")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Weibull distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Weibull"
-      index<-index+1
-    } else if(show.output) cat("Warning: Weibull distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Weibull distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Weibull"
+    index<-index+1
+  } else if(show.output) cat("Warning: Weibull distribution couldn't be fitted! \n")
   }
-
+  
   # fit F distribution
   if(is.element("f",distributions))
   { if(mean(data2fit)!=1)
-    { n<-abs(2*mean(data2fit)/(mean(data2fit)-1))
-    }else if (mean(data2fit)==1)
-    { n<-1
-    }
+  { n<-abs(2*mean(data2fit)/(mean(data2fit)-1))
+  }else if (mean(data2fit)==1)
+  { n<-1
+  }
     if((var(data2fit)*(n-2)^2*(n-4)-2*n^2)==0)
     { m<-1
     }else if((var(data2fit)*(n-2)^2*(n-4)-2*n^2)!=0)
@@ -5689,14 +5887,14 @@ useFitdist<-function(data2fit,show.output=TRUE,
       index<-index+1
     } else if(show.output) cat("Warning: F distribution couldn't be fitted! \n")
   }
-
+  
   # fit t distribution
   if(is.element("t",distributions))
   { if(var(data2fit)!=1)
-    { start.val<-abs(var(data2fit)*2/(var(data2fit)-1))
-    } else if(var(data2fit)==1)
-    { start.val<-1
-    }
+  { start.val<-abs(var(data2fit)*2/(var(data2fit)-1))
+  } else if(var(data2fit)==1)
+  { start.val<-1
+  }
     try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"t",start=start.val)), silent=TRUE)
     if(!inherits(try.result, "try-error"))
     { if(show.output) cat("Student distribution has been fitted successfully! \n")
@@ -5705,31 +5903,31 @@ useFitdist<-function(data2fit,show.output=TRUE,
       index<-index+1
     } else if(show.output) cat("Warning: Student distribution couldn't be fitted! \n")
   }
-
+  
   # fit gompertz distribution
   if(is.element("gompertz",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"gompertz")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Gompertz distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Gompertz"
-      index<-index+1
-    } else if(show.output) cat("Warning: Gompertz distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Gompertz distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Gompertz"
+    index<-index+1
+  } else if(show.output) cat("Warning: Gompertz distribution couldn't be fitted! \n")
   }
-
+  
   # fit triangular distribution
   if(is.element("triang",distributions))
   { try.result<-try(temp<-suppressWarnings(rriskFitdist.cont(data2fit,"triang")), silent=TRUE)
-    if(!inherits(try.result, "try-error"))
-    { if(show.output) cat("Triangular distribution has been fitted successfully! \n")
-      fit.list[[index]]<-temp
-      names(fit.list)[index]<-"Triangular"
-      index<-index+1
-    } else if(show.output) cat("Warning: Triangular distribution couldn't be fitted! \n")
+  if(!inherits(try.result, "try-error"))
+  { if(show.output) cat("Triangular distribution has been fitted successfully! \n")
+    fit.list[[index]]<-temp
+    names(fit.list)[index]<-"Triangular"
+    index<-index+1
+  } else if(show.output) cat("Warning: Triangular distribution couldn't be fitted! \n")
   }
   if(show.output) cat("End fitting distributions... \n")
   if(show.output) cat("------------------------------------------------------------------- \n")
-
+  
   #-----------------------------------------------------------------------------
   # exit, if neither distribution could be fitted
   #-----------------------------------------------------------------------------
@@ -5737,41 +5935,41 @@ useFitdist<-function(data2fit,show.output=TRUE,
   {
     on.exit(return(invisible(NULL)))
     stop("\n Neither continuous distribution could be fittes to the data \n",call.=FALSE)
-   }
-
+  }
+  
   #-----------------------------------------------------------------------------
   # formatting results
   #-----------------------------------------------------------------------------
   temp<-lapply(fit.list,function(x){
     result<-data.frame(
-    ifelse(!is.null(x$loglik),round(x$loglik,digits=2),"NULL"),
-    ifelse(!is.null(x$aic),round(x$aic,digits=2),"NULL"),
-    ifelse(!is.null(x$bic),round(x$bic,digits=2),"NULL"),
-    ifelse(!is.null(x$chisq),round(x$chisq,digits=2),"NULL"),
-    ifelse(!is.null(x$chisqpvalue),round(x$chisqpvalue,digits=2),"NULL"),
-    ifelse(!is.null(x$ad),round(x$ad,digits=2),"NULL"),
-    ifelse(!is.null(x$adtest),x$adtest,"NULL"),
-    ifelse(!is.null(x$ks),round(x$ks,digits=2),"NULL"),
-    ifelse(!is.null(x$kstest),x$kstest,"NULL"))  })
-
+      ifelse(!is.null(x$loglik),round(x$loglik,digits=2),"NULL"),
+      ifelse(!is.null(x$aic),round(x$aic,digits=2),"NULL"),
+      ifelse(!is.null(x$bic),round(x$bic,digits=2),"NULL"),
+      ifelse(!is.null(x$chisq),round(x$chisq,digits=2),"NULL"),
+      ifelse(!is.null(x$chisqpvalue),round(x$chisqpvalue,digits=2),"NULL"),
+      ifelse(!is.null(x$ad),round(x$ad,digits=2),"NULL"),
+      ifelse(!is.null(x$adtest),x$adtest,"NULL"),
+      ifelse(!is.null(x$ks),round(x$ks,digits=2),"NULL"),
+      ifelse(!is.null(x$kstest),x$kstest,"NULL"))  })
+  
   for(i in 1:length(temp))
   {
     if(i==1){res.matrix<-temp[[i]]}
     else {res.matrix<-rbind(res.matrix,temp[[i]])}
   }
   dimnames(res.matrix)<-list(names(fit.list),c("logL","AIC","BIC",
-    "Chisq(value)","Chisq(p)","AD(value)","H(AD)","KS(value)","H(KS)"))
+                                               "Chisq(value)","Chisq(p)","AD(value)","H(AD)","KS(value)","H(KS)"))
   res.matrix<-apply(res.matrix,c(1,2),function(x) trim.whitespace(x))
-
+  
   if(show.output) print(as.data.frame(res.matrix))
   if(show.output)  cat("-------------------------------------------------------------------\n")
-
+  
   #-----------------------------------------------------------------------------
   # create output
   #-----------------------------------------------------------------------------
   output<-list(res.matrix,fit.list)
   names(output)<-c("res.matrix","fit.list")
-
+  
   return(invisible(output))
 } # end of useFitdist()
 
@@ -5798,20 +5996,32 @@ useFitdist<-function(data2fit,show.output=TRUE,
 # @seealso nothing...
 #' @keywords gui
 #' @export
+#' @importFrom eha rgompertz
+#' @importFrom eha dgompertz
+#' @importFrom eha pgompertz
+#' @importFrom eha qgompertz
+#' @importFrom mc2d rtriang
+#' @importFrom mc2d dtriang
+#' @importFrom mc2d ptriang
+#' @importFrom mc2d qtriang
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
-#' res1<-fit.cont(data2fit=rgamma(374,4,0.08))
-#' res1
+# \donttest{
+#' \dontrun{
+#'   if( class(tcltk::tclRequire("Tktable"))=="tclObj" ){
+#'     res1<-fit.cont(data2fit=rgamma(374,4,0.08))
+#'     res1
 #'
-#' res2<-fit.cont(data2fit=rbeta(300,shape1=1,shape2=2))
-#' res2
+#'     res2<-fit.cont(data2fit=rbeta(300,shape1=1,shape2=2))
+#'     res2
 #'
-#' res3<-fit.cont(data2fit=rtriang(300,min=1,mode=3,max=10))
-#' res3
+#'     res3<-fit.cont(data2fit=mc2d::rtriang(300,min=1,mode=3,max=10))
+#'     res3
 #'
-#' res4<-fit.cont(data2fit=rnorm(300))
-#' res4}
+#'     res4<-fit.cont(data2fit=rnorm(300))
+#'     res4
+#'   }
+#' }
 
 fit.cont<-function(data2fit=rnorm(1000))
 {
@@ -5819,8 +6029,10 @@ fit.cont<-function(data2fit=rnorm(1000))
   # is not needed:
   #suppressWarnings(require(tcltk))
   #suppressWarnings(require(tkrplot))
-  suppressWarnings(tclRequire("Tktable"))
-
+  if( class(tcltk::tclRequire("Tktable"))!="tclObj" )
+    stop("Tcl package \"Tktable\" required. Please install it.")
+  #suppressWarnings(tcltk::tclRequire("Tktable"))
+  
   #-----------------------------------------------------------------------------
   # checking input
   #-----------------------------------------------------------------------------
@@ -5832,45 +6044,45 @@ fit.cont<-function(data2fit=rnorm(1000))
     stop("One or more items of 'data2fit' is/are not numeric!",call.=FALSE)
   if(any(is.na(data2fit)))
     stop("'data2fit' contains missing values, fitting procedure is not possible!",call.=FALSE)
-
+  
   #-----------------------------------------------------------------------------
   # create fitting results matrix
   #-----------------------------------------------------------------------------
   useFitdist.results<-useFitdist(data2fit)
-
+  
   if(is.null(useFitdist.results))
   {
-   # if(is.element("package:rrisk",search())) # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
+    # if(is.element("package:rrisk",search())) # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
     #{
     #  on.exit(.generate.newitem())
     #  winDialog(type="ok","Neither continuous distribution could be fitted to the data")
     #  stop("exit fit.cont() and call generate.newitem()",call.=FALSE)
     #} else
     #{
-      on.exit(return(invisible(NULL)))
-      winDialog(type="ok","Neither continuous distribution could be fitted to the data")
-      stop("exit fit.cont() and return NA's",call.=FALSE)
+    on.exit(return(invisible(NULL)))
+    winDialog(type="ok","Neither continuous distribution could be fitted to the data")
+    stop("exit fit.cont() and return NA's",call.=FALSE)
     #}
-   }
-
+  }
+  
   res.matrix<-useFitdist.results$res.matrix
   fit.list<-useFitdist.results$fit.list
-
+  
   notRejectedIndex<-which(res.matrix[,which(colnames(res.matrix)=="H(KS)")]=="not rejected")
-
-
+  
+  
   newIndizes<-c(notRejectedIndex,setdiff(1:nrow(res.matrix),notRejectedIndex))
   res.matrix<-res.matrix[newIndizes,]
   #rbind(res.matrix[c(notRejectedIndex,setdiff()),],res.matrix[-notRejectedIndex,])
   #res.matrix<-rbind(res.matrix[notRejectedIndex,],res.matrix[-notRejectedIndex,])
-
+  
   #-----------------------------------------------------------------------------
-  # create tclArray for results matrix
+  # create tcltk::tclArray for results matrix
   #-----------------------------------------------------------------------------
   res.matrix<-cbind(dimnames(res.matrix)[[1]],res.matrix)
   res.matrix<-rbind(c(dimnames(res.matrix)[[2]]),res.matrix)
   res.matrix[1,1]<-"Family"
-  tclarray <- tclArray()
+  tclarray <- tcltk::tclArray()
   for (i in 0:(nrow(res.matrix)-1))
   {
     for (j in 0:(ncol(res.matrix)-1))
@@ -5878,7 +6090,7 @@ fit.cont<-function(data2fit=rnorm(1000))
       tclarray[[i,j]]<-res.matrix[i+1,j+1]
     }
   }
-
+  
   #-----------------------------------------------------------------------------
   # create temporer environment
   #-----------------------------------------------------------------------------
@@ -5886,16 +6098,16 @@ fit.cont<-function(data2fit=rnorm(1000))
   assign("chosenD",value=NA,envir=tempEnvir)
   assign("fittedParams",value=NA,envir=tempEnvir)
   #assign("randomCommand",value=NA,envir=tempEnvir)
-
+  
   #-----------------------------------------------------------------------------
   # function for apdating diagnoctic plot
   #-----------------------------------------------------------------------------
   updatePlot<-function(...)
   {
-    tkrreplot(imgPlot)
-    tkraise(fitContDistWindow)
+    tkrplot::tkrreplot(imgPlot)
+    tcltk::tkraise(fitContDistWindow)
   }
-
+  
   #-----------------------------------------------------------------------------
   # function for plotting fitting diagnostics
   #-----------------------------------------------------------------------------
@@ -5905,9 +6117,9 @@ fit.cont<-function(data2fit=rnorm(1000))
     # is not needed:
     #suppressWarnings(require(eha))
     #suppressWarnings(require(mc2d))
-
-    distr<-tclvalue(rbValue)
-
+    
+    distr<-tcltk::tclvalue(rbValue)
+    
     if(distr=="Normal") distname="norm"
     if(distr=="Beta") distname="beta"
     if(distr=="Cauchy") distname="cauchy"
@@ -5922,209 +6134,209 @@ fit.cont<-function(data2fit=rnorm(1000))
     if(distr=="F") distname="f"
     if(distr=="Gompertz") distname="gompertz"
     if(distr=="Triangular") distname="triang"
-
+    
     params<-fit.list[[which(names(fit.list)==distr)]]$estimate
     x<-seq(min(data2fit)-(max(data2fit)-min(data2fit))*0.05,
-      max(data2fit)+(max(data2fit)-min(data2fit))*0.05,length=length(data2fit))
-
+           max(data2fit)+(max(data2fit)-min(data2fit))*0.05,length=length(data2fit))
+    
     rdistname<-paste("r",distname,sep="")
     ddistname<-paste("d",distname,sep="")
     pdistname<-paste("p",distname,sep="")
     qdistname<-paste("q",distname,sep="")
-
+    
     set.seed(1)
     y<-do.call(rdistname,c(list(n=300),as.list(params)))
     d<-do.call(ddistname,c(list(x=x),as.list(params)))
     p<-do.call(pdistname,c(list(q=data2fit),as.list(params)))
     pp<-do.call(pdistname,c(list(q=x),as.list(params)))
-
+    
     par(mfrow=c(1,4),oma = c(0,0,2,0))
     title.text<-paste("Diagnostic plots for",distr,"distribution")
     hist(data2fit,main="Emp. and theor. distributions",xlab="data",ylab="density",
-      probability=TRUE,cex.main=1,ylim=c(0,max(d,hist(data2fit,plot=FALSE)$density)))
+         probability=TRUE,cex.main=1,ylim=c(0,max(d,hist(data2fit,plot=FALSE)$density)))
     lines(x,d,lwd=2,col="red")
-
+    
     qqplot(y,data2fit,main="QQ-plot",xlab="theoretical quantiles",ylab="sample quantiles", cex.main=1,pch=20)
     abline(0,1,col="red",lwd=2)
-
+    
     plot(ecdf(data2fit),main="Empirical and theoretical CDFs",xlab="data",ylab="CDF",cex.main=1,pch=20)
     lines(x, pp,lwd=2,col="red")
-
+    
     plot(sort(p),ecdf(sort(data2fit))(sort(data2fit)),main="PP-plot",xlab="theoretical probabilities",
-      ylab="sample probabilities",cex.main=1,pch=20)
+         ylab="sample probabilities",cex.main=1,pch=20)
     abline(0, 1,col="red",lwd=2)
-
+    
     title(main=title.text,outer=TRUE,cex.main=1.5)
   } # end of function plot.diagnostics()
-
+  
   #-----------------------------------------------------------------------------
   # what to do on "Ok" button
   #-----------------------------------------------------------------------------
   onOK<-function(...)
   {
-    assign("chosenD",value=tclvalue(rbValue),envir=tempEnvir)
-    fittedParams<-fit.list[[which(names(fit.list)==tclvalue(rbValue))]]$estimate
+    assign("chosenD",value=tcltk::tclvalue(rbValue),envir=tempEnvir)
+    fittedParams<-fit.list[[which(names(fit.list)==tcltk::tclvalue(rbValue))]]$estimate
     assign("fittedParams",value=fittedParams,envir=tempEnvir)
-    tkdestroy(fitContDistWindow)
+    tcltk::tkdestroy(fitContDistWindow)
   } # end of onOk()
-
+  
   #-----------------------------------------------------------------------------
   # what to do on "Cancel" button
   #-----------------------------------------------------------------------------
   onCancel<-function(...)
   {
-    tkdestroy(fitContDistWindow)
+    tcltk::tkdestroy(fitContDistWindow)
   } # end of onCancel()
-
+  
   #-----------------------------------------------------------------------------
   # create dialog window
   #-----------------------------------------------------------------------------
-  fitContDistWindow<-tktoplevel(width=880,height=200)
-  tkwm.title(fitContDistWindow,"Fitting continuous distributions")
-  tkwm.resizable(fitContDistWindow,0,0)  # fixed size, not resizeable
-  tkwm.maxsize(fitContDistWindow,880,800)
-  tkwm.minsize(fitContDistWindow,880,200)
-  allFrame<-tkframe(fitContDistWindow)
-  fontA<-tkfont.create(size=12,weight="bold")
+  fitContDistWindow<-tcltk::tktoplevel(width=880,height=200)
+  tcltk::tkwm.title(fitContDistWindow,"Fitting continuous distributions")
+  tcltk::tkwm.resizable(fitContDistWindow,0,0)  # fixed size, not resizeable
+  tcltk::tkwm.maxsize(fitContDistWindow,880,800)
+  tcltk::tkwm.minsize(fitContDistWindow,880,200)
+  allFrame<-tcltk::tkframe(fitContDistWindow)
+  fontA<-tcltk::tkfont.create(size=12,weight="bold")
   index=0
-  rbValue<-tclVar(dimnames(res.matrix)[[1]][2])
-
+  rbValue<-tcltk::tclVar(dimnames(res.matrix)[[1]][2])
+  
   # creat image frame
-  imageFrame<-tkframe(allFrame,relief="groove",background="white")
-  imgPlot<-tkrplot(imageFrame,fun=plotDiagnostics,hscale=2.2,vscale=0.7)
-  tkpack(imgPlot)
-  tkpack(imageFrame)
-
+  imageFrame<-tcltk::tkframe(allFrame,relief="groove",background="white")
+  imgPlot<-tkrplot::tkrplot(imageFrame,fun=plotDiagnostics,hscale=2.2,vscale=0.7)
+  tcltk::tkpack(imgPlot)
+  tcltk::tkpack(imageFrame)
+  
   # create table and buttons frame
-  tableButtonsradioFrame<-tkframe(allFrame)
-  tableButtonsFrame<-tkframe(tableButtonsradioFrame)
-
+  tableButtonsradioFrame<-tcltk::tkframe(allFrame)
+  tableButtonsFrame<-tcltk::tkframe(tableButtonsradioFrame)
+  
   # crate table
-  fitResultTable <- tkwidget(tableButtonsFrame,"table",variable=tclarray,
-    rows=nrow(res.matrix),cols=ncol(res.matrix), background="white",borderwidth=2,
-    state="disabled",titlerows=1,titlecols=1,resizeborders="none",colwidth=11)
-  tkpack(fitResultTable,side="top")
-
+  fitResultTable <- tcltk::tkwidget(tableButtonsFrame,"table",variable=tclarray,
+                                    rows=nrow(res.matrix),cols=ncol(res.matrix), background="white",borderwidth=2,
+                                    state="disabled",titlerows=1,titlecols=1,resizeborders="none",colwidth=11)
+  tcltk::tkpack(fitResultTable,side="top")
+  
   # create buttons frame
-  buttonsFrame<-tkframe(tableButtonsFrame)
-  okButton<-ttkbutton(buttonsFrame,width=10,text="OK",command=onOK)
-  CancelButton<-ttkbutton(buttonsFrame,width=10,text="Cancel",command=onCancel)
-  tkpack(okButton,side="left",padx=c(20,20))
-  tkpack(CancelButton,side="left",padx=c(20,20))
-  tkpack(buttonsFrame,pady=c(12,0),side="bottom")
-
-  tkpack(tableButtonsFrame,side="right")
-
+  buttonsFrame<-tcltk::tkframe(tableButtonsFrame)
+  okButton<-tcltk::ttkbutton(buttonsFrame,width=10,text="OK",command=onOK)
+  CancelButton<-tcltk::ttkbutton(buttonsFrame,width=10,text="Cancel",command=onCancel)
+  tcltk::tkpack(okButton,side="left",padx=c(20,20))
+  tcltk::tkpack(CancelButton,side="left",padx=c(20,20))
+  tcltk::tkpack(buttonsFrame,pady=c(12,0),side="bottom")
+  
+  tcltk::tkpack(tableButtonsFrame,side="right")
+  
   # creat radio buttons frame
-  radioFrame<-tkframe(tableButtonsradioFrame,height=5)
-  rbLabel<-tklabel(radioFrame,text="Distribution",font=fontA,width=13)
-  tkgrid(rbLabel,column=0,row=index,sticky="w")
+  radioFrame<-tcltk::tkframe(tableButtonsradioFrame,height=5)
+  rbLabel<-tcltk::tklabel(radioFrame,text="Distribution",font=fontA,width=13)
+  tcltk::tkgrid(rbLabel,column=0,row=index,sticky="w")
   if(is.element("Normal",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Normal")-1
-    rbNormal<-tkradiobutton(radioFrame,variable=rbValue,value="Normal",text="Normal",
-      command=function()updatePlot(distname="norm"))
-    tkgrid(rbNormal,column=0,row=index,sticky="w",pady=0.1)
+    rbNormal<-tcltk::tkradiobutton(radioFrame,variable=rbValue,value="Normal",text="Normal",
+                                   command=function()updatePlot(distname="norm"))
+    tcltk::tkgrid(rbNormal,column=0,row=index,sticky="w",pady=0.1)
   }
   if(is.element("Beta",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Beta")-1
-    rbBeta<-tkradiobutton(radioFrame,value="Beta",text="Beta",variable=rbValue,
-    command=function()updatePlot(distname="beta"))
-    tkgrid(rbBeta,column=0,row=index,sticky="w",pady=0.)
+    rbBeta<-tcltk::tkradiobutton(radioFrame,value="Beta",text="Beta",variable=rbValue,
+                                 command=function()updatePlot(distname="beta"))
+    tcltk::tkgrid(rbBeta,column=0,row=index,sticky="w",pady=0.)
   }
   if(is.element("Cauchy",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Cauchy")-1
-    rbCauchy<-tkradiobutton(radioFrame,value="Cauchy",text="Cauchy",variable=rbValue,
-      command=function()updatePlot(distname="cauchy"))
-    tkgrid(rbCauchy,column=0,row=index,sticky="w")
+    rbCauchy<-tcltk::tkradiobutton(radioFrame,value="Cauchy",text="Cauchy",variable=rbValue,
+                                   command=function()updatePlot(distname="cauchy"))
+    tcltk::tkgrid(rbCauchy,column=0,row=index,sticky="w")
   }
   if(is.element("Logistic",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Logistic")-1
-    rbLogistic<-tkradiobutton(radioFrame,value="Logistic",text="Logistic",variable=rbValue,
-    command=function()updatePlot(distname="logis"))
-    tkgrid(rbLogistic,column=0,row=index,sticky="w")
+    rbLogistic<-tcltk::tkradiobutton(radioFrame,value="Logistic",text="Logistic",variable=rbValue,
+                                     command=function()updatePlot(distname="logis"))
+    tcltk::tkgrid(rbLogistic,column=0,row=index,sticky="w")
   }
   if(is.element("Exponential",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Exponential")-1
-    rbExp<-tkradiobutton(radioFrame,value="Exponential",text="Exponential",variable=rbValue,
-    command=function()updatePlot(distname="exp"))
-    tkgrid(rbExp,column=0,row=index,sticky="w")
+    rbExp<-tcltk::tkradiobutton(radioFrame,value="Exponential",text="Exponential",variable=rbValue,
+                                command=function()updatePlot(distname="exp"))
+    tcltk::tkgrid(rbExp,column=0,row=index,sticky="w")
   }
   if(is.element("Chi-square",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Chi-square")-1
-    rbChi2<-tkradiobutton(radioFrame,value="Chi-square",text="Chi-square",variable=rbValue,
-      command=function()updatePlot(distname="chisq"))
-    tkgrid(rbChi2,column=0,row=index,sticky="w")
+    rbChi2<-tcltk::tkradiobutton(radioFrame,value="Chi-square",text="Chi-square",variable=rbValue,
+                                 command=function()updatePlot(distname="chisq"))
+    tcltk::tkgrid(rbChi2,column=0,row=index,sticky="w")
   }
   if(is.element("Uniform",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Uniform")-1
-    rbUnif<-tkradiobutton(radioFrame,value="Uniform",text="Uniform",variable=rbValue,
-      command=function()updatePlot(distname="unif"))
-    tkgrid(rbUnif,column=0,row=index,sticky="w")
+    rbUnif<-tcltk::tkradiobutton(radioFrame,value="Uniform",text="Uniform",variable=rbValue,
+                                 command=function()updatePlot(distname="unif"))
+    tcltk::tkgrid(rbUnif,column=0,row=index,sticky="w")
   }
   if(is.element("Gamma",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Gamma")-1
-    rbGamma<-tkradiobutton(radioFrame,value="Gamma",text="Gamma",variable=rbValue,
-      command=function()updatePlot(distname="gamma"))
-    tkgrid(rbGamma,column=0,row=index,sticky="w")
+    rbGamma<-tcltk::tkradiobutton(radioFrame,value="Gamma",text="Gamma",variable=rbValue,
+                                  command=function()updatePlot(distname="gamma"))
+    tcltk::tkgrid(rbGamma,column=0,row=index,sticky="w")
   }
   if(is.element("Lognormal",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Lognormal")-1
-    rbLognorm<-tkradiobutton(radioFrame,value="Lognormal",text="Lognormal",variable=rbValue,
-    command=function()updatePlot(distname="lnorm"))
-    tkgrid(rbLognorm,column=0,row=index,sticky="w")
+    rbLognorm<-tcltk::tkradiobutton(radioFrame,value="Lognormal",text="Lognormal",variable=rbValue,
+                                    command=function()updatePlot(distname="lnorm"))
+    tcltk::tkgrid(rbLognorm,column=0,row=index,sticky="w")
   }
   if(is.element("Weibull",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Weibull")-1
-    rbWeibull<-tkradiobutton(radioFrame,value="Weibull",text="Weibull",variable=rbValue,
-      command=function()updatePlot(distname="weibull"))
-    tkgrid(rbWeibull,column=0,row=index,sticky="w")
+    rbWeibull<-tcltk::tkradiobutton(radioFrame,value="Weibull",text="Weibull",variable=rbValue,
+                                    command=function()updatePlot(distname="weibull"))
+    tcltk::tkgrid(rbWeibull,column=0,row=index,sticky="w")
   }
   if(is.element("F",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="F")-1
-    rbF<-tkradiobutton(radioFrame,value="F",text="F",variable=rbValue,
-      command=function()updatePlot(distname="f"))
-    tkgrid(rbF,column=0,row=index,sticky="w")
+    rbF<-tcltk::tkradiobutton(radioFrame,value="F",text="F",variable=rbValue,
+                              command=function()updatePlot(distname="f"))
+    tcltk::tkgrid(rbF,column=0,row=index,sticky="w")
   }
   if(is.element("Student",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Student")-1
-    rbStudent<-tkradiobutton(radioFrame,value="Student",text="Student's t",variable=rbValue,
-      command=function()updatePlot(distname="t"))
-    tkgrid(rbStudent,column=0,row=index,sticky="w")
+    rbStudent<-tcltk::tkradiobutton(radioFrame,value="Student",text="Student's t",variable=rbValue,
+                                    command=function()updatePlot(distname="t"))
+    tcltk::tkgrid(rbStudent,column=0,row=index,sticky="w")
   }
   if(is.element("Gompertz",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Gompertz")-1
-    rbGompertz<-tkradiobutton(radioFrame,value="Gompertz",text="Gompertz",variable=rbValue,
-      command=function()updatePlot(distname="gompertz"))
-    tkgrid(rbGompertz,column=0,row=index,sticky="w")
+    rbGompertz<-tcltk::tkradiobutton(radioFrame,value="Gompertz",text="Gompertz",variable=rbValue,
+                                     command=function()updatePlot(distname="gompertz"))
+    tcltk::tkgrid(rbGompertz,column=0,row=index,sticky="w")
   }
   if(is.element("Triangular",dimnames(res.matrix)[[1]]))
   {
     index<-which(rownames(res.matrix)=="Triangular")-1
     #index<-index+1
-    rbTriangular<-tkradiobutton(radioFrame,value="Triangular",text="Triangular",variable=rbValue,
-      command=function()updatePlot(distname="triang"))
-    tkgrid(rbTriangular,column=0,row=index,sticky="w")
+    rbTriangular<-tcltk::tkradiobutton(radioFrame,value="Triangular",text="Triangular",variable=rbValue,
+                                       command=function()updatePlot(distname="triang"))
+    tcltk::tkgrid(rbTriangular,column=0,row=index,sticky="w")
   }
-  tkpack(radioFrame,side="left")
-  tkpack(tableButtonsradioFrame)
-  tkpack(allFrame,padx=c(8,8),pady=c(8,8))
-
-  tkfocus(fitContDistWindow)
-  tkwait.window(fitContDistWindow)
-
+  tcltk::tkpack(radioFrame,side="left")
+  tcltk::tkpack(tableButtonsradioFrame)
+  tcltk::tkpack(allFrame,padx=c(8,8),pady=c(8,8))
+  
+  tcltk::tkfocus(fitContDistWindow)
+  tcltk::tkwait.window(fitContDistWindow)
+  
   #-----------------------------------------------------------------------------
   # generate output
   #-----------------------------------------------------------------------------
@@ -6135,51 +6347,51 @@ fit.cont<-function(data2fit=rnorm(1000))
   {
     if(chosenD=="Triangular")
     { chosenD<-"triang"
-      exitMessage<-"Triangular (triang)"
+    exitMessage<-"Triangular (triang)"
     } else if(chosenD=="Gompertz")
     { chosenD<-"gompertz"
-      exitMessage<-"Gompertz (gompertz)"
+    exitMessage<-"Gompertz (gompertz)"
     } else if(chosenD=="Student")
     { chosenD<-"t"
-      exitMessage<-"Student's t (t)"
+    exitMessage<-"Student's t (t)"
     } else if(chosenD=="F")
     { chosenD<-"f"
-      exitMessage<-"F (f)"
+    exitMessage<-"F (f)"
     } else if(chosenD=="Weibull")
     { chosenD<-"weibull"
-      exitMessage<-"Weibull (weibull)"
+    exitMessage<-"Weibull (weibull)"
     } else if(chosenD=="Lognormal")
     { chosenD<-"lnorm"
-      exitMessage<-"Log-normal (lnorm)"
+    exitMessage<-"Log-normal (lnorm)"
     } else if(chosenD=="Gamma")
     { chosenD<-"gamma"
-      exitMessage<-"Gamma (gamma)"
+    exitMessage<-"Gamma (gamma)"
     } else if(chosenD=="Uniform")
     { chosenD<-"unif"
-      exitMessage<-"Uniform (unif)"
+    exitMessage<-"Uniform (unif)"
     } else if(chosenD=="Chi-square")
     { chosenD<-"chisq"
-      exitMessage<-"Chi-squared (chisq)"
+    exitMessage<-"Chi-squared (chisq)"
     } else if(chosenD=="Exponential")
     { chosenD<-"exp"
-      exitMessage<-"Exponential (exp)"
+    exitMessage<-"Exponential (exp)"
     } else if(chosenD=="Logistic")
     { chosenD<-"logis"
-      exitMessage<-"Logistic (logis)"
+    exitMessage<-"Logistic (logis)"
     } else if(chosenD=="Cauchy")
     { chosenD<-"cauchy"
-      exitMessage<-"Cauchy (cauchy)"
+    exitMessage<-"Cauchy (cauchy)"
     } else if(chosenD=="Beta")
     { chosenD<-"beta"
-      exitMessage<-"Beta (beta)"
+    exitMessage<-"Beta (beta)"
     } else if(chosenD=="Normal")
     { chosenD<-"norm"
-      exitMessage<-"Normal (norm)"
+    exitMessage<-"Normal (norm)"
     }
   }
   output<-list(data2fit,chosenD,fittedParams)
   names(output)<-c("data2fit","chosenDistr","fittedParams")
-
+  
   print.on.exit<-function(chosenD)
   {
     cat(paste("Chosen continuous distribution is: ", exitMessage))
@@ -6187,7 +6399,7 @@ fit.cont<-function(data2fit=rnorm(1000))
     print(fittedParams)
     cat("--------------------------------------------------------------------\n")
   } # end of fucntion print.on.exit()
-
+  
   on.exit(print.on.exit(chosenD))
   return(invisible(output))
 }
@@ -6229,16 +6441,18 @@ fit.cont<-function(data2fit=rnorm(1000))
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' # Continuous distributions
 #' set.seed(1)
 #' x1<-rnorm(500,mean=2, sd=0.7)
 #' rriskMMEdist(x1,"norm")
-#' rriskMMEdist(x1,"lnorm")
+#' # produces an error:
+#' #rriskMMEdist(x1,"lnorm")
 #' rriskMMEdist(x1,"exp")
 #' rriskMMEdist(x1,"gamma")
 #' rriskMMEdist(x1,"logis")
-#' rriskMMEdist(x1,"beta")
+#' # produces an error:
+#' #rriskMMEdist(x1,"beta")
 #' rriskMMEdist(x1,"unif")
 #'
 #' # Discrete distributions
@@ -6246,112 +6460,113 @@ fit.cont<-function(data2fit=rnorm(1000))
 #' x2<-rpois(500,lambda=3)
 #' rriskMMEdist(x2,"pois")
 #' rriskMMEdist(x2,"nbinom")
-#' rriskMMEdist(x2,"geom")}
+#' rriskMMEdist(x2,"geom")
+# }
 
 rriskMMEdist<-function (data, distr)
 {
-    if (!is.character(distr))
-        distname <- substring(as.character(match.call()$distr),
-            2)
-    else distname <- distr
-    if (!is.element(distname, c("norm", "lnorm", "pois", "exp",
-        "gamma", "nbinom", "geom", "beta", "unif", "logis")))
-        stop(paste("Method of matching moments is not available for ",
-            distname, " distribution"))
-    if (!(is.vector(data) & is.numeric(data) & length(data) >
+  if (!is.character(distr))
+    distname <- substring(as.character(match.call()$distr),
+                          2)
+  else distname <- distr
+  if (!is.element(distname, c("norm", "lnorm", "pois", "exp",
+                              "gamma", "nbinom", "geom", "beta", "unif", "logis")))
+    stop(paste("Method of matching moments is not available for ",
+               distname, " distribution"))
+  if (!(is.vector(data) & is.numeric(data) & length(data) >
         1))
-        stop("data must be a numerical vector of length greater than 1")
-    if (distname == "norm") {
-        n <- length(data)
-        sd0 <- sqrt((n - 1)/n) * sd(data)
-        mx <- mean(data)
-        estimate <- c(mx, sd0)
-        names(estimate) <- c("mean", "sd")
-        return(estimate)
-    }
-    if (distname == "lnorm") {
-        if (any(data <= 0))
-            stop("values must be positive to fit a lognormal distribution")
-        n <- length(data)
-        ldata <- log(data)
-        sd0 <- sqrt((n - 1)/n) * sd(ldata)
-        ml <- mean(ldata)
-        estimate <- c(ml, sd0)
-        names(estimate) <- c("meanlog", "sdlog")
-        return(estimate)
-    }
-    if (distname == "pois") {
-        estimate <- mean(data)
-        names(estimate) <- "lambda"
-        return(estimate)
-    }
-    if (distname == "exp") {
-        estimate <- 1/mean(data)
-        names(estimate) <- "rate"
-        return(estimate)
-    }
-    if (distname == "gamma") {
-        n <- length(data)
-        m <- mean(data)
-        v <- (n - 1)/n * var(data)
-        shape <- m^2/v
-        rate <- m/v
-        estimate <- c(shape, rate)
-        names(estimate) <- c("shape", "rate")
-        return(estimate)
-    }
-    if (distname == "nbinom") {
-        n <- length(data)
-        m <- mean(data)
-        v <- (n - 1)/n * var(data)
-        size <- if (v > m)
-            m^2/(v - m)
-        else NaN
-        estimate <- c(size, m)
-        names(estimate) <- c("size", "mu")
-        return(estimate)
-    }
-    if (distname == "geom") {
-        m <- mean(data)
-        prob <- if (m > 0)
-            1/(1 + m)
-        else NaN
-        estimate <- prob
-        names(estimate) <- "prob"
-        return(estimate)
-    }
-    if (distname == "beta") {
-        if (any(data < 0) | any(data > 1))
-            stop("values must be in [0-1] to fit a beta distribution")
-        n <- length(data)
-        m <- mean(data)
-        v <- (n - 1)/n * var(data)
-        aux <- m * (1 - m)/v - 1
-        shape1 <- m * aux
-        shape2 <- (1 - m) * aux
-        estimate <- c(shape1, shape2)
-        names(estimate) <- c("shape1", "shape2")
-        return(estimate)
-    }
-    if (distname == "unif") {
-        n <- length(data)
-        m <- mean(data)
-        v <- (n - 1)/n * var(data)
-        min1 <- m - sqrt(3 * v)
-        max1 <- m + sqrt(3 * v)
-        estimate <- c(min1, max1)
-        names(estimate) <- c("min", "max")
-        return(estimate)
-    }
-    if (distname == "logis") {
-        n <- length(data)
-        m <- mean(data)
-        v <- (n - 1)/n * var(data)
-        scale <- sqrt(3 * v)/pi
-        estimate <- c(m, scale)
-        names(estimate) <- c("location", "scale")
-        return(estimate)
-    }
+    stop("data must be a numerical vector of length greater than 1")
+  if (distname == "norm") {
+    n <- length(data)
+    sd0 <- sqrt((n - 1)/n) * sd(data)
+    mx <- mean(data)
+    estimate <- c(mx, sd0)
+    names(estimate) <- c("mean", "sd")
+    return(estimate)
+  }
+  if (distname == "lnorm") {
+    if (any(data <= 0))
+      stop("values must be positive to fit a lognormal distribution")
+    n <- length(data)
+    ldata <- log(data)
+    sd0 <- sqrt((n - 1)/n) * sd(ldata)
+    ml <- mean(ldata)
+    estimate <- c(ml, sd0)
+    names(estimate) <- c("meanlog", "sdlog")
+    return(estimate)
+  }
+  if (distname == "pois") {
+    estimate <- mean(data)
+    names(estimate) <- "lambda"
+    return(estimate)
+  }
+  if (distname == "exp") {
+    estimate <- 1/mean(data)
+    names(estimate) <- "rate"
+    return(estimate)
+  }
+  if (distname == "gamma") {
+    n <- length(data)
+    m <- mean(data)
+    v <- (n - 1)/n * var(data)
+    shape <- m^2/v
+    rate <- m/v
+    estimate <- c(shape, rate)
+    names(estimate) <- c("shape", "rate")
+    return(estimate)
+  }
+  if (distname == "nbinom") {
+    n <- length(data)
+    m <- mean(data)
+    v <- (n - 1)/n * var(data)
+    size <- if (v > m)
+      m^2/(v - m)
+    else NaN
+    estimate <- c(size, m)
+    names(estimate) <- c("size", "mu")
+    return(estimate)
+  }
+  if (distname == "geom") {
+    m <- mean(data)
+    prob <- if (m > 0)
+      1/(1 + m)
+    else NaN
+    estimate <- prob
+    names(estimate) <- "prob"
+    return(estimate)
+  }
+  if (distname == "beta") {
+    if (any(data < 0) | any(data > 1))
+      stop("values must be in [0-1] to fit a beta distribution")
+    n <- length(data)
+    m <- mean(data)
+    v <- (n - 1)/n * var(data)
+    aux <- m * (1 - m)/v - 1
+    shape1 <- m * aux
+    shape2 <- (1 - m) * aux
+    estimate <- c(shape1, shape2)
+    names(estimate) <- c("shape1", "shape2")
+    return(estimate)
+  }
+  if (distname == "unif") {
+    n <- length(data)
+    m <- mean(data)
+    v <- (n - 1)/n * var(data)
+    min1 <- m - sqrt(3 * v)
+    max1 <- m + sqrt(3 * v)
+    estimate <- c(min1, max1)
+    names(estimate) <- c("min", "max")
+    return(estimate)
+  }
+  if (distname == "logis") {
+    n <- length(data)
+    m <- mean(data)
+    v <- (n - 1)/n * var(data)
+    scale <- sqrt(3 * v)/pi
+    estimate <- c(m, scale)
+    names(estimate) <- c("location", "scale")
+    return(estimate)
+  }
 }
 
 ################################################################################
@@ -6414,9 +6629,13 @@ rriskMMEdist<-function (data, distr)
 # @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
+# @importFrom mc2d dtriang
+# @importFrom mc2d ptriang
+#' @importFrom eha dgompertz
+#' @importFrom eha pgompertz
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' # a basic fit of some distribution with maximum likelihood estimation
 #' set.seed(1)
 #' x2<-rchisq(500,4)
@@ -6426,241 +6645,243 @@ rriskMMEdist<-function (data, distr)
 #' rriskMLEdist(x2,"logis")
 #' rriskMLEdist(x2,"gamma")
 #' rriskMLEdist(x2,"weibull")
-#' rriskMLEdist(x2,"beta")
+#' # produces an error:
+#' #rriskMLEdist(x2,"beta")
 #' rriskMLEdist(x2,"chisq")
 #' rriskMLEdist(x2,"t")
 #' rriskMLEdist(x2,"f")
 #' rriskMLEdist(x2,"cauchy")
 #' rriskMLEdist(x2,"gompertz")
-#' #rriskMLEdist(x2,"triang")}
+#' #rriskMLEdist(x2,"triang")
+# }
 
 rriskMLEdist<-function (data, distr, start = NULL, optim.method = "default",
-  lower = -Inf, upper = Inf, custom.optim = NULL, ...)
+                        lower = -Inf, upper = Inf, custom.optim = NULL, ...)
 {
-    # these packages are listed in the "Depends" field of the package DESCRIPTION file, require call
-    # is not needed:
-    # if(distr=="triang") require(mc2d)
-    # if(distr=="gompertz") require(eha)
-    if (!is.character(distr))
-    {
-        distname <- substring(as.character(match.call()$distr),2)
-    }else distname <- distr
-    ddistname <- paste("d", distname, sep = "")
-    #pdistname<- paste("p", distname, sep = "")  #????
-    if (!exists(ddistname, mode = "function"))
-        stop(paste("The ", ddistname, " function must be defined"))
-    if (distname == "unif")
-        stop("Maximum likelihood estimation is not available for the uniform distribution")
-    if (is.vector(data))
-    { cens <- FALSE
-      if (!(is.numeric(data) & length(data) > 1))
-            stop("data must be a numerical vector of length greater than 1 for non censored data\n            or a dataframe with two columns named left and right and more than one line for censored data")
+  # these packages are listed in the "Depends" field of the package DESCRIPTION file, require call
+  # is not needed:
+  # if(distr=="triang") require(mc2d)
+  # if(distr=="gompertz") require(eha)
+  if (!is.character(distr))
+  {
+    distname <- substring(as.character(match.call()$distr),2)
+  }else distname <- distr
+  ddistname <- paste("d", distname, sep = "")
+  #pdistname<- paste("p", distname, sep = "")  #????
+  if (!exists(ddistname, mode = "function"))
+    stop(paste("The ", ddistname, " function must be defined"))
+  if (distname == "unif")
+    stop("Maximum likelihood estimation is not available for the uniform distribution")
+  if (is.vector(data))
+  { cens <- FALSE
+  if (!(is.numeric(data) & length(data) > 1))
+    stop("data must be a numerical vector of length greater than 1 for non censored data\n            or a dataframe with two columns named left and right and more than one line for censored data")
+  }else {
+    cens <- TRUE
+    censdata <- data
+    if (!(is.vector(censdata$left) & is.vector(censdata$right) &
+          length(censdata[, 1]) > 1))
+      stop("data must be a numerical vector of length greater than 1 for non censored data\n        or a dataframe with two columns named left and right and more than one line for censored data")
+    pdistname <- paste("p", distname, sep = "")
+    if (!exists(pdistname, mode = "function"))
+      stop(paste("The ", pdistname, " function must be defined to apply maximum likelihood to censored data"))
+  }
+  if (cens) {
+    lcens <- censdata[is.na(censdata$left), ]$right
+    if (any(is.na(lcens)))
+      stop("An observation cannot be both right and left censored, coded with two NA values")
+    rcens <- censdata[is.na(censdata$right), ]$left
+    ncens <- censdata[censdata$left == censdata$right & !is.na(censdata$left) &
+                        !is.na(censdata$right), ]$left
+    icens <- censdata[censdata$left != censdata$right & !is.na(censdata$left) &
+                        !is.na(censdata$right), ]
+    data <- c(rcens, lcens, ncens, (icens$left + icens$right)/2)
+  }
+  if (is.null(start)) {
+    if (distname == "norm") {
+      n <- length(data)
+      sd0 <- sqrt((n - 1)/n) * sd(data)
+      mx <- mean(data)
+      start <- list(mean = mx, sd = sd0)
+    } else if (distname == "lnorm") {
+      if (any(data <= 0))
+        stop("values must be positive to fit a lognormal distribution")
+      n <- length(data)
+      ldata <- log(data)
+      sd0 <- sqrt((n - 1)/n) * sd(ldata)
+      ml <- mean(ldata)
+      start <- list(meanlog = ml, sdlog = sd0)
+    } else if (distname == "pois") {
+      start <- list(lambda = mean(data))
+    }else if (distname == "exp") {
+      if (any(data < 0))
+        stop("values must be positive to fit a exponential distribution")
+      start <- list(rate = 1/mean(data))
+    } else if (distname == "gamma") {
+      if (any(data < 0))
+        stop("values must be positive to fit a Gamma distribution")
+      n <- length(data)
+      m <- mean(data)
+      v <- (n - 1)/n * var(data)
+      start <- list(shape = m^2/v, rate = m/v)
+    } else if (distname == "nbinom") {
+      n <- length(data)
+      m <- mean(data)
+      v <- (n - 1)/n * var(data)
+      size <- if (v > m)
+        m^2/(v - m)
+      else 100
+      start <- list(size = size, mu = m)
+    } else if (distname == "geom") {
+      m <- mean(data)
+      prob <- if (m > 0)
+        1/(1 + m)
+      else 1
+      start <- list(prob = prob)
+    } else if (distname == "t") {
+      df.start<-2*sd(data)^2/(sd(data)^2-1)
+      start <- list(df = df.start)
+    } else if (distname == "beta") {
+      if (any(data < 0) | any(data > 1))
+        stop("values must be in [0-1] to fit a beta distribution")
+      n <- length(data)
+      m <- mean(data)
+      v <- (n - 1)/n * var(data)
+      aux <- m * (1 - m)/v - 1
+      start <- list(shape1 = m * aux, shape2 = (1 - m) *
+                      aux)
+    } else if (distname == "weibull") {
+      if (any(data < 0))
+        stop("values must be positive to fit a Weibull distribution")
+      m <- mean(log(data))
+      v <- var(log(data))
+      shape <- 1.2/sqrt(v)
+      scale <- exp(m + 0.572/shape)
+      start <- list(shape = shape, scale = scale)
+    } else if (distname == "logis") {
+      n <- length(data)
+      m <- mean(data)
+      v <- (n - 1)/n * var(data)
+      start <- list(location = m, scale = sqrt(3 * v)/pi)
+    } else if (distname == "chisq") {
+      if (any(data < 0))
+        stop("values must be positive to fit a Chi-square distribution")
+      start <- list(df=mean(data))
+    } else if (distname == "f") {
+      if (any(data < 0))
+        stop("values must be positive to fit a F distribution")
+      df2.start<-2*mean(data)/(mean(data)-1)
+      start <- list(df1=3,df2=df2.start)
+    } else if (distname == "gompertz") {
+      if (any(data < 0))
+        stop("values must be positive to fit a Gompertz distribution")
+      scale.start<-sd(data)*sqrt(6)/pi
+      gamma.const<-0.577221566
+      shape.start<-(scale.start*exp(mean(data)/scale.start+gamma.const))^(-1)
+      start <- list(shape=shape.start,scale=scale.start)
+    } else if (distname == "cauchy") {
+      start <- list(location = median(data), scale = IQR(data)/2)
+    } else stop("Fitting procedure for given distribution is not implemented",call.=FALSE)
+    #if (distname == "triang") {
+    #    start <- list(min=min(data),mode=(max(data)-min(data))/2,max=max(data))
+    #}
+    if (!is.list(start))
+      stop("'start' must be defined as a named list for this distribution")
+  }
+  vstart <- unlist(start)
+  argddistname <- names(formals(ddistname))
+  m <- match(names(start), argddistname)
+  if (any(is.na(m)))
+    stop("'start' must specify names which are arguments to 'distr'")
+  if (!cens) {
+    if ("log" %in% argddistname) {
+      fnobj <- function(par, obs, ddistnam) {
+        -sum(do.call(ddistnam, c(list(obs), par, log = TRUE)))
+      }
     }else {
-        cens <- TRUE
-        censdata <- data
-        if (!(is.vector(censdata$left) & is.vector(censdata$right) &
-            length(censdata[, 1]) > 1))
-            stop("data must be a numerical vector of length greater than 1 for non censored data\n        or a dataframe with two columns named left and right and more than one line for censored data")
-        pdistname <- paste("p", distname, sep = "")
-        if (!exists(pdistname, mode = "function"))
-            stop(paste("The ", pdistname, " function must be defined to apply maximum likelihood to censored data"))
+      fnobj <- function(par, obs, ddistnam) {
+        -sum(log(do.call(ddistnam, c(list(obs), par))))
+      }
     }
-    if (cens) {
-        lcens <- censdata[is.na(censdata$left), ]$right
-        if (any(is.na(lcens)))
-            stop("An observation cannot be both right and left censored, coded with two NA values")
-        rcens <- censdata[is.na(censdata$right), ]$left
-        ncens <- censdata[censdata$left == censdata$right & !is.na(censdata$left) &
-            !is.na(censdata$right), ]$left
-        icens <- censdata[censdata$left != censdata$right & !is.na(censdata$left) &
-            !is.na(censdata$right), ]
-        data <- c(rcens, lcens, ncens, (icens$left + icens$right)/2)
-    }
-    if (is.null(start)) {
-        if (distname == "norm") {
-            n <- length(data)
-            sd0 <- sqrt((n - 1)/n) * sd(data)
-            mx <- mean(data)
-            start <- list(mean = mx, sd = sd0)
-        } else if (distname == "lnorm") {
-            if (any(data <= 0))
-                stop("values must be positive to fit a lognormal distribution")
-            n <- length(data)
-            ldata <- log(data)
-            sd0 <- sqrt((n - 1)/n) * sd(ldata)
-            ml <- mean(ldata)
-            start <- list(meanlog = ml, sdlog = sd0)
-        } else if (distname == "pois") {
-            start <- list(lambda = mean(data))
-        }else if (distname == "exp") {
-           if (any(data < 0))
-                stop("values must be positive to fit a exponential distribution")
-            start <- list(rate = 1/mean(data))
-        } else if (distname == "gamma") {
-          if (any(data < 0))
-                stop("values must be positive to fit a Gamma distribution")
-            n <- length(data)
-            m <- mean(data)
-            v <- (n - 1)/n * var(data)
-            start <- list(shape = m^2/v, rate = m/v)
-        } else if (distname == "nbinom") {
-            n <- length(data)
-            m <- mean(data)
-            v <- (n - 1)/n * var(data)
-            size <- if (v > m)
-                m^2/(v - m)
-            else 100
-            start <- list(size = size, mu = m)
-        } else if (distname == "geom") {
-            m <- mean(data)
-            prob <- if (m > 0)
-                1/(1 + m)
-            else 1
-            start <- list(prob = prob)
-        } else if (distname == "t") {
-            df.start<-2*sd(data)^2/(sd(data)^2-1)
-            start <- list(df = df.start)
-        } else if (distname == "beta") {
-            if (any(data < 0) | any(data > 1))
-                stop("values must be in [0-1] to fit a beta distribution")
-            n <- length(data)
-            m <- mean(data)
-            v <- (n - 1)/n * var(data)
-            aux <- m * (1 - m)/v - 1
-            start <- list(shape1 = m * aux, shape2 = (1 - m) *
-                aux)
-        } else if (distname == "weibull") {
-          if (any(data < 0))
-                stop("values must be positive to fit a Weibull distribution")
-            m <- mean(log(data))
-            v <- var(log(data))
-            shape <- 1.2/sqrt(v)
-            scale <- exp(m + 0.572/shape)
-            start <- list(shape = shape, scale = scale)
-        } else if (distname == "logis") {
-            n <- length(data)
-            m <- mean(data)
-            v <- (n - 1)/n * var(data)
-            start <- list(location = m, scale = sqrt(3 * v)/pi)
-        } else if (distname == "chisq") {
-            if (any(data < 0))
-                stop("values must be positive to fit a Chi-square distribution")
-            start <- list(df=mean(data))
-        } else if (distname == "f") {
-            if (any(data < 0))
-                stop("values must be positive to fit a F distribution")
-            df2.start<-2*mean(data)/(mean(data)-1)
-            start <- list(df1=3,df2=df2.start)
-        } else if (distname == "gompertz") {
-            if (any(data < 0))
-                stop("values must be positive to fit a Gompertz distribution")
-            scale.start<-sd(data)*sqrt(6)/pi
-            gamma.const<-0.577221566
-            shape.start<-(scale.start*exp(mean(data)/scale.start+gamma.const))^(-1)
-            start <- list(shape=shape.start,scale=scale.start)
-        } else if (distname == "cauchy") {
-            start <- list(location = median(data), scale = IQR(data)/2)
-        } else stop("Fitting procedure for given distribution is not implemented",call.=FALSE)
-        #if (distname == "triang") {
-        #    start <- list(min=min(data),mode=(max(data)-min(data))/2,max=max(data))
-        #}
-        if (!is.list(start))
-            stop("'start' must be defined as a named list for this distribution")
-    }
-    vstart <- unlist(start)
-    argddistname <- names(formals(ddistname))
-    m <- match(names(start), argddistname)
-    if (any(is.na(m)))
-        stop("'start' must specify names which are arguments to 'distr'")
-    if (!cens) {
-        if ("log" %in% argddistname) {
-            fnobj <- function(par, obs, ddistnam) {
-                -sum(do.call(ddistnam, c(list(obs), par, log = TRUE)))
-            }
-        }else {
-            fnobj <- function(par, obs, ddistnam) {
-                -sum(log(do.call(ddistnam, c(list(obs), par))))
-            }
-        }
-    }else {
-        argpdistname <- names(formals(pdistname))
-        if (("log" %in% argddistname) & ("log.p" %in% argpdistname))
-            fnobjcens <- function(par, rcens, lcens, icens, ncens,
-                ddistnam, pdistnam) -sum(do.call(ddistnam, c(list(x = ncens),
-                as.list(par), list(log = TRUE)))) - sum(do.call(pdistnam,
-                c(list(q = lcens), as.list(par), list(log = TRUE)))) -
-                sum(do.call(pdistnam, c(list(q = rcens), as.list(par),
-                  list(lower.tail = FALSE), list(log = TRUE)))) -
-                sum(log(do.call(pdistnam, c(list(q = icens$right),
-                  as.list(par))) - do.call(pdistnam, c(list(q = icens$left),
-                  as.list(par)))))
-        else fnobjcens <- function(par, rcens, lcens, icens,
-            ncens, ddistnam, pdistnam) -sum(log(do.call(ddistnam,
-            c(list(x = ncens), as.list(par))))) - sum(log(do.call(pdistnam,
-            c(list(q = lcens), as.list(par))))) - sum(log(1 -
-            do.call(pdistnam, c(list(q = rcens), as.list(par))))) -
-            sum(log(do.call(pdistnam, c(list(q = icens$right),
-                as.list(par))) - do.call(pdistnam, c(list(q = icens$left),
-                as.list(par)))))
-    }
-    if (optim.method == "default")
+  }else {
+    argpdistname <- names(formals(pdistname))
+    if (("log" %in% argddistname) & ("log.p" %in% argpdistname))
+      fnobjcens <- function(par, rcens, lcens, icens, ncens,
+                            ddistnam, pdistnam) -sum(do.call(ddistnam, c(list(x = ncens),
+                                                                         as.list(par), list(log = TRUE)))) - sum(do.call(pdistnam,
+                                                                                                                         c(list(q = lcens), as.list(par), list(log = TRUE)))) -
+        sum(do.call(pdistnam, c(list(q = rcens), as.list(par),
+                                list(lower.tail = FALSE), list(log = TRUE)))) -
+        sum(log(do.call(pdistnam, c(list(q = icens$right),
+                                    as.list(par))) - do.call(pdistnam, c(list(q = icens$left),
+                                                                         as.list(par)))))
+    else fnobjcens <- function(par, rcens, lcens, icens,
+                               ncens, ddistnam, pdistnam) -sum(log(do.call(ddistnam,
+                                                                           c(list(x = ncens), as.list(par))))) - sum(log(do.call(pdistnam,
+                                                                                                                                 c(list(q = lcens), as.list(par))))) - sum(log(1 -
+                                                                                                                                                                                 do.call(pdistnam, c(list(q = rcens), as.list(par))))) -
+        sum(log(do.call(pdistnam, c(list(q = icens$right),
+                                    as.list(par))) - do.call(pdistnam, c(list(q = icens$left),
+                                                                         as.list(par)))))
+  }
+  if (optim.method == "default")
+  {
+    if (length(vstart) > 1)
     {
-        if (length(vstart) > 1)
-        {
-            meth <- "Nelder-Mead"
-            if(ddistname=="dtriang") meth="SANN"
-        }else meth <- "BFGS"
-    } else meth = optim.method
-    if (is.null(custom.optim)) {
-        if (!cens)
-        {
-            opttryerror <- try(opt <- optim(par = vstart, fn = fnobj,
-                obs = data, ddistnam = ddistname, hessian = TRUE,
-                method = meth, lower = lower, upper = upper,
-                ...), silent = TRUE)
-        }else opttryerror <- try(opt <- optim(par = vstart, fn = fnobjcens,
-            rcens = rcens, lcens = lcens, icens = icens, ncens = ncens,
-            ddistnam = ddistname, pdistnam = pdistname, hessian = TRUE,
-            method = meth, lower = lower, upper = upper, ...),
-            silent = TRUE)
-        if (inherits(opttryerror, "try-error")) {
-            warnings("The function optim encountered an error and stopped")
-            return(list(estimate = rep(NA, length(vstart)), convergence = 100,
-                loglik = NA, hessian = NA))
-        }
-        if (opt$convergence > 0) {
-            warnings("The function optim failed to converge, with the error code ",
-                opt$convergence)
-            return(list(estimate = rep(NA, length(vstart)), convergence = opt$convergence,
-                loglik = NA, hessian = NA))
-        }
-        return(list(estimate = opt$par, convergence = opt$convergence,
-            loglik = -opt$value, hessian = opt$hessian, optim.function = "optim"))
-    } else {   print("bin da...")
-        if (!cens)
-        {
-            opttryerror <- try(opt <- custom.optim(fn = fnobj,
-                obs = data, ddistnam = ddistname, par = vstart,
-                ...), silent = TRUE)
-        }else opttryerror <- try(opt <- custom.optim(fn = fnobjcens,
-            rcens = rcens, lcens = lcens, icens = icens, ncens = ncens,
-            ddistnam = ddistname, pdistnam = pdistname, par = vstart,
-            ...), silent = TRUE)
-        if (inherits(opttryerror, "try-error")) {
-            print(opttryerror)
-            warnings("The customized optimization function encountered an error and stopped")
-            return(list(estimate = rep(NA, length(vstart)), convergence = 100,
-                loglik = NA, hessian = NA))
-        }
-        if (opt$convergence > 0) {
-            warnings("The customized optimization function failed to converge, with the error code ",
-                opt$convergence)
-            return(list(estimate = rep(NA, length(vstart)), convergence = opt$convergence,
-                loglik = NA, hessian = NA))
-        }
-        return(list(estimate = opt$par, convergence = opt$convergence,
-            loglik = -opt$value, hessian = opt$hessian, optim.function = custom.optim))
+      meth <- "Nelder-Mead"
+      if(ddistname=="dtriang") meth="SANN"
+    }else meth <- "BFGS"
+  } else meth = optim.method
+  if (is.null(custom.optim)) {
+    if (!cens)
+    {
+      opttryerror <- try(opt <- optim(par = vstart, fn = fnobj,
+                                      obs = data, ddistnam = ddistname, hessian = TRUE,
+                                      method = meth, lower = lower, upper = upper,
+                                      ...), silent = TRUE)
+    }else opttryerror <- try(opt <- optim(par = vstart, fn = fnobjcens,
+                                          rcens = rcens, lcens = lcens, icens = icens, ncens = ncens,
+                                          ddistnam = ddistname, pdistnam = pdistname, hessian = TRUE,
+                                          method = meth, lower = lower, upper = upper, ...),
+                             silent = TRUE)
+    if (inherits(opttryerror, "try-error")) {
+      warnings("The function optim encountered an error and stopped")
+      return(list(estimate = rep(NA, length(vstart)), convergence = 100,
+                  loglik = NA, hessian = NA))
     }
+    if (opt$convergence > 0) {
+      warnings("The function optim failed to converge, with the error code ",
+               opt$convergence)
+      return(list(estimate = rep(NA, length(vstart)), convergence = opt$convergence,
+                  loglik = NA, hessian = NA))
+    }
+    return(list(estimate = opt$par, convergence = opt$convergence,
+                loglik = -opt$value, hessian = opt$hessian, optim.function = "optim"))
+  } else {   print("bin da...")
+    if (!cens)
+    {
+      opttryerror <- try(opt <- custom.optim(fn = fnobj,
+                                             obs = data, ddistnam = ddistname, par = vstart,
+                                             ...), silent = TRUE)
+    }else opttryerror <- try(opt <- custom.optim(fn = fnobjcens,
+                                                 rcens = rcens, lcens = lcens, icens = icens, ncens = ncens,
+                                                 ddistnam = ddistname, pdistnam = pdistname, par = vstart,
+                                                 ...), silent = TRUE)
+    if (inherits(opttryerror, "try-error")) {
+      print(opttryerror)
+      warnings("The customized optimization function encountered an error and stopped")
+      return(list(estimate = rep(NA, length(vstart)), convergence = 100,
+                  loglik = NA, hessian = NA))
+    }
+    if (opt$convergence > 0) {
+      warnings("The customized optimization function failed to converge, with the error code ",
+               opt$convergence)
+      return(list(estimate = rep(NA, length(vstart)), convergence = opt$convergence,
+                  loglik = NA, hessian = NA))
+    }
+    return(list(estimate = opt$par, convergence = opt$convergence,
+                loglik = -opt$value, hessian = opt$hessian, optim.function = custom.optim))
+  }
 }
 
 
@@ -6736,187 +6957,188 @@ rriskMLEdist<-function (data, distr, start = NULL, optim.method = "default",
 #' @export
 # @references Gemeinsames Paper...
 #' @examples
-#' \donttest{
+# \donttest{
 #' set.seed(1)
 #' x<-rnorm(5000,mean=10,sd=5)
 #' rriskFitdist.cont(x,"norm")
-#' rriskFitdist.cont(x,"t")}
+#' rriskFitdist.cont(x,"t")
+# }
 
 rriskFitdist.cont<-function (data, distr, method = c("mle", "mme"), start,
-  chisqbreaks, meancount, ...)
+                             chisqbreaks, meancount, ...)
 {
-    if (!is.character(distr))
-        distname <- substring(as.character(match.call()$distr), 2)
-    else distname <- distr
-    ddistname <- paste("d", distname, sep = "")
-    if (!exists(ddistname, mode = "function"))
-        stop(paste("The ", ddistname, " function must be defined"))
-    pdistname <- paste("p", distname, sep = "")
-    if (!exists(pdistname, mode = "function"))
-        stop(paste("The ", pdistname, " function must be defined"))
-    if (any(method == "mom"))
-        warning("the name \"mom\" for matching moments is NO MORE used and is replaced by \"mme\".")
-    method <- match.arg(method)
-    if (!missing(start) & method == "mme")
-        warnings("Starting values for parameters will not be used with matching moments")
-    if (!(is.vector(data) & is.numeric(data) & length(data) >
+  if (!is.character(distr))
+    distname <- substring(as.character(match.call()$distr), 2)
+  else distname <- distr
+  ddistname <- paste("d", distname, sep = "")
+  if (!exists(ddistname, mode = "function"))
+    stop(paste("The ", ddistname, " function must be defined"))
+  pdistname <- paste("p", distname, sep = "")
+  if (!exists(pdistname, mode = "function"))
+    stop(paste("The ", pdistname, " function must be defined"))
+  if (any(method == "mom"))
+    warning("the name \"mom\" for matching moments is NO MORE used and is replaced by \"mme\".")
+  method <- match.arg(method)
+  if (!missing(start) & method == "mme")
+    warnings("Starting values for parameters will not be used with matching moments")
+  if (!(is.vector(data) & is.numeric(data) & length(data) >
         1))
-        stop("data must be a numerical vector of length greater than 1")
-    n <- length(data)
-    if (method == "mme") {
-        estimate <- rriskMMEdist(data, distname)
-        sd <- NULL
-        loglik <- NULL
-        aic <- NULL
-        bic <- NULL
-        correl <- NULL
+    stop("data must be a numerical vector of length greater than 1")
+  n <- length(data)
+  if (method == "mme") {
+    estimate <- rriskMMEdist(data, distname)
+    sd <- NULL
+    loglik <- NULL
+    aic <- NULL
+    bic <- NULL
+    correl <- NULL
+  }
+  else {
+    if (missing(start))
+      mle <- rriskMLEdist(data, distname, ...)
+    else mle <- rriskMLEdist(data, distname, start, ...)
+    if (mle$convergence > 0)
+      stop("the function mle failed to estimate the parameters, \n                with the error code ",
+           mle$convergence, "\n")
+    estimate <- mle$estimate
+    if (!is.null(mle$hessian)) {
+      if (all(!is.na(mle$hessian))) {
+        varcovar <- solve(mle$hessian)
+        sd <- sqrt(diag(varcovar))
+        correl <- cov2cor(varcovar)
+      }
+      else {
+        varcovar <- NA
+        sd <- NA
+        correl <- NA
+      }
     }
     else {
-        if (missing(start))
-            mle <- rriskMLEdist(data, distname, ...)
-        else mle <- rriskMLEdist(data, distname, start, ...)
-        if (mle$convergence > 0)
-            stop("the function mle failed to estimate the parameters, \n                with the error code ",
-                mle$convergence, "\n")
-        estimate <- mle$estimate
-        if (!is.null(mle$hessian)) {
-            if (all(!is.na(mle$hessian))) {
-                varcovar <- solve(mle$hessian)
-                sd <- sqrt(diag(varcovar))
-                correl <- cov2cor(varcovar)
-            }
-            else {
-                varcovar <- NA
-                sd <- NA
-                correl <- NA
-            }
-        }
-        else {
-            varcovar <- NA
-            sd <- NA
-            correl <- NA
-        }
-        loglik <- mle$loglik
-        npar <- length(estimate)
-        aic <- -2 * loglik + 2 * npar
-        bic <- -2 * loglik + log(n) * npar
+      varcovar <- NA
+      sd <- NA
+      correl <- NA
     }
-    if (is.element(distname, c("binom", "nbinom", "geom", "hyper",
-        "pois")))
-        discrete <- TRUE
-    else discrete <- FALSE
-    if (missing(chisqbreaks)) {
-        if (missing(meancount))
-            meancount <- round(n/((4 * n)^(2/5)))
-        sdata <- sort(data)
-        if (length(sdata) > ceiling(1.5 * meancount)) {
-            limit <- sdata[meancount]
-            sdata <- sdata[sdata > limit]
-            chisqbreaks <- limit
-        }
-        else {
-            warnings("The sample is too small to automatically define chisqbreaks")
-            chisq <- NULL
-            chisqbreaks <- NULL
-            chisqpvalue <- NULL
-            chisqtable <- NULL
-            chisqdf <- NULL
-        }
-        while (length(sdata) > ceiling(1.5 * meancount)) {
-            limit <- sdata[meancount]
-            sdata <- sdata[sdata > limit]
-            chisqbreaks <- c(chisqbreaks, limit)
-        }
-    }
-    if (!is.null(chisqbreaks)) {
-        if (!is.numeric(chisqbreaks))
-            stop("chisqbreaks must be a numerical vector defining the cell boundaries")
-        nbreaks <- length(chisqbreaks)
-        pbreaks <- do.call(pdistname, c(list(q = chisqbreaks),
-            as.list(estimate)))
-        Fobsbreaks <- ecdf(data)(chisqbreaks)
-        Fobsunder <- c(0, Fobsbreaks[1:nbreaks - 1])
-        punder <- c(0, pbreaks[1:nbreaks - 1])
-        if (pbreaks[nbreaks] == 1 & Fobsbreaks[nbreaks] == 1) {
-            p <- pbreaks - punder
-            Fobs <- Fobsbreaks - Fobsunder
-        }
-        else {
-            p <- c(pbreaks - punder, 1 - pbreaks[nbreaks])
-            Fobs <- c(Fobsbreaks - Fobsunder, 1 - Fobsbreaks[nbreaks])
-        }
-        obscounts <- round(Fobs * n)
-        theocounts <- p * n
-        chisq <- sum(((obscounts - theocounts)^2)/theocounts)
-        chisqdf <- length(obscounts) - 1 - length(estimate)
-        if (chisqdf > 0) {
-            chisqpvalue <- pchisq(chisq, df = chisqdf, lower.tail = FALSE)
-        }
-        else chisqpvalue <- NULL
-        chisqtable <- as.table(cbind(obscounts, theocounts))
-        for (i in 1:length(obscounts) - 1) rownames(chisqtable)[i] <- paste("<=",
-            signif(chisqbreaks[i], digits = 4))
-        rownames(chisqtable)[length(obscounts)] <- paste(">",
-            signif(chisqbreaks[i], digits = 4))
-    }
-    if (!discrete) {
-        s <- sort(data)
-        obspu <- seq(1, n)/n
-        obspl <- seq(0, n - 1)/n
-        theop <- do.call(pdistname, c(list(q = s), as.list(estimate)))
-        ks <- max(pmax(abs(theop - obspu), abs(theop - obspl)))
-        Dmod <- ks * (sqrt(n) + 0.12 + 0.11/sqrt(n))
-        if (n >= 30)
-            kstest <- ifelse(Dmod > 1.358, "rejected", "not rejected")
-        else kstest <- NULL
-        ad <- -n - sum((2 * (1:n) - 1) * log(theop) + (2 * n +
-            1 - 2 * (1:n)) * log(1 - theop))/n
-        if ((distname == "norm" | distname == "lnorm") & n >=
-            5) {
-            a2mod <- ad * (1 + 0.75/n + 2.25/n^2)
-            adtest <- ifelse(a2mod > 0.752, "rejected", "not rejected")
-        }
-        else if (distname == "exp" & n >= 5) {
-            a2mod <- ad * (1 + 0.6/n)
-            adtest <- ifelse(a2mod > 1.321, "rejected", "not rejected")
-        }
-        else if (distname == "gamma" & n >= 5) {
-            m <- as.list(estimate)$shape
-            interp <- approxfun(c(1, 2, 3, 4, 5, 6, 8, 10, 12,
-                15, 20), c(0.786, 0.768, 0.762, 0.759, 0.758,
-                0.757, 0.755, 0.754, 0.754, 0.754, 0.753), yright = 0.752)
-            adtest <- ifelse(ad > interp(m), "rejected", "not rejected")
-        }
-        else if (distname == "weibull" & n >= 5) {
-            a2mod <- ad * (1 + 0.2/sqrt(n))
-            adtest <- ifelse(a2mod > 0.757, "rejected", "not rejected")
-        }
-        else if (distname == "logis" & n >= 5) {
-            a2mod <- ad * (1 + 0.25/n)
-            adtest <- ifelse(a2mod > 0.66, "rejected", "not rejected")
-        }
-        else if (distname == "cauchy" & n >= 5) {
-            interp <- approxfun(c(5, 8, 10, 12, 15, 20, 25, 30,
-                40, 50, 60, 100), c(1.77, 3.2, 3.77, 4.14, 4.25,
-                4.05, 3.57, 3.09, 2.48, 2.14, 1.92, 1.52), yright = 1.225)
-            adtest <- ifelse(ad > interp(n), "rejected", "not rejected")
-        }
-        else adtest <- NULL
-        if (length(table(data)) != length(data))
-            warnings("Kolmogorov-Smirnov and Anderson-Darling statistics may not be correct with ties")
+    loglik <- mle$loglik
+    npar <- length(estimate)
+    aic <- -2 * loglik + 2 * npar
+    bic <- -2 * loglik + log(n) * npar
+  }
+  if (is.element(distname, c("binom", "nbinom", "geom", "hyper",
+                             "pois")))
+    discrete <- TRUE
+  else discrete <- FALSE
+  if (missing(chisqbreaks)) {
+    if (missing(meancount))
+      meancount <- round(n/((4 * n)^(2/5)))
+    sdata <- sort(data)
+    if (length(sdata) > ceiling(1.5 * meancount)) {
+      limit <- sdata[meancount]
+      sdata <- sdata[sdata > limit]
+      chisqbreaks <- limit
     }
     else {
-        ks <- NULL
-        kstest <- NULL
-        ad <- NULL
-        adtest <- NULL
+      warnings("The sample is too small to automatically define chisqbreaks")
+      chisq <- NULL
+      chisqbreaks <- NULL
+      chisqpvalue <- NULL
+      chisqtable <- NULL
+      chisqdf <- NULL
     }
-    return(structure(list(estimate = estimate, method = method,
-        sd = sd, cor = correl, loglik = loglik, aic = aic, bic = bic,
-        n = n, data = data, distname = distname, chisq = chisq,
-        chisqbreaks = chisqbreaks, chisqpvalue = chisqpvalue,
-        chisqdf = chisqdf, chisqtable = chisqtable, ad = ad,
-        adtest = adtest, ks = ks, kstest = kstest), class = "fitdist"))
+    while (length(sdata) > ceiling(1.5 * meancount)) {
+      limit <- sdata[meancount]
+      sdata <- sdata[sdata > limit]
+      chisqbreaks <- c(chisqbreaks, limit)
+    }
+  }
+  if (!is.null(chisqbreaks)) {
+    if (!is.numeric(chisqbreaks))
+      stop("chisqbreaks must be a numerical vector defining the cell boundaries")
+    nbreaks <- length(chisqbreaks)
+    pbreaks <- do.call(pdistname, c(list(q = chisqbreaks),
+                                    as.list(estimate)))
+    Fobsbreaks <- ecdf(data)(chisqbreaks)
+    Fobsunder <- c(0, Fobsbreaks[1:nbreaks - 1])
+    punder <- c(0, pbreaks[1:nbreaks - 1])
+    if (pbreaks[nbreaks] == 1 & Fobsbreaks[nbreaks] == 1) {
+      p <- pbreaks - punder
+      Fobs <- Fobsbreaks - Fobsunder
+    }
+    else {
+      p <- c(pbreaks - punder, 1 - pbreaks[nbreaks])
+      Fobs <- c(Fobsbreaks - Fobsunder, 1 - Fobsbreaks[nbreaks])
+    }
+    obscounts <- round(Fobs * n)
+    theocounts <- p * n
+    chisq <- sum(((obscounts - theocounts)^2)/theocounts)
+    chisqdf <- length(obscounts) - 1 - length(estimate)
+    if (chisqdf > 0) {
+      chisqpvalue <- pchisq(chisq, df = chisqdf, lower.tail = FALSE)
+    }
+    else chisqpvalue <- NULL
+    chisqtable <- as.table(cbind(obscounts, theocounts))
+    for (i in 1:length(obscounts) - 1) rownames(chisqtable)[i] <- paste("<=",
+                                                                        signif(chisqbreaks[i], digits = 4))
+    rownames(chisqtable)[length(obscounts)] <- paste(">",
+                                                     signif(chisqbreaks[i], digits = 4))
+  }
+  if (!discrete) {
+    s <- sort(data)
+    obspu <- seq(1, n)/n
+    obspl <- seq(0, n - 1)/n
+    theop <- do.call(pdistname, c(list(q = s), as.list(estimate)))
+    ks <- max(pmax(abs(theop - obspu), abs(theop - obspl)))
+    Dmod <- ks * (sqrt(n) + 0.12 + 0.11/sqrt(n))
+    if (n >= 30)
+      kstest <- ifelse(Dmod > 1.358, "rejected", "not rejected")
+    else kstest <- NULL
+    ad <- -n - sum((2 * (1:n) - 1) * log(theop) + (2 * n +
+                                                     1 - 2 * (1:n)) * log(1 - theop))/n
+    if ((distname == "norm" | distname == "lnorm") & n >=
+        5) {
+      a2mod <- ad * (1 + 0.75/n + 2.25/n^2)
+      adtest <- ifelse(a2mod > 0.752, "rejected", "not rejected")
+    }
+    else if (distname == "exp" & n >= 5) {
+      a2mod <- ad * (1 + 0.6/n)
+      adtest <- ifelse(a2mod > 1.321, "rejected", "not rejected")
+    }
+    else if (distname == "gamma" & n >= 5) {
+      m <- as.list(estimate)$shape
+      interp <- approxfun(c(1, 2, 3, 4, 5, 6, 8, 10, 12,
+                            15, 20), c(0.786, 0.768, 0.762, 0.759, 0.758,
+                                       0.757, 0.755, 0.754, 0.754, 0.754, 0.753), yright = 0.752)
+      adtest <- ifelse(ad > interp(m), "rejected", "not rejected")
+    }
+    else if (distname == "weibull" & n >= 5) {
+      a2mod <- ad * (1 + 0.2/sqrt(n))
+      adtest <- ifelse(a2mod > 0.757, "rejected", "not rejected")
+    }
+    else if (distname == "logis" & n >= 5) {
+      a2mod <- ad * (1 + 0.25/n)
+      adtest <- ifelse(a2mod > 0.66, "rejected", "not rejected")
+    }
+    else if (distname == "cauchy" & n >= 5) {
+      interp <- approxfun(c(5, 8, 10, 12, 15, 20, 25, 30,
+                            40, 50, 60, 100), c(1.77, 3.2, 3.77, 4.14, 4.25,
+                                                4.05, 3.57, 3.09, 2.48, 2.14, 1.92, 1.52), yright = 1.225)
+      adtest <- ifelse(ad > interp(n), "rejected", "not rejected")
+    }
+    else adtest <- NULL
+    if (length(table(data)) != length(data))
+      warnings("Kolmogorov-Smirnov and Anderson-Darling statistics may not be correct with ties")
+  }
+  else {
+    ks <- NULL
+    kstest <- NULL
+    ad <- NULL
+    adtest <- NULL
+  }
+  return(structure(list(estimate = estimate, method = method,
+                        sd = sd, cor = correl, loglik = loglik, aic = aic, bic = bic,
+                        n = n, data = data, distname = distname, chisq = chisq,
+                        chisqbreaks = chisqbreaks, chisqpvalue = chisqpvalue,
+                        chisqdf = chisqdf, chisqtable = chisqtable, ad = ad,
+                        adtest = adtest, ks = ks, kstest = kstest), class = "fitdist"))
 } # end of rriskFitdist.cont()
 
 

@@ -34,18 +34,21 @@
 #' Kristin Tolksdorf \email{kristin.tolksdorf@@bfr.bund.de} (Federal Institute for Risk Assessment, Germany), \cr
 #' Katharina Schueller \email{schueller@@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 #' @examples
-#' \donttest{
+# \donttest{
 #' q<-qweibull(p=c(0.025,0.5,0.975),shape=2,scale=3)
 #' get.weibull.par(q=q)
 #' q<-qweibull(p=c(0.025,0.5,0.975),shape=0.01,scale=1)
 #' get.weibull.par(q=q)
-#'
-#' res.fitcont<-fit.cont(data2fit=rnorm(100))
-#' res.fitcont
-#'
-#' res.fitperc<-fit.perc()
-#' res.fitperc
-#'
+#' \dontrun{
+#'   if( class(tcltk::tclRequire("Tktable"))=="tclObj" ){
+#'     res.fitcont<-fit.cont(data2fit=rnorm(100))
+#'     res.fitcont
+#'   }
+#'   if( class(tcltk::tclRequire("Tktable"))=="tclObj" ){
+#'     res.fitperc<-fit.perc()
+#'     res.fitperc
+#'   }
+#' }
 #' p=c(0.025,0.50,0.975)
 #' q=c(9.68,29.2,50.98)
 #' fit.results<-rriskFitdist.perc(p,q,show.output=FALSE)
@@ -55,5 +58,6 @@
 #' q=c(9.68,29.2,50.98)
 #' fit.results<-rriskFitdist.perc(p,q,show.output=FALSE)
 #' plotDiagnostics.perc(fit.results)
-#' plotDiagnostics.perc(fit.results,tolPlot=2)}
+#' plotDiagnostics.perc(fit.results,tolPlot=2)
+# }
 NULL
