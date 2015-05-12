@@ -27,3 +27,11 @@ You can track (and contribute to) development of `rriskDistributions` at <https:
 ``` {.r}
 devtools::install_github("mattflor/rriskDistributions")
 ```
+
+Authors
+-------
+
+-   Natalia Belgorodski (STAT-UP Statistical Consulting)
+-   Matthias Greiner (Federal Institute for Risk Assessment, Germany)
+-   Kristin Tolksdorf (Federal Institute for Risk Assessment, Germany)
+-   Katharina Schueller (STAT-UP Statistical Consulting)
