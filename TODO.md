@@ -13,12 +13,12 @@ output: html_document
       * ~~LG: in file DESCRIPTION: maintainer zurück auf Matthias Greiner~~
 3. Herstellen der Release Version
     1. falls möglich: GitHub Repository: 
-        1. MF: organisiert GitHub repository
-        2. MF: (falls nötig) ermöglicht LG Zutritt dazu
-        3. MF: richtet master branch ein mit letztem release als head
-        4. LG: kreiert neuen branch: "re-submission"
-        5. LG: pushed seine Überarbeitete Version auf branch "re-submission"
-        6. LG: pull request in master branch
+        1. ~~MF: organisiert GitHub repository~~
+        2. ~~MF: (falls nötig) ermöglicht LG Zutritt dazu~~
+        3. ~~MF: richtet master branch ein mit letztem release als head~~
+        4. ~~LG: kreiert neuen branch: "re-submission"~~
+        5. ~~LG: pushed seine Überarbeitete Version auf branch "re-submission"~~
+        6. ~~LG: pull request in master branch~~
         7. MF: bearbeitet pull request und merged in master branch
     2. andernfalls:
         1. LG: schickt seine überarbeitete Paket Version (als .tar.gz )an MF
