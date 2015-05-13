@@ -1,14 +1,16 @@
-## Resubmission
+## Re-submission
 
-This is a resubmission. In this version, we have:
+This is a re-submission. In this version, we have:
 
 * removed all unnecessary \\donttest's (more detail below)
 * moved packages from 'Depends' to 'Imports' in the DESCRIPTION and changed the NAMESPACE and function calls accordingly
+
 
 ## Test environments
 * ubuntu 14.04 LTS (local install):  R under development (2015-05-06 r68336) and R 3.1.3
 * windows 7 (local install): R 3.2.0
 * win-builder: R under development and R 3.2.0
+
 
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
@@ -37,4 +39,4 @@ __Our comment__: We believe this NOTE to be spurious as we use title case "Quant
 
 
 ## Downstream dependencies
-**TODO**
+There are currently no downstream dependencies for this package.
