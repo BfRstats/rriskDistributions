@@ -2,12 +2,13 @@
 
 This is a re-submission. In this version, we have:
 
-* removed all unnecessary \\donttest's (more detail below)
+* removed all \\donttest's (more detail below)
 * moved packages from 'Depends' to 'Imports' in the DESCRIPTION and changed the NAMESPACE and function calls accordingly
 
 
 ## Test environments
-* ubuntu 14.04 LTS (local install):  R under development (2015-05-06 r68336) and R 3.1.3
+* ubuntu 14.04 LTS (local install):  R under development (2015-05-06 r68336)
+* ubuntu 14.04 LTS (local install): R 3.1.3
 * windows 7 (local install): R 3.2.0
 * win-builder: R under development and R 3.2.0
 
@@ -15,7 +16,7 @@ This is a re-submission. In this version, we have:
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
 
-There was 1 common NOTE and 1 additional NOTE under win-builder.
+There was 1 NOTE common to all test environments and 1 additional NOTE under win-builder.
 The common NOTE:
 
 * checking CRAN incoming feasibility ... NOTE  
@@ -27,7 +28,7 @@ The common NOTE:
       corrected.
 
 __Our comment__: First, we'd like to apologize for failing to submit a properly checked package the last time (which led to your archiving of rriskDistributions).
-We have now removed all \\donttest's, such that allmost all of the previously not ran examples now are run and tested. Only in three examples, we have to use \\dontrun's: These are necessary due to tcltk windows which are used.
+We have now removed all \\donttest's, such that almost all of the previously not ran examples now are run and tested. Only in three examples, we have to use \\dontrun's: These are necessary due to tcltk windows which are used.
                
 The additional NOTE under win-builder:
 
