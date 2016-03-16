@@ -1,8 +1,7 @@
 Package: rriskDistributions
 Type: Package
 Title: Fitting Distributions to Given Data or Known Quantiles
-Description: 
-    Collection of functions for fitting distributions to given data or
+Description: Collection of functions for fitting distributions to given data or
     by known quantiles. Two main functions fit.perc() and fit.cont() provide
     users a GUI that allows to choose a most appropriate distribution without
     any knowledge of the R syntax. Note, this package is a part of the 'rrisk'
@@ -10,11 +9,18 @@ Description:
 License: GPL (>= 3)
 LazyLoad: yes
 URL: http://www.bfr.bund.de/cd/52158
-Depends: R(>= 2.11.0)
-Imports: mc2d, eha, msm, tcltk, tkrplot
+Depends:
+    R(>= 2.11.0)
+Imports:
+    stats,
+    graphics,
+    mc2d,
+    eha,
+    msm,
+    tcltk,
+    tkrplot
 SystemRequirements: Tcl/Tk (>= 8.5), Tktable (>= 2.9)
-Authors@R: 
-    c(person(given="Natalia", family="Belgorodski", email="belgorodski@stat-up.de",
+Authors@R: c(person(given="Natalia", family="Belgorodski", email="belgorodski@stat-up.de",
              role=c("aut"), comment="STAT-UP Statistical Consulting"),
       person(given="Matthias", family="Greiner", email="matthias.greiner@bfr.bund.de",
              role=c("aut", "cre"), comment="Federal Institute for Risk Assessment, Germany"),
@@ -26,8 +32,10 @@ Authors@R:
              role=c("ctb"), comment="Federal Institute for Risk Assessment, Germany"),  
       person(given="Lutz", family="Göhring", email="lutz.goehring@gmx.de",
              role=c("ctb"), comment="Lutz Göhring Consulting"))
-Version: 2.1.0.9000
-Date: 2015-05-11
+Version: 2.1.1.9000
+Date: 2016-03-15
 Encoding: UTF-8
-Collate: 'rriskDistributions-package.R'
-        'rriskDistributions_functions_v1.9.1.R'
+Collate:
+    'rriskDistributions-package.R'
+    'rriskDistributions_functions.R'
+RoxygenNote: 5.0.1
