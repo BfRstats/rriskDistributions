@@ -1,9 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 rriskDistributions
 ==================
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rriskDistributions)](http://cran.r-project.org/web/packages/rriskDistributions)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rriskDistributions)](http://cran.r-project.org/package=rriskDistributions)
 
 `rriskDistributions` is a collection of functions for fitting distributions to given data or known quantiles.
 
@@ -11,7 +10,7 @@ The two main functions `fit.perc()` and `fit.cont()` provide users a GUI that al
 
 E.g., we can fit random data generated from a gamma distribution with `fit.cont()`:
 
-``` {.r}
+``` r
 res <- fit.cont(data2fit = rgamma(n = 37, shape = 4, rate = 0.08))
 ```
 
@@ -24,7 +23,7 @@ Updating to the latest version of rriskDistributions
 
 You can track (and contribute to) development of `rriskDistributions` at <https://github.com/mattflor/rriskDistributions>. To install it, run the following command (this requires the `devtools` package):
 
-``` {.r}
+``` r
 devtools::install_github("mattflor/rriskDistributions")
 ```
 

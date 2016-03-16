@@ -6,9 +6,9 @@
 # ------------------------------------------------------------------------------
 # Autor: Natalia Belgorodski, Stat-Up
 # Anpassungen von Lutz Göhring, Lutz Göhring Consulting
-# Update: 05.05.2015 (Anpassungen an CRAN-Forderungen)
+#   Update: 05.05.2015 (Anpassungen an CRAN-Forderungen)
 # Weitere Anpassungen von Matthias Flor, BfR
-# Update: 16.03.2016 (erneute Anpassungen an CRAN-Forderungen)
+#   Update: 16.03.2016 (erneute Anpassungen an CRAN-Forderungen)
 ################################################################################
 ################################################################################
 
