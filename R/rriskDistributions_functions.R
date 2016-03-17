@@ -56,33 +56,30 @@
 #' and the data on which the estimation is based.
 #' @note This function is used for defining a Monte-Carlo random variate item
 #' (\code{mcrv}) in the \code{rrisk} project.
-# @seealso nothing...
 #' @keywords gui
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' \dontrun{
-#'   chosenDistr1 <- fit.perc()
-#'   chosenDistr1
+#'     chosenDistr1 <- fit.perc()
+#'     chosenDistr1
+#'     
+#'     chosenDistr2 <- fit.perc(tolPlot = 5)
+#'     chosenDistr2
+#'     
+#'     chosenDistr3 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 20, 40))
+#'     chosenDistr3
+#'     
+#'     chosenDistr4 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40))
+#'     chosenDistr4
+#'     
+#'     chosenDistr5 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40), tolPlot = 10)
+#'     chosenDistr5
 #'
-#'   chosenDistr2 <- fit.perc(tolPlot = 5)
-#'   chosenDistr2
-#'
-#'   chosenDistr3 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 20, 40))
-#'   chosenDistr3
-#'
-#'   chosenDistr4 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40))
-#'   chosenDistr4
-#'
-#'   chosenDistr5 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40), tolPlot = 10)
-#'   chosenDistr5
-#'
-#'   # Fitting a PERT distribution
-#'   p <- c(0.025, 0.5, 0.6, 0.975)
-#'   q <- round(mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5), digits = 2)
-#'   chosenDistr6 <- fit.perc(p = p, q = q, tolPlot = 10)
-#'   chosenDistr6
+#'     ## Fitting a PERT distribution
+#'     p <- c(0.025, 0.5, 0.6, 0.975)
+#'     q <- round(mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5), digits = 2)
+#'     chosenDistr6 <- fit.perc(p = p, q = q, tolPlot = 10)
+#'     chosenDistr6
 #' }
 
 fit.perc <- function(p = c(0.025, 0.5, 0.975), 
@@ -139,7 +136,7 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     #-----------------------------------------------------------------------------
     # define help variables for output
     #-----------------------------------------------------------------------------
-    assign("tempEnvir", value = new.env())  # use default environment instead of envir=.GlobalEnv
+    assign("tempEnvir", value = new.env())  # use default environment instead of envir = .GlobalEnv
     assign("comboDistributions", value = c(""), envir = tempEnvir)
     assign("chosenD", value = NA, envir = tempEnvir)
     assign("allParameters", value = NA, envir = tempEnvir)
@@ -326,7 +323,8 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
         # define help variable for tolConv
         tolConvTemp <- tcltk::tclvalue(tcltk::tkget(tolConvEntry))
         tolConvTemp <- strsplit(tolConvTemp, " ")[[1]]
-        tolConvTemp <- c(apply(matrix(tolConvTemp, nrow = 1), 1, function(x) sub(x, pattern = " ", replacement = "")))
+        tolConvTemp <- c(apply(matrix(tolConvTemp, nrow = 1), 1, 
+                               function(x) sub(x, pattern = " ", replacement = "")))
         toRemove <- which(tolConvTemp == "")
         if (length(toRemove > 0)) tolConvTemp <- tolConvTemp[-toRemove]
         tolConv <- as.numeric(tolConvTemp)
@@ -404,17 +402,23 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
         tcltk::tkconfigure(fitResultTable, variable = tcltk::tclArray())
         tkrplot::tkrreplot(imgPlot, hscale = 1.4, vscale = 1.2,
                            fun = function() {
-                               graphics::plot(stats::rnorm(20), col = "white", xlab = "Percentile", ylab = "Percent", main = "Graphical diagnostics")
+                               graphics::plot(stats::rnorm(20), 
+                                              col = "white", 
+                                              xlab = "Percentile", ylab = "Percent", 
+                                              main = "Graphical diagnostics")
                            }
         )
         
         # calculate results matrix
-        fit.results <- rriskFitdist.perc(p, q,show.output = FALSE, tolConv = tolConv, fit.weights)
+        fit.results <- rriskFitdist.perc(p, q,
+                                         show.output = FALSE, 
+                                         tolConv = tolConv, fit.weights)
         
         if (!prod(is.na(fit.results))) { # if res.matrix is not empty
             res.matrix <- fit.results$results
-            assign("allParameters", value = res.matrix[1:4,-c(1, 2)], envir = tempEnvir)
-            comboDistributions <- colnames(res.matrix)[!apply(res.matrix, 2, function(x) ifelse(all(is.na(x)), TRUE, FALSE))]
+            assign("allParameters", value = res.matrix[1:4, -c(1, 2)], envir = tempEnvir)
+            comboDistributions <- colnames(res.matrix)[!apply(res.matrix, 2, 
+                                                              function(x) ifelse(all(is.na(x)), TRUE, FALSE))]
             comboDistributions <- comboDistributions[-c(1, 2)]
             assign("comboDistributions", value = comboDistributions, envir = tempEnvir)
             
@@ -438,7 +442,7 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
             res.matrix <- rbind(colnames(res.matrix), res.matrix)
             res.matrix[1, 1] <- "Percent"
             
-            # define data f¸r tktable
+            # define data for tktable
             for (i in 0:(nrow(res.matrix) - 1)) {
                 for (j in 0:(ncol(res.matrix) - 1)) {
                     temp <- unlist(res.matrix[i + 1, j + 1])
@@ -473,9 +477,11 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     #-----------------------------------------------------------------------------
     # create GUI window and frames
     #-----------------------------------------------------------------------------
-    fitpercWindow <- tcltk::tktoplevel(width = 860, height = 580)
+    fitpercWindow <- tcltk::tktoplevel(width = 8600, height = 580)  #(width = 860, height = 580)
     tcltk::tkwm.title(fitpercWindow, "Fitting continuous distributions to given percentiles")
-    tcltk::tkwm.resizable(fitpercWindow, 0,0)  # fixed size, not resizeable
+    tcltk::tkwm.resizable(fitpercWindow, TRUE, TRUE)  # fixed size, not resizeable
+    tcltk::tkwm.maxsize(fitpercWindow, 1000, 800)
+    tcltk::tkwm.minsize(fitpercWindow, 1000, 800)
     #tcltk::tkwm.maxsize(fitpercWindow, 880, 580)
     #tcltk::tkwm.minsize(fitpercWindow, 880, 580)
     allFrame <- tcltk::tkframe(fitpercWindow)
@@ -527,7 +533,10 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     #-----------------------------------------------------------------------------
     imgPlot <- tkrplot::tkrplot(InputImageFrame, hscale = 1.4, vscale = 1.2,
                                 fun = function() {
-                                    graphics::plot(stats::rnorm(20), col = "white", xlab = "Percentile", ylab = "Percent", main = "Graphical diagnostics")
+                                    graphics::plot(stats::rnorm(20), 
+                                                   col = "white", 
+                                                   xlab = "Percentile", ylab = "Percent", 
+                                                   main = "Graphical diagnostics")
                                 })
     tcltk::tkpack(imgPlot, side = "left")
     tcltk::tkpack(InputImageFrame)
@@ -543,7 +552,8 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
                                       resizeborders = "none", colwidth = 6, maxwidth = 1200,
                                       yscrollcommand = function(...) tcltk::tkset(yscr, ...), 
                                       selectmode = "extended")
-    yscr <- tcltk::tkscrollbar(TableFrame, command = function(...) tcltk::tkyview(fitResultTable, ...))
+    yscr <- tcltk::tkscrollbar(TableFrame, 
+                               command = function(...) tcltk::tkyview(fitResultTable, ...))
     tcltk::tkgrid(fitResultTable, yscr, sticky = "ns")
     tcltk::tkpack(TableFrame)
     
@@ -551,10 +561,19 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     # create buttons and combobox frame
     #-----------------------------------------------------------------------------
     buttonsFrame2 <- tcltk::tkframe(allFrame)
-    okButton <- tcltk::ttkbutton(buttonsFrame2, width = 10, text = "Ok", command = onOk)
-    cancelButton <- tcltk::ttkbutton(buttonsFrame2, width = 10, text = "Cancel", command = onCancel)
-    chooseCombobox <- tcltk::ttkcombobox(buttonsFrame2, values = get("comboDistributions", envir = tempEnvir), width = 10, state = "readonly")
-    tcltk::tkpack(tcltk::tklabel(buttonsFrame2, text = "chosen distribution", font = headingFont2, width = 15), side = "left", padx = c(0, 15))
+    okButton <- tcltk::ttkbutton(buttonsFrame2, 
+                                 width = 10, text = "Ok",
+                                 command = onOk)
+    cancelButton <- tcltk::ttkbutton(buttonsFrame2, width = 10, text = "Cancel", 
+                                     command = onCancel)
+    chooseCombobox <- tcltk::ttkcombobox(buttonsFrame2, 
+                                         values = get("comboDistributions", 
+                                                      envir = tempEnvir), 
+                                         width = 10, state = "readonly")
+    tcltk::tkpack(tcltk::tklabel(buttonsFrame2, 
+                                 text = "chosen distribution", 
+                                 font = headingFont2, width = 15), 
+                  side = "left", padx = c(0, 15))
     tcltk::tkpack(chooseCombobox, side = "left", padx = c(0, 200))
     tcltk::tkpack(okButton, side = "left", padx = c(0, 15))
     tcltk::tkpack(cancelButton, side = "left", padx = c(0, 15))
@@ -578,7 +597,8 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     if (!prod(is.na(fit.results))) { # if res.matrix is not empty
         res.matrix <- fit.results$results
         assign("allParameters", value = res.matrix[1:4,-c(1, 2)], envir = tempEnvir)
-        comboDistributions <- colnames(res.matrix)[!apply(res.matrix, 2, function(x) ifelse(all(is.na(x)), TRUE, FALSE))]
+        comboDistributions <- colnames(res.matrix)[!apply(res.matrix, 2, 
+                                                          function(x) ifelse(all(is.na(x)), TRUE, FALSE))]
         comboDistributions <- comboDistributions[-c(1, 2)]
         assign("comboDistributions", value = comboDistributions, envir = tempEnvir)
         tcltk::tkconfigure(chooseCombobox, values = get("comboDistributions", envir = tempEnvir))
@@ -694,24 +714,12 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
 #' percentiles and the given percentiles are smaller than this value, the distribution
 #' will be plotted.
 #' @return Only graphical output.
-# @seealso nothing...
 #' @keywords others
 #' @export
-#' @importFrom mc2d qtriang
-#' @importFrom mc2d ptriang
-#' @importFrom mc2d qpert
-#' @importFrom mc2d ppert
-#' @importFrom eha qgompertz
-#' @importFrom eha pgompertz
-#' @importFrom msm qtnorm
-#' @importFrom msm ptnorm
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' p <- c(0.025, 0.5, 0.975)
 #' q <- c(9.68, 29.20, 50.98)
 #' fit.results1 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE, tolConv = 0.5)
-# X11(width = 10, height = 5)
 #' graphics::par(mfrow = c(1, 2))
 #' plotDiagnostics.perc(fit.results1)
 #' plotDiagnostics.perc(fit.results1, tolPlot = 5)
@@ -731,13 +739,11 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
 #' fit.results4 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results4)
 #'
-#' # Example with fitted beta pert distribution
+#' ## Example with fitted beta pert distribution
 #' p <- c(0.025, 0.5, 0.6, 0.975)
 #' q <- mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5)
 #' fit.results5 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results5)
-# }
-
 plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     # checking consistency of the input data
@@ -748,15 +754,6 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     if (!is.numeric(tolPlot) | length(tolPlot) != 1 | tolPlot < 0) {
         stop("INVALID INPUT, the argument 'tolPlot' should be a single positive numerical value!", call. = FALSE)
     }
-    
-    #-----------------------------------------------------------------------------
-    # loading required packages
-    #-----------------------------------------------------------------------------
-    # these packages are listed in the "Depends" field of the package DESCRIPTION file, require call
-    # is not needed:
-    #suppressWarnings(require(eha))
-    #suppressWarnings(require(mc2d))
-    #suppressWarnings(require(tcltk))
     
     #-----------------------------------------------------------------------------
     # creating help variables
@@ -803,9 +800,12 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # plotting chisqnc distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$chisqnc[1])) {
-        test.quantiles <- suppressWarnings(stats::qchisq(p, df = res.mat$chisqnc[1], ncp = res.mat$chisqnc[2]))
+        test.quantiles <- suppressWarnings(stats::qchisq(p, df = res.mat$chisqnc[1], 
+                                                         ncp = res.mat$chisqnc[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pchisq(xx, df = res.mat$chisqnc[1], ncp = res.mat$chisqnc[2]) ~ xx, col = chisqnc.color, lwd = 2)
+            graphics::lines(stats::pchisq(xx, df = res.mat$chisqnc[1], 
+                                          ncp = res.mat$chisqnc[2]) ~ xx, 
+                            col = chisqnc.color, lwd = 2)
             leg.txt <- c(leg.txt, "n.-c. chi-square")
             leg.col <- c(leg.col, chisqnc.color)
         }, silent = TRUE)
@@ -814,10 +814,16 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # plotting tnorm distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$tnorm[1])) {
-        test.quantiles <- suppressWarnings(qtnorm(p, mean = res.mat$tnorm[1], sd = res.mat$tnorm[2]))
+        test.quantiles <- suppressWarnings(msm::qtnorm(p, 
+                                                  mean = res.mat$tnorm[1], 
+                                                  sd = res.mat$tnorm[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(ptnorm(xx, mean = res.mat$tnorm[1], sd = res.mat$tnorm[2],
-                                   lower = res.mat$tnorm[3], upper = res.mat$tnorm[4]) ~ xx, col = tnorm.color, lwd = 2)
+            graphics::lines(msm::ptnorm(xx, 
+                                   mean = res.mat$tnorm[1], 
+                                   sd = res.mat$tnorm[2],
+                                   lower = res.mat$tnorm[3], 
+                                   upper = res.mat$tnorm[4]) ~ xx, 
+                            col = tnorm.color, lwd = 2)
             leg.txt <- c(leg.txt, "trunc. normal")
             leg.col <- c(leg.col, tnorm.color)
         }, silent = TRUE)
@@ -826,10 +832,18 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # plotting pert distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$pert[1])) {
-        test.quantiles <- suppressWarnings(qpert(p, min = res.mat$pert[1], mode = res.mat$pert[2], max = res.mat$pert[3], shape = res.mat$pert[4]))
+        test.quantiles <- suppressWarnings(mc2d::qpert(p, 
+                                                 min = res.mat$pert[1], 
+                                                 mode = res.mat$pert[2], 
+                                                 max = res.mat$pert[3], 
+                                                 shape = res.mat$pert[4]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(ppert(xx, min = res.mat$pert[1], mode = res.mat$pert[2],
-                                  max = res.mat$pert[3], shape = res.mat$pert[4]) ~ xx, col = pert.color, lwd = 2)
+            graphics::lines(mc2d::ppert(xx, 
+                                  min = res.mat$pert[1], 
+                                  mode = res.mat$pert[2],
+                                  max = res.mat$pert[3], 
+                                  shape = res.mat$pert[4]) ~ xx, 
+                            col = pert.color, lwd = 2)
             leg.txt <- c(leg.txt, "Beta pert")
             leg.col <- c(leg.col, pert.color)
         }, silent = TRUE)
@@ -838,10 +852,16 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting triang distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$triang[1])) {
-        test.quantiles <- suppressWarnings(qtriang(p, min = res.mat$triang[1], mode = res.mat$triang[2], max = res.mat$triang[3]))
+        test.quantiles <- suppressWarnings(mc2d::qtriang(p, 
+                                                   min = res.mat$triang[1], 
+                                                   mode = res.mat$triang[2], 
+                                                   max = res.mat$triang[3]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(ptriang(xx, min = res.mat$triang[1], mode = res.mat$triang[2],
-                                    max = res.mat$triang[3]) ~ xx, col = triang.color, lwd = 2)
+            graphics::lines(mc2d::ptriang(xx, 
+                                    min = res.mat$triang[1], 
+                                    mode = res.mat$triang[2],
+                                    max = res.mat$triang[3]) ~ xx, 
+                            col = triang.color, lwd = 2)
             leg.txt <- c(leg.txt, "Triangular")
             leg.col <- c(leg.col, triang.color)
         }, silent = TRUE)
@@ -850,9 +870,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting gompertz distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$gompertz[1])) {
-        test.quantiles <- suppressWarnings(qgompertz(p, shape = res.mat$gompertz[1] + 1 / 10000, scale = res.mat$gompertz[2] + 1/10000))
+        test.quantiles <- suppressWarnings(eha::qgompertz(p, 
+                                                     shape = res.mat$gompertz[1] + 1/10000, 
+                                                     scale = res.mat$gompertz[2] + 1/10000))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(pgompertz(xx, shape = res.mat$gompertz[1] + 1/10000, scale = res.mat$gompertz[2] + 1/10000) ~ xx, col = gompertz.color, lwd = 2)
+            graphics::lines(eha::pgompertz(xx, 
+                                      shape = res.mat$gompertz[1] + 1/10000, 
+                                      scale = res.mat$gompertz[2] + 1/10000) ~ xx, 
+                            col = gompertz.color, lwd = 2)
             leg.txt <- c(leg.txt, "Gompertz")
             leg.col <- c(leg.col, gompertz.color)
         }, silent = TRUE)
@@ -861,9 +886,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting normal distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$norm[1])) {
-        test.quantiles <- suppressWarnings(stats::qnorm(p, mean = res.mat$norm[1], sd = res.mat$norm[2]))
+        test.quantiles <- suppressWarnings(stats::qnorm(p, 
+                                                        mean = res.mat$norm[1], 
+                                                        sd = res.mat$norm[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pnorm(xx, mean = res.mat$norm[1], sd = res.mat$norm[2]) ~ xx, col = norm.color, lwd = 2)
+            graphics::lines(stats::pnorm(xx, 
+                                         mean = res.mat$norm[1], 
+                                         sd = res.mat$norm[2]) ~ xx, 
+                            col = norm.color, lwd = 2)
             leg.txt <- c(leg.txt, "Normal")
             leg.col <- c(leg.col, norm.color)
         }, silent = TRUE)
@@ -872,9 +902,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting beta ditribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$beta[1])) {
-        test.quantiles <- suppressWarnings(stats::qbeta(p, shape1 = res.mat$beta[1], shape2 = res.mat$beta[2]))
+        test.quantiles <- suppressWarnings(stats::qbeta(p, 
+                                                        shape1 = res.mat$beta[1], 
+                                                        shape2 = res.mat$beta[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pbeta(xx, shape1 = res.mat$beta[1], shape2 = res.mat$beta[2]) ~ xx, col = beta.color, lwd = 2)
+            graphics::lines(stats::pbeta(xx, 
+                                         shape1 = res.mat$beta[1], 
+                                         shape2 = res.mat$beta[2]) ~ xx, 
+                            col = beta.color, lwd = 2)
             leg.txt <- c(leg.txt, "Beta")
             leg.col <- c(leg.col, beta.color)
         }, silent = TRUE)
@@ -883,9 +918,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting cauchy distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$cauchy[1])) {
-        test.quantiles <- suppressWarnings(stats::qcauchy(p, location = res.mat$cauchy[1], scale = res.mat$cauchy[2]))
+        test.quantiles <- suppressWarnings(stats::qcauchy(p, 
+                                                          location = res.mat$cauchy[1], 
+                                                          scale = res.mat$cauchy[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pcauchy(xx, location = res.mat$cauchy[1], scale = res.mat$cauchy[2]) ~ xx, col = cauchy.color, lwd = 2)
+            graphics::lines(stats::pcauchy(xx, 
+                                           location = res.mat$cauchy[1], 
+                                           scale = res.mat$cauchy[2]) ~ xx, 
+                            col = cauchy.color, lwd = 2)
             leg.txt <- c(leg.txt, "Cauchy")
             leg.col <- c(leg.col, cauchy.color)
         }, silent = TRUE)
@@ -896,7 +936,8 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     if (!is.na(res.mat$chisq[1])) {
         test.quantiles <- suppressWarnings(stats::qchisq(p, df = res.mat$chisq[1]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pchisq(xx, df = res.mat$chisq[1]) ~ xx, col = chisq.color, lwd = 2)
+            graphics::lines(stats::pchisq(xx, df = res.mat$chisq[1]) ~ xx, 
+                            col = chisq.color, lwd = 2)
             leg.txt <- c(leg.txt, "Chi-square")
             leg.col <- c(leg.col, chisq.color)
         }, silent = TRUE)
@@ -905,9 +946,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting logis ditribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$logis[1])) {
-        test.quantiles <- suppressWarnings(stats::qlogis(p, location = res.mat$logis[1], scale = res.mat$logis[2]))
+        test.quantiles <- suppressWarnings(stats::qlogis(p, 
+                                                         location = res.mat$logis[1], 
+                                                         scale = res.mat$logis[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::plogis(xx, location = res.mat$logis[1], scale = res.mat$logis[2]) ~ xx, col = logis.color, lwd = 2)
+            graphics::lines(stats::plogis(xx, 
+                                          location = res.mat$logis[1], 
+                                          scale = res.mat$logis[2]) ~ xx, 
+                            col = logis.color, lwd = 2)
             leg.txt <- c(leg.txt, "Logistic")
             leg.col <- c(leg.col, logis.color)
         }, silent = TRUE)
@@ -918,7 +964,8 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     if (!is.na(res.mat$t[1])) {
         test.quantiles <- suppressWarnings(stats::qt(p, df = res.mat$t[1]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pt(xx, df = res.mat$t[1]) ~ xx, col = t.color, lwd = 2)
+            graphics::lines(stats::pt(xx, df = res.mat$t[1]) ~ xx, 
+                            col = t.color, lwd = 2)
             leg.txt <- c(leg.txt, "Student")
             leg.col <- c(leg.col, t.color)
         }, silent = TRUE)
@@ -929,7 +976,8 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     if (!is.na(res.mat$exp[1])) {
         test.quantiles <- suppressWarnings(stats::qexp(p, rate = res.mat$exp[1]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pexp(xx, rate = res.mat$exp[1]) ~ xx, col = exp.color, lwd = 2)
+            graphics::lines(stats::pexp(xx, rate = res.mat$exp[1]) ~ xx, 
+                            col = exp.color, lwd = 2)
             leg.txt <- c(leg.txt, "Exponential")
             leg.col <- c(leg.col, exp.color)
         }, silent = TRUE)
@@ -938,9 +986,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting F distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$f[1])) {
-        test.quantiles <- suppressWarnings(stats::qf(p, df1 = res.mat$f[1], df2 = res.mat$f[2]))
+        test.quantiles <- suppressWarnings(stats::qf(p, 
+                                                     df1 = res.mat$f[1], 
+                                                     df2 = res.mat$f[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pf(xx, df1 = res.mat$f[1], df2 = res.mat$f[2]) ~ xx, col = f.color, lwd = 2)
+            graphics::lines(stats::pf(xx, 
+                                      df1 = res.mat$f[1], 
+                                      df2 = res.mat$f[2]) ~ xx, 
+                            col = f.color, lwd = 2)
             leg.txt <- c(leg.txt, "F")
             leg.col <- c(leg.col, f.color)
         }, silent = TRUE)
@@ -949,9 +1002,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting gamma distibution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$gamma[1])) {
-        test.quantiles <- suppressWarnings(stats::qgamma(p, shape = res.mat$gamma[1], rate = res.mat$gamma[2]))
+        test.quantiles <- suppressWarnings(stats::qgamma(p, 
+                                                         shape = res.mat$gamma[1], 
+                                                         rate = res.mat$gamma[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pgamma(xx, shape = res.mat$gamma[1], rate = res.mat$gamma[2]) ~ xx, col = gamma.color, lwd = 2)
+            graphics::lines(stats::pgamma(xx, 
+                                          shape = res.mat$gamma[1], 
+                                          rate = res.mat$gamma[2]) ~ xx, 
+                            col = gamma.color, lwd = 2)
             leg.txt <- c(leg.txt, "Gamma")
             leg.col <- c(leg.col, gamma.color)
         }, silent = TRUE)
@@ -960,9 +1018,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting lnorm ditribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$lnorm[1])) {
-        test.quantiles <- suppressWarnings(stats::qlnorm(p, res.mat$lnorm[1], res.mat$lnorm[2] + 1/10000))
+        test.quantiles <- suppressWarnings(stats::qlnorm(p, 
+                                                         meanlog = res.mat$lnorm[1], 
+                                                         sdlog = res.mat$lnorm[2] + 1/10000))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::plnorm(xx, res.mat$lnorm[1], res.mat$lnorm[2] + 1/10000) ~ xx, col = lnorm.color, lwd = 2)
+            graphics::lines(stats::plnorm(xx, 
+                                          meanlog = res.mat$lnorm[1], 
+                                          sdlog = res.mat$lnorm[2] + 1/10000) ~ xx, 
+                            col = lnorm.color, lwd = 2)
             leg.txt <- c(leg.txt, "Lognormal")
             leg.col <- c(leg.col, lnorm.color)
         }, silent = TRUE)
@@ -971,9 +1034,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting Weibull distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$weibull[1])) {
-        test.quantiles <- suppressWarnings(stats::qweibull(p, shape = res.mat$weibull[1], scale = res.mat$weibull[2]))
+        test.quantiles <- suppressWarnings(stats::qweibull(p, 
+                                                           shape = res.mat$weibull[1], 
+                                                           scale = res.mat$weibull[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(stats::pweibull(xx, shape = res.mat$weibull[1], scale = res.mat$weibull[2]) ~ xx, col = weibull.color, lwd = 2)
+            graphics::lines(stats::pweibull(xx, 
+                                            shape = res.mat$weibull[1], 
+                                            scale = res.mat$weibull[2]) ~ xx, 
+                            col = weibull.color, lwd = 2)
             leg.txt <- c(leg.txt, "Weibull")
             leg.col <- c(leg.col, weibull.color)
         }, silent = TRUE)
@@ -982,9 +1050,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting unif distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$unif[1])) {
-        test.quantiles <- suppressWarnings(qunif(p, min = res.mat$unif[1], max = res.mat$unif[2]))
+        test.quantiles <- suppressWarnings(qunif(p, 
+                                                 min = res.mat$unif[1], 
+                                                 max = res.mat$unif[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(punif(xx, min = res.mat$unif[1], max = res.mat$unif[2]) ~ xx, col = unif.color, lwd = 2)
+            graphics::lines(punif(xx, 
+                                  min = res.mat$unif[1], 
+                                  max = res.mat$unif[2]) ~ xx, 
+                            col = unif.color, lwd = 2)
             leg.txt <- c(leg.txt, "Uniform")
             leg.col <- c(leg.col, unif.color)
         }, silent = TRUE)
@@ -1036,16 +1109,9 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
 #' parameters and a vector of theoretical percentiles calculated based on the
 #' estimated parameters. If the consistency check of input parameters fails
 #' the function returns \code{NA}.
-# @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
-#' @importFrom mc2d qtriang
-#' @importFrom mc2d qpert
-#' @importFrom eha qgompertz
-#' @importFrom msm qtnorm
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' fit.results1 <- rriskFitdist.perc(show.output = FALSE)
 #' fit.results1
 #'
@@ -1062,13 +1128,11 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
 #' fit.results4 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' fit.results4
 #'
-#' # Example with fitted pert distribution
+#' ## Example with fitted pert distribution
 #' p <- c(0.025, 0.5, 0.6, 0.975)
 #' q <- mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5)
 #' fit.results5 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' fit.results5
-# }
-
 rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975), 
                               q = c(9.68, 29.20, 50.98), 
                               show.output = TRUE, 
@@ -1113,16 +1177,20 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     #-----------------------------------------------------------------------------
     # defining help variables
     #-----------------------------------------------------------------------------
-    Perc <- c(p,.0001,.001,.01,.025,.05,.1,.5,.9,.95,.975,.99,.999,.9999)
+    Perc <- c(p, 0.0001, 0.001, 0.01, 0.025, 0.05, 0.1, 0.5, 0.9, 0.95, 0.975, 0.99, 0.999, 0.9999)
     Quantiles <- c(q, rep(NA, 13))
     Quantiles <- Quantiles[order(Perc)]
     Perc <- Perc[order(Perc)]
     Quantiles <- Quantiles[!duplicated(Perc)]
     Perc <- Perc[!duplicated(Perc)]
     Perc <- round(Perc, digits = 4)
-    res.mat <- data.frame(weight = rep(0, length(Perc) + 4), Quantiles = c(rep(NA, 4), Quantiles),
-                          norm = NA, beta = NA, cauchy = NA, logis = NA, t = NA, chisq = NA, chisqnc = NA, exp = NA, f = NA,
-                          gamma = NA, lnorm = NA, unif = NA, weibull = NA, triang = NA, gompertz = NA, pert = NA, tnorm = NA)
+    res.mat <- data.frame(weight = rep(0, length(Perc) + 4), 
+                          Quantiles = c(rep(NA, 4), Quantiles),
+                          norm = NA, beta = NA, cauchy = NA, logis = NA, 
+                          t = NA, chisq = NA, chisqnc = NA, exp = NA, 
+                          f = NA, gamma = NA, lnorm = NA, unif = NA, 
+                          weibull = NA, triang = NA, gompertz = NA, 
+                          pert = NA, tnorm = NA)
     rownames(res.mat) <- c(paste("Para", 1:4, sep = ""), Perc * 100)
     res.mat[as.character(p * 100), "weight"] <- fit.weights
     
@@ -1130,161 +1198,259 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     cat("Begin fitting distributions...\n")
     
     # tnorm
-    par <- suppressWarnings(get.tnorm.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.tnorm.par(p = p, q = q, 
+                                          show.output = show.output, 
+                                          plot = FALSE, 
+                                          tol = tolConv, 
+                                          fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Truncated normal distribution has been fitted successfully! \n")
         res.mat$tnorm[1:4] <- par
-        res.mat$tnorm[-c(1:4)] <- qtnorm(p = Perc, mean = par["mean"], sd = par["sd"], lower = par["lower"], upper = par["upper"])
+        res.mat$tnorm[-c(1:4)] <- msm::qtnorm(p = Perc, 
+                                         mean = par["mean"], 
+                                         sd = par["sd"], 
+                                         lower = par["lower"], 
+                                         upper = par["upper"])
     } else {
         cat("Warning: truncated normal distribution could not be fitted! \n")
     }
     
     # chisqnc
-    par <- suppressWarnings(get.chisqnc.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.chisqnc.par(p = p, q = q, 
+                                            show.output = show.output, 
+                                            plot = FALSE, 
+                                            tol = tolConv, 
+                                            fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Non-central chi-square distribution has been fitted successfully! \n")
         res.mat$chisqnc[1:2] <- par
-        res.mat$chisqnc[-c(1:4)] <- stats::qchisq(p = Perc, df = par["df"], ncp = par["ncp"])
+        res.mat$chisqnc[-c(1:4)] <- stats::qchisq(p = Perc, 
+                                                  df = par["df"], 
+                                                  ncp = par["ncp"])
     } else {
         cat("Warning: non-central chi-square distribution could not be fitted! \n")
     }
     
     # pert
-    par <- suppressWarnings(get.pert.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.pert.par(p = p, q = q, 
+                                         show.output = show.output, 
+                                         plot = FALSE, 
+                                         tol = tolConv, 
+                                         fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Pert distribution has been fitted successfully! \n")
         res.mat$pert[1:4] <- par
-        res.mat$pert[-c(1:4)] <- qpert(p = Perc, min = par["min"], mode = par["mode"], max = par["max"], shape = par["shape"])
+        res.mat$pert[-c(1:4)] <- mc2d::qpert(p = Perc, 
+                                       min = par["min"], 
+                                       mode = par["mode"], 
+                                       max = par["max"], 
+                                       shape = par["shape"])
     } else {
         cat("Warning: Pert distribution could not be fitted! \n")
     }
     
     #triang
-    par <- suppressWarnings(get.triang.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.triang.par(p = p, q = q, 
+                                           show.output = show.output, 
+                                           plot = FALSE, 
+                                           tol = tolConv, 
+                                           fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Triangular distribution has been fitted successfully! \n")
         res.mat$triang[1:3] <- par
-        res.mat$triang[-c(1:4)] <- qtriang(p = Perc, min = par["min"], mode = par["mode"], max = par["max"])
+        res.mat$triang[-c(1:4)] <- mc2d::qtriang(p = Perc, 
+                                           min = par["min"], 
+                                           mode = par["mode"], 
+                                           max = par["max"])
     } else {
         cat("Warning: Triangular distribution could not be fitted! \n")
     }
     
     # gompertz
-    par <- suppressWarnings(get.gompertz.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.gompertz.par(p = p, q = q, 
+                                             show.output = show.output, 
+                                             plot = FALSE, 
+                                             tol = tolConv, 
+                                             fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Gompertz distribution has been fitted successfully! \n")
         res.mat$gompertz[1:2] <- par
-        res.mat$gompertz[-c(1:4)] <- qgompertz(p = Perc, shape = par["shape"], scale = par["scale"])
+        res.mat$gompertz[-c(1:4)] <- eha::qgompertz(p = Perc, 
+                                               shape = par["shape"], 
+                                               scale = par["scale"])
     } else {
         cat("Warning: Gompertz distribution could not be fitted! \n")
     }
     
     #normal
-    par <- suppressWarnings(get.norm.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.norm.par(p = p, q = q, 
+                                         show.output = show.output, 
+                                         plot = FALSE, 
+                                         tol = tolConv, 
+                                         fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Normal distribution has been fitted successfully! \n")
         res.mat$norm[1:2] <- par
-        res.mat$norm[-c(1:4)] <- stats::qnorm(p = Perc, mean = par["mean"], sd = par["sd"])
+        res.mat$norm[-c(1:4)] <- stats::qnorm(p = Perc, 
+                                              mean = par["mean"], 
+                                              sd = par["sd"])
     } else {
         cat("Warning: Normal distribution could not be fitted! \n")
     }
     
     # beta
-    par <- suppressWarnings(get.beta.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.beta.par(p = p, q = q, 
+                                         show.output = show.output, 
+                                         plot = FALSE, 
+                                         tol = tolConv, 
+                                         fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Beta distribution has been fitted successfully! \n")
         res.mat$beta[1:2] <- par
-        res.mat$beta[-c(1:4)] <- stats::qbeta(p = Perc, shape1 = par["shape1"], shape2 = par["shape2"])
+        res.mat$beta[-c(1:4)] <- stats::qbeta(p = Perc, 
+                                              shape1 = par["shape1"], 
+                                              shape2 = par["shape2"])
     } else {
         cat("Warning: Beta distribution could not be fitted! \n")
     }
     
     # cauchy
-    par <- suppressWarnings(get.cauchy.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.cauchy.par(p = p, q = q, 
+                                           show.output = show.output, 
+                                           plot = FALSE, 
+                                           tol = tolConv, 
+                                           fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Cauchy distribution has been fitted successfully! \n")
         res.mat$cauchy[1:2] <- par
-        res.mat$cauchy[-c(1:4)] <- stats::qcauchy(p = Perc, location = par["location"], scale = par["scale"])
+        res.mat$cauchy[-c(1:4)] <- stats::qcauchy(p = Perc, 
+                                                  location = par["location"], 
+                                                  scale = par["scale"])
     } else {
         cat("Warning: Cauchy distribution could not be fitted! \n")
     }
     
     # chisq
-    par <- suppressWarnings(get.chisq.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.chisq.par(p = p, q = q, 
+                                          show.output = show.output, 
+                                          plot = FALSE, 
+                                          tol = tolConv, 
+                                          fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Chi-square distribution has been fitted successfully! \n")
         res.mat$chisq[1] <- par
-        res.mat$chisq[-c(1:4)] <- stats::qchisq(p = Perc, df = par["df"])
+        res.mat$chisq[-c(1:4)] <- stats::qchisq(p = Perc, 
+                                                df = par["df"])
     } else {
         cat("Warning: Chi-square distribution could not be fitted! \n")
     }
     
     # logis
-    par <- suppressWarnings(get.logis.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.logis.par(p = p, q = q, 
+                                          show.output = show.output, 
+                                          plot = FALSE, 
+                                          tol = tolConv, 
+                                          fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Logistic distribution has been fitted successfully! \n")
         res.mat$logis[1:2] <- par
-        res.mat$logis[-c(1:4)] <- stats::qlogis(p = Perc, location = par["location"], scale = par["scale"])
+        res.mat$logis[-c(1:4)] <- stats::qlogis(p = Perc, 
+                                                location = par["location"], 
+                                                scale = par["scale"])
     } else {
         cat("Warning: Logistic distribution could not be fitted! \n")
     }
     
     # t
-    par <- suppressWarnings(get.t.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.t.par(p = p, q = q, 
+                                      show.output = show.output, 
+                                      plot = FALSE, 
+                                      tol = tolConv, 
+                                      fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Student's t distribution has been fitted successfully! \n")
         res.mat$t[1] <- par
-        res.mat$t[-c(1:4)] <- stats::qt(p = Perc, df = par["df"])
+        res.mat$t[-c(1:4)] <- stats::qt(p = Perc, 
+                                        df = par["df"])
     } else {
         cat("Warning: Student's t distribution could not be fitted! \n")
     }
     
     # exp
-    par <- suppressWarnings(get.exp.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.exp.par(p = p, q = q, 
+                                        show.output = show.output, 
+                                        plot = FALSE, 
+                                        tol = tolConv, 
+                                        fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Exponential distribution has been fitted successfully! \n")
         res.mat$exp[1] <- par
-        res.mat$exp[-c(1:4)] <- stats::qexp(p = Perc, rate = par["rate"])
+        res.mat$exp[-c(1:4)] <- stats::qexp(p = Perc, 
+                                            rate = par["rate"])
     } else {
         cat("Warning: Exponential distribution could not be fitted! \n")
     }
     
     # F
-    par <- suppressWarnings(get.f.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.f.par(p = p, q = q, 
+                                      show.output = show.output, 
+                                      plot = FALSE, 
+                                      tol = tolConv, 
+                                      fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("F distribution has been fitted successfully! \n")
         res.mat$f[1:2] <- par
-        res.mat$f[-c(1:4)] <- stats::qf(p = Perc, df1 = par["df1"], df2 = par["df2"])
+        res.mat$f[-c(1:4)] <- stats::qf(p = Perc, 
+                                        df1 = par["df1"], 
+                                        df2 = par["df2"])
     } else {
         cat("Warning: F distribution could not be fitted! \n")
     }
     
     # gamma
-    par <- suppressWarnings(get.gamma.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.gamma.par(p = p, q = q, 
+                                          show.output = show.output, 
+                                          plot = FALSE, 
+                                          tol = tolConv, 
+                                          fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Gamma distribution has been fitted successfully! \n")
         res.mat$gamma[1:2] <- par
-        res.mat$gamma[-c(1:4)] <- stats::qgamma(p = Perc, shape = par["shape"], rate = par["rate"])
+        res.mat$gamma[-c(1:4)] <- stats::qgamma(p = Perc, 
+                                                shape = par["shape"], 
+                                                rate = par["rate"])
     } else {
         cat("Warning: Gamma distribution could not be fitted! \n")
     }
     
     # Weibull
-    par <- suppressWarnings(get.weibull.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.weibull.par(p = p, q = q, 
+                                            show.output = show.output, 
+                                            plot = FALSE, 
+                                            tol = tolConv, 
+                                            fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Weibull distribution has been fitted successfully! \n")
         res.mat$weibull[1:2] <- par
-        res.mat$weibull[-c(1:4)] <- stats::qweibull(p = Perc, shape = par["shape"], scale = par["scale"])
+        res.mat$weibull[-c(1:4)] <- stats::qweibull(p = Perc, 
+                                                    shape = par["shape"], 
+                                                    scale = par["scale"])
     } else {
         cat("Warning: Weibull distribution could not be fitted! \n")
     }
     
     # Lognormal
-    par <- suppressWarnings(get.lnorm.par(p = p, q = q, show.output = show.output, plot = FALSE, tol = tolConv, fit.weights = fit.weights))
+    par <- suppressWarnings(get.lnorm.par(p = p, q = q, 
+                                          show.output = show.output, 
+                                          plot = FALSE, 
+                                          tol = tolConv, 
+                                          fit.weights = fit.weights))
     if (!any(is.na(par))) {
         cat("Lognormal distribution has been fitted successfully! \n")
         res.mat$lnorm[1:2] <- par
-        res.mat$lnorm[-c(1:4)] <- stats::qlnorm(p = Perc, meanlog = par["meanlog"], sdlog = par["sdlog"])
+        res.mat$lnorm[-c(1:4)] <- stats::qlnorm(p = Perc, 
+                                                meanlog = par["meanlog"], 
+                                                sdlog = par["sdlog"])
     } else {
         cat("Warning: Lognormal distribution could not be fitted! \n")
     }
@@ -1294,7 +1460,9 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     if (!any(is.na(par))) {
         cat("Uniform distribution has been fitted successfully! \n")
         res.mat$unif[1:2] <- par
-        res.mat$unif[-c(1:4)] <- qunif(p = Perc, min = par["min"], max = par["max"])
+        res.mat$unif[-c(1:4)] <- qunif(p = Perc, 
+                                       min = par["min"], 
+                                       max = par["max"])
     } else {
         cat("Warning: Uniform distribution could not be fitted! \n")
     }
@@ -1384,48 +1552,40 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
 #' @seealso See \code{pbeta} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 2, shape2 = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
 #' get.beta.par(q = q, scaleX = c(0.001, 0.999))
-#' get.beta.par(q = q, fit.weights = c(10, 1,10))
+#' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
-#' get.beta.par(q = q, fit.weights = c(100, 1,100))
+#' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
 #'
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 1, shape2 = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
-#' get.beta.par(q = q, fit.weights = c(10, 1,10))
+#' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
-#' get.beta.par(q = q, fit.weights = c(100, 1,100))
+#' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
 #'
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 0.3, shape2 = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
-#' get.beta.par(q = q, fit.weights = c(10, 1,10))
+#' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
-#' get.beta.par(q = q, fit.weights = c(100, 1,100))
+#' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
 #'
-#' # example with only two quantiles
+#' ## example with only two quantiles
 #' q <- stats::qbeta(p = c(0.025, 0.975), shape1 = 2, shape2 = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.beta.par(p = c(0.025, 0.975), q = q)
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
-# }
-
 get.beta.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
                          tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -1591,54 +1751,40 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pcauchy} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 0, scale = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q)
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.5, 0.5))
-# }
+#' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
+#' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #'
-# \donttest{
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 3, scale = 5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.5, 0.5))
-# }
+#' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
+#' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #'
-# \donttest{
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 0.1, scale = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.5, 0.5))
-#' get.cauchy.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.5, 0.5))
-# }
+#' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
+#' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #'
-#' # example with only two quantiles
-# \donttest{
+#' ## example with only two quantiles
 #' q <- stats::qcauchy(p = c(0.025, 0.975), location = 0.1, scale = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100), scaleX = c(0.5, 0.5))
-# }
-
 get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q, 
                            show.output = TRUE, plot = TRUE, 
                            tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -1798,50 +1944,49 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pchisq} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
-#' get.chisq.par(q = q, fit.weights = c(10, 1,10))
-#' get.chisq.par(q = q, fit.weights = c(100, 1,100))
+#' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
+#' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q, scaleX = c(0.1, 0.1))
-#' get.chisq.par(q = q, fit.weights = c(10, 1,10))
-#' get.chisq.par(q = q, fit.weights = c(100, 1,100))
+#' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
+#' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 20)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
-#' get.chisq.par(q = q, fit.weights = c(10, 1,10))
-#' get.chisq.par(q = q, fit.weights = c(100, 1,100))
+#' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
+#' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights =c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights =c(1, 100, 1))
-# }
+#'
 #'
 #' # example with only one quantile
-# \donttest{
+#'
 #' q <- stats::qchisq(p = c(0.025), df = 20)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.chisq.par(p = c(0.025), q = q)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 100)
-# }
+#'
 
 get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -2008,44 +2153,43 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pchisq} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 2, ncp = 4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, scaleX = c(0.1, 0.9999999))
-#' get.chisqnc.par(q = q, fit.weights = c(100, 1,100))
-#' get.chisqnc.par(q = q, fit.weights = c(10, 1,10))
+#' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
+#' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1, ncp = 0.4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
-#' get.chisqnc.par(q = q, fit.weights = c(100, 1,100))
-#' get.chisqnc.par(q = q, fit.weights = c(10, 1,10))
+#' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
+#' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1, ncp = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
-#' get.chisqnc.par(q = q, fit.weights = c(100, 1,100))
-#' get.chisqnc.par(q = q, fit.weights = c(10, 1,10))
+#' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
+#' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantile
-# \donttest{
+#'
 #' q <- stats::qchisq(p = c(0.025, 0.95), df = 20, ncp = 20)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -2054,7 +2198,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
-# }
+#'
 
 get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
                             show.output = TRUE, plot = TRUE, 
@@ -2219,61 +2363,60 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pexp} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 2)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
-#' get.exp.par(q = q, fit.weights = c(100, 1,100))
-#' get.exp.par(q = q, fit.weights = c(10, 1,10))
+#' get.exp.par(q = q, fit.weights = c(100, 1, 100))
+#' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
-#' get.exp.par(q = q, fit.weights = c(100, 1,100))
-#' get.exp.par(q = q, fit.weights = c(10, 1,10))
+#' get.exp.par(q = q, fit.weights = c(100, 1, 100))
+#' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.001)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
-#' get.exp.par(q = q, fit.weights = c(100, 1,100))
-#' get.exp.par(q = q, fit.weights = c(10, 1,10))
+#' get.exp.par(q = q, fit.weights = c(100, 1, 100))
+#' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, tol = 0.2, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
-#' get.exp.par(q = q, fit.weights = c(100, 1,100))
-#' get.exp.par(q = q, fit.weights = c(10, 1,10))
+#' get.exp.par(q = q, fit.weights = c(100, 1, 100))
+#' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only one quantile
-# \donttest{
+#'
 #' q <- stats::qexp(p = c(0.025), rate = 2)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.exp.par(p = c(0.025), q = q)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 100)
-# }
+#'
 
 get.exp.par <- function(p = c(0.025, 0.50,.975), q,
                         show.output = TRUE, plot = TRUE, 
@@ -2441,50 +2584,49 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' @seealso See \code{stats::pf} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 2, df2 = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.5))
-#' get.f.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.1, 0.5))
-#' get.f.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.1, 0.5))
+#' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.5))
+#' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.5))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 0.2, df2 = 0.3)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
-#' get.f.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.1, 0.999))
-#' get.f.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.1, 0.2))
+#' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.999))
+#' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.9999))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.9999))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 1, df2 = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
-#' get.f.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.1, 0.2))
-#' get.f.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.1, 0.2))
+#' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.2))
+#' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.2))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qf(p = c(0.025, 0.975), df1 = 2, df2 = 3)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.f.par(p = c(0.025, 0.975), q = q)
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
-# }
+#'
 
 get.f.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE,
@@ -2651,44 +2793,43 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pgamma} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 10, rate = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, scaleX = c(0.00001, 0.9999))
-#' get.gamma.par(q = q, fit.weights = c(100, 1,100))
-#' get.gamma.par(q = q, fit.weights = c(10, 1,10))
+#' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 0.1, rate = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
-#' get.gamma.par(q = q, fit.weights = c(100, 1,100))
-#' get.gamma.par(q = q, fit.weights = c(10, 1,10))
+#' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 1, rate = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
-#' get.gamma.par(q = q, fit.weights = c(100, 1,100))
-#' get.gamma.par(q = q, fit.weights = c(10, 1,10))
+#' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qgamma(p = c(0.025, 0.975), shape = 10, rate = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -2697,7 +2838,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
-# }
+#'
 
 get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -2874,45 +3015,42 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' implementation details.
 #' @keywords fitpercentiles
 #' @export
-#' @importFrom eha qgompertz
-#' @importFrom eha pgompertz
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 2, scale = 5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
-#' get.gompertz.par(q = q, fit.weights = c(100, 1,100))
-#' get.gompertz.par(q = q, fit.weights = c(10, 1,10))
+#' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 0.2, scale = 0.5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
-#' get.gompertz.par(q = q, fit.weights = c(100, 1,100))
-#' get.gompertz.par(q = q, fit.weights = c(10, 1,10))
+#' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
-#' get.gompertz.par(q = q, fit.weights = c(100, 1,100))
-#' get.gompertz.par(q = q, fit.weights = c(10, 1,10))
+#' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
+#' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- eha::qgompertz(p = c(0.025, 0.975), shape = 2, scale = 5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -2921,7 +3059,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
-# }
+#'
 
 get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
                              show.output = TRUE, plot = TRUE, 
@@ -2975,7 +3113,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(pgompertz(q = q, shape = theta[1], scale = theta[2]) - p)
+        summand <- suppressWarnings(eha::pgompertz(q = q, shape = theta[1], scale = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -3012,14 +3150,14 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
         main2 <- paste("scale = ", round(Par["scale"], digits = 2))
         main <- paste("Gompertz (", main1, ", ", main2, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(qgompertz(p = min(p) * scaleX[1], 
+        Support.lim <- c(eha::qgompertz(p = min(p) * scaleX[1], 
                                    shape = Par["shape"], 
                                    scale = Par["scale"]),
-                         qgompertz(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                         eha::qgompertz(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                    shape = Par["shape"], 
                                    scale = Par["scale"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
-        Probability <- pgompertz(Support, Par["shape"], Par["scale"])
+        Probability <- eha::pgompertz(Support, Par["shape"], Par["scale"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
@@ -3097,30 +3235,29 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{phyper} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 5, n = 3, k = 3)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
 #' get.hyper.par(q = q, tol = 1)
-#' get.hyper.par(q = q, fit.weights = c(100, 1,100))
-#' get.hyper.par(q = q, fit.weights = c(10, 1,10))
+#' get.hyper.par(q = q, fit.weights = c(100, 1, 100))
+#' get.hyper.par(q = q, fit.weights = c(10, 1, 10))
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 10, n = 5, k = 4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
-#' get.hyper.par(q = q, fit.weights = c(100, 1,100))
-#' get.hyper.par(q = q, fit.weights = c(10, 1,10))
+#' get.hyper.par(q = q, fit.weights = c(100, 1, 100))
+#' get.hyper.par(q = q, fit.weights = c(10, 1, 10))
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 
 get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3296,54 +3433,53 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{plnorm} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 4, sdlog = 0.8)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
-#' get.lnorm.par(q = q, fit.weights = c(100, 1,100))
-#' get.lnorm.par(q = q, fit.weights = c(10, 1,10))
+#' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
+#' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog=-4, sdlog = 0.8)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
-#' get.lnorm.par(q = q, fit.weights = c(100, 1,100))
-#' get.lnorm.par(q = q, fit.weights = c(10, 1,10))
+#' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
+#' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 1, sdlog = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
-#' get.lnorm.par(q = q, fit.weights = c(100, 1,100))
-#' get.lnorm.par(q = q, fit.weights = c(10, 1,10))
+#' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
+#' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.000001, 0.99999999))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 0.1, sdlog = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
-#' get.lnorm.par(q = q, fit.weights = c(100, 1,100))
-#' get.lnorm.par(q = q, fit.weights = c(10, 1,10))
+#' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
+#' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qlnorm(p = c(0.025, 0.975), meanlog = 4, sdlog = 0.8)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -3352,7 +3488,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100), scaleX = c(0.1, 0.001))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
-# }
+#'
 
 get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3524,40 +3660,34 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{plogis} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qlogis(p = c(0.025, 0.5, 0.975), location = 0, scale = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.logis.par(q = q)
 #' get.logis.par(q = q, scaleX = c(0.5, 0.5))
-#' get.logis.par(q = q, fit.weights = c(100, 1,100))
-#' get.logis.par(q = q, fit.weights = c(10, 1,10))
+#' get.logis.par(q = q, fit.weights = c(100, 1, 100))
+#' get.logis.par(q = q, fit.weights = c(10, 1, 10))
 #' get.logis.par(q = q, fit.weights = c(1, 100, 1))
 #' get.logis.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
 #' q <- stats::qlogis(p = c(0.025, 0.5, 0.975), location = 0, scale = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.logis.par(q = q)
-#' get.logis.par(q = q, fit.weights = c(100, 1,100))
-#' get.logis.par(q = q, fit.weights = c(10, 1,10))
+#' get.logis.par(q = q, fit.weights = c(100, 1, 100))
+#' get.logis.par(q = q, fit.weights = c(10, 1, 10))
 #' get.logis.par(q = q, fit.weights = c(1, 100, 1))
 #' get.logis.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qlogis(p = c(0.025, 0.975), location = 0, scale = 3)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.logis.par(p = c(0.025, 0.975), q = q)
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
-# }
+#'
 
 get.logis.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3727,43 +3857,41 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pnbinom} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 10, prob = 0.5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
-#' get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+#' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
-#' get.nbinom.par(q = q, fit.weights = c(10, 1,10))
+#' get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q, tol = 0.01)
-#' get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+#' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1), tol = 0.01)
-#' get.nbinom.par(q = q, fit.weights = c(10, 1,10), tol = 0.01)
+#' get.nbinom.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
-#' get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+#' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
-#' get.nbinom.par(q = q, fit.weights = c(10, 1,10))
+#' get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qnbinom(p = c(0.025, 0.975), size = 10, prob = 0.5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -3772,7 +3900,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
-# }
+#'
 
 get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
                            show.output = TRUE, plot = TRUE, 
@@ -3947,44 +4075,42 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pnorm} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 12, sd = 34)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, scaleX = c(0.00001, 0.99999))
-#' get.norm.par(q = q, fit.weights = c(10, 1,10))
+#' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.par(q = q, fit.weights = c(100, 1,100))
+#' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
-#' get.norm.par(q = q, fit.weights = c(10, 1,10))
+#' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.par(q = q, fit.weights = c(100, 1,100))
+#' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0.1, sd = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
-#' get.norm.par(q = q, fit.weights = c(10, 1,10))
+#' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.par(q = q, fit.weights = c(100, 1,100))
+#' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qnorm(p = c(0.025, 0.975), mean = 12, sd = 34)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
@@ -3993,7 +4119,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
-# }
+#'
 
 get.norm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
@@ -4148,46 +4274,44 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{pnorm} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 2)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, scaleX = c(0.0001, 0.9999))
-#' get.norm.sd(q = q, fit.weights = c(10, 1,10))
+#' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.sd(q = q, fit.weights = c(100, 1,100))
+#' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 176, sd = 15)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
-#' get.norm.sd(q = q, fit.weights = c(10, 1,10))
+#' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.sd(q = q, fit.weights = c(100, 1,100))
+#' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
-# }
+#'
 #'
 #' # The estimating model is not suitable for the following quantiles.
 #' # Because the quantile is unsymmetrical, which could not be from a normally distributed data.
-# \donttest{
+#'
 #' q <- c(-2, 30, 31)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
-#' get.norm.sd(q = q, fit.weights = c(10, 1,10))
+#' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.0001, 0.9999))
-#' get.norm.sd(q = q, fit.weights = c(100, 1,100))
+#' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.0001, 0.9999))
-# }
+#'
 #'
 #' # The estimating from an actually exponetial distributed data
-# \donttest{
+#'
 #' x.exp <- rexp(n = 10, rate = 5)
 #' mean(x.exp)
 #' stats::sd(x.exp)
@@ -4196,10 +4320,10 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
-#' get.norm.sd(q = q, fit.weights = c(10, 1,10))
+#' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
-#' get.norm.sd(q = q, fit.weights = c(100, 1,100))
-# }
+#' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
+#'
 #'
 #' # other examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 1, sd = 1)
@@ -4254,7 +4378,7 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     #-----------------------------------------------------------------------------
     # estimating procedure
     #-----------------------------------------------------------------------------
-    #get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q, show.out = TRUE, plot = TRUE, fit.weights = c(1, 1,1))
+    #get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q, show.out = TRUE, plot = TRUE, fit.weights = c(1, 1, 1))
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     q.theor <- stats::qnorm(p)
@@ -4362,54 +4486,43 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' implementation details.
 #' @keywords fitpercentiles
 #' @export
-#' @importFrom mc2d qpert
-#' @importFrom mc2d ppert
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min = 0, mode = 3, max = 10, shape = 5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
-#' get.pert.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.pert.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.pert.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.pert.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-# \donttest{
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min = 1, mode = 5, max = 10, shape = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, scaleX = c(0.0001, 0.999999))
-#' get.pert.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.pert.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.pert.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.pert.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-# \donttest{
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min=-10, mode = 5, max = 10, shape = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
-#' get.pert.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.pert.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.pert.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.pert.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-# \donttest{
+#'
+#'
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min=-10, mode = 5, max = 10, shape = 0.4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
-#' get.pert.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.pert.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.pert.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.pert.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
+#'
 
 get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
                          show.output = TRUE, plot = TRUE, 
@@ -4456,7 +4569,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(ppert(q = q, min = theta[1], mode = theta[2], max = theta[3], shape = theta[4]) - p)
+        summand <- suppressWarnings(mc2d::ppert(q = q, min = theta[1], mode = theta[2], max = theta[3], shape = theta[4]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -4498,18 +4611,18 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
         main4 <- paste("shape = ", round(Par["shape"], digits = 2), sep = "")
         main <- paste("Pert (", main1, ", ", main2, ", ", main3, ", ", main4, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(qpert(p = min(p) * scaleX[1], 
+        Support.lim <- c(mc2d::qpert(p = min(p) * scaleX[1], 
                                min = Par["min"], 
                                mode = Par["mode"], 
                                max = Par["max"], 
                                shape = Par["shape"]),
-                         qpert(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                         mc2d::qpert(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                min = Par["min"], 
                                mode = Par["mode"], 
                                max = Par["max"], 
                                shape = Par["shape"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
-        Probability <- ppert(Support, Par["min"], Par["mode"], Par["max"], shape = Par["shape"])
+        Probability <- mc2d::ppert(Support, Par["min"], Par["mode"], Par["max"], shape = Par["shape"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
@@ -4587,51 +4700,49 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' @seealso See \code{ppois} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 3)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
-#' get.pois.par(q = q, fit.weights = c(100, 1,100))
-#' get.pois.par(q = q, fit.weights = c(10, 1,10))
+#' get.pois.par(q = q, fit.weights = c(100, 1, 100))
+#' get.pois.par(q = q, fit.weights = c(10, 1, 10))
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
-#' get.pois.par(q = q, fit.weights = c(100, 1,100))
-#' get.pois.par(q = q, fit.weights = c(10, 1,10))
+#' get.pois.par(q = q, fit.weights = c(100, 1, 100))
+#' get.pois.par(q = q, fit.weights = c(10, 1, 10))
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 0.5)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 1)
-#' get.pois.par(q = q, fit.weights = c(100, 1,100), tol = 1)
-#' get.pois.par(q = q, fit.weights = c(10, 1,10), tol = 1)
+#' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 1)
+#' get.pois.par(q = q, fit.weights = c(10, 1, 10), tol = 1)
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 0.01)
-#' get.pois.par(q = q, fit.weights = c(100, 1,100), tol = 0.01)
-#' get.pois.par(q = q, fit.weights = c(10, 1,10), tol = 0.01)
+#' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 0.01)
+#' get.pois.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 
 get.pois.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
@@ -4792,50 +4903,48 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{stats::pt} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q)
-#' get.t.par(q = q, fit.weights = c(100, 1,100))
-#' get.t.par(q = q, fit.weights = c(10, 1,10))
+#' get.t.par(q = q, fit.weights = c(100, 1, 100))
+#' get.t.par(q = q, fit.weights = c(10, 1, 10))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
-#' get.t.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.5, 0.5))
-#' get.t.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.5, 0.5))
+#' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
+#' get.t.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
-#' get.t.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.5, 0.5))
-#' get.t.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.5, 0.5))
+#' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
+#' get.t.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
-# }
+#'
 #'
 #' # example with only one quantile
-# \donttest{
+#'
 #' q <- stats::qt(p = c(0.025), df = 3)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.t.par(p = c(0.025), q = q)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 100)
-# }
+#'
 
 get.t.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE, 
@@ -5002,50 +5111,45 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @seealso See \code{\link[msm:ptnorm]{ptnomr}} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-#' @importFrom msm qtnorm
-#' @importFrom msm ptnorm
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 3, lower = 0, upper = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, scaleX = c(0.1, 0.999999))
-#' get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-# \donttest{
+#'
+#'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 0.1, lower=-1, upper = 4)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
-#' get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-# \donttest{
+#'
+#'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 0, sd = 1, lower=-2, upper = 2)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
-#' get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-#' get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
-# }
+#' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+#' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+#' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+#' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
+#'
 
 get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
                           scaleX = c(0.1, 0.9), ...) {
-    # "msm" is listed in the "Depends" field of the package DESCRIPTION file
-    # require(msm)
     #-----------------------------------------------------------------------------
     # checking consistency of the input
     #-----------------------------------------------------------------------------
@@ -5090,7 +5194,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
     suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
     suppressWarnings(s<-(predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
     minimize <- function(theta) {
-        summand <- suppressWarnings(ptnorm(q = q, mean = theta[1], sd = theta[2], lower = theta[3], upper = theta[4]) - p)
+        summand <- suppressWarnings(msm::ptnorm(q = q, mean = theta[1], sd = theta[2], lower = theta[3], upper = theta[4]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -5128,18 +5232,18 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
         main4 <- paste("upper = ", round(Par["upper"], digits = 2))
         main <- paste("trunc. normal (", main1, ", ", main2, ", ", main3, ", ", main4, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(qtnorm(p = min(p) * scaleX[1], 
+        Support.lim <- c(msm::qtnorm(p = min(p) * scaleX[1], 
                                 mean = Par["mean"], 
                                 sd = Par["sd"], 
                                 lower = Par["lower"], 
                                 upper = Par["upper"]),
-                         qtnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                         msm::qtnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                 mean = Par["mean"], 
                                 sd = Par["sd"], 
                                 lower = Par["lower"], 
                                 upper = Par["upper"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
-        Probability <- ptnorm(Support, Par["mean"], Par["sd"], Par["lower"], Par["upper"])
+        Probability <- msm::ptnorm(Support, Par["mean"], Par["sd"], Par["lower"], Par["upper"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
@@ -5219,45 +5323,42 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' implementation details.
 #' @keywords fitpercentiles
 #' @export
-#' @importFrom mc2d qtriang
-#' @importFrom mc2d ptriang
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
+#'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 0, mode = 3, max = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
-#' get.triang.par(q = q, fit.weights = c(100, 1,100))
-#' get.triang.par(q = q, fit.weights = c(10, 1,10))
+#' get.triang.par(q = q, fit.weights = c(100, 1, 100))
+#' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 1, mode = 5, max = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, scaleX = c(0.00001, 0.99999))
-#' get.triang.par(q = q, fit.weights = c(100, 1,100))
-#' get.triang.par(q = q, fit.weights = c(10, 1,10))
+#' get.triang.par(q = q, fit.weights = c(100, 1, 100))
+#' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # bad fit for negative values
-# \donttest{
+#'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q, tol = 0.1)
 #' get.triang.par(q = q)
-#' get.triang.par(q = q, fit.weights = c(100, 1,100))
-#' get.triang.par(q = q, fit.weights = c(10, 1,10))
+#' get.triang.par(q = q, fit.weights = c(100, 1, 100))
+#' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1), tol = 1)
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1), tol = 1)
-# }
+#'
 #'
 #' # other examples
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
@@ -5308,7 +5409,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(ptriang(q = q, min = theta[1], mode = theta[2], max = theta[3]) - p)
+        summand <- suppressWarnings(mc2d::ptriang(q = q, min = theta[1], mode = theta[2], max = theta[3]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -5346,16 +5447,16 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
         main3 <- paste("max = ", round(Par["max"], digits = 2), sep = "")
         main <- paste("Triangular (", main1, ", ", main2, ", ", main3, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(qtriang(p = min(p) * scaleX[1], 
+        Support.lim <- c(mc2d::qtriang(p = min(p) * scaleX[1], 
                                  min = Par["min"], 
                                  mode = Par["mode"], 
                                  max = Par["max"]),
-                         qtriang(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                         mc2d::qtriang(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                  min = Par["min"], 
                                  mode = Par["mode"], 
                                  max = Par["max"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
-        Probability <- ptriang(Support, Par["min"], Par["mode"], Par["max"])
+        Probability <- mc2d::ptriang(Support, Par["min"], Par["mode"], Par["max"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
@@ -5409,18 +5510,15 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
-# @seealso Nothing...
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-#' q <- qunif (p = c(0.025, 0.975), min = 0, max = 5) {
+#' q <- qunif (p = c(0.025, 0.975), min = 0, max = 5)
 #' get.unif.par(q = q)
 #' get.unif.par(q = q, scaleX = c(0.001, 0.999))
 #'
-#' q <- qunif (p = c(0.025, 0.975), min=-6, max = 5) {
+#' q <- qunif (p = c(0.025, 0.975), min=-6, max = 5)
 #' get.unif.par(q = q)
-
 get.unif.par <- function(p = c(0.025, 0.975), q, 
                          plot = TRUE, 
                          scaleX = c(0.1, 0.9), ...) {
@@ -5553,61 +5651,59 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' @seealso See \code{pweibull} for distribution implementation details.
 #' @keywords fitpercentiles
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.01, scale = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.03))
-#' get.weibull.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.1, 0.99))
-#' get.weibull.par(q = q, fit.weights = c(10, 1,10))
+#' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.99))
+#' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.03))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.03))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.1, scale = 0.1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.05))
-#' get.weibull.par(q = q, fit.weights = c(100, 1,100), scaleX = c(0.00000001, 0.99999999999))
-#' get.weibull.par(q = q, fit.weights = c(10, 1,10), scaleX = c(0.00000001, 0.99999999999))
+#' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.00000001, 0.99999999999))
+#' get.weibull.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.00000001, 0.99999999999))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.00000001, 0.01))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.00000001, 0.1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 2, scale = 3)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
-#' get.weibull.par(q = q, fit.weights = c(100, 1,100))
-#' get.weibull.par(q = q, fit.weights = c(10, 1,10))
+#' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
+#' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
-# }
 #'
-# \donttest{
+#'
+#'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
 # X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
-#' get.weibull.par(q = q, fit.weights = c(100, 1,100))
-#' get.weibull.par(q = q, fit.weights = c(10, 1,10))
+#' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
+#' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
-# }
+#'
 #'
 #' # example with only two quantiles
-# \donttest{
+#'
 #' q <- stats::qweibull(p = c(0.025, 0.975), shape = 2, scale = 1)
 # X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.weibull.par(p = c(0.025, 0.975), q = q)
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
-# }
+#'
 
 get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q, 
                             show.output = TRUE, plot = TRUE, 
@@ -5754,12 +5850,9 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' \code{f}, \code{t}, \code{gompertz}, \code{triang}.
 #' @return Returns matrix with fitting results. More information...
 # @note nothing...
-# @seealso nothing...
 #' @keywords others
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' x1 <- rgamma(374, 4,0.08)
 #' res1 <- useFitdist(data2fit = x1)
 #' res1
@@ -5767,7 +5860,7 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' x2 <- rbeta(300, shape1 = 1, shape2 = 2)
 #' res2 <- useFitdist(data2fit = x2)
 #' res2
-# }
+#'
 
 useFitdist <- function(data2fit, show.output = TRUE,
                        distributions = c("norm", "cauchy", "logis", "beta", "exp", 
@@ -6059,23 +6152,12 @@ useFitdist <- function(data2fit, show.output = TRUE,
 #' on which the fitting is based.
 #' @note This function is used for defining a Monte-Carlo random variate item
 #' (\code{mcrv}) in the \code{rrisk} project.
-# @seealso nothing...
 #' @keywords gui
 #' @export
-#' @importFrom eha rgompertz
-#' @importFrom eha dgompertz
-#' @importFrom eha pgompertz
-#' @importFrom eha qgompertz
-#' @importFrom mc2d rtriang
-#' @importFrom mc2d dtriang
-#' @importFrom mc2d ptriang
-#' @importFrom mc2d qtriang
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' \dontrun{
 #'   if ( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
-#'     res1 <- fit.cont(data2fit = rgamma(374, 4,0.08))
+#'     res1 <- fit.cont(data2fit = rgamma(374, 4, 0.08))
 #'     res1
 #'
 #'     res2 <- fit.cont(data2fit = rbeta(300, shape1 = 1, shape2 = 2))
@@ -6097,8 +6179,6 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
     #-----------------------------------------------------------------------------
     # checking input
     #-----------------------------------------------------------------------------
-    #if (missing(data2fit)) {
-    #  stop("Argument 'data2fit' ist empty!", call. = FALSE)
     if (!is.null(dim(data2fit))) {
         stop("Argument 'data2fit' should be a simple numerical vector!", call. = FALSE)
     }
@@ -6135,9 +6215,9 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
     
     
     newIndizes <- c(notRejectedIndex, setdiff(1:nrow(res.matrix), notRejectedIndex))
-    res.matrix <- res.matrix[newIndizes,]
-    #rbind(res.matrix[c(notRejectedIndex, setdiff()),], res.matrix[-notRejectedIndex,])
-    #res.matrix <- rbind(res.matrix[notRejectedIndex,], res.matrix[-notRejectedIndex,])
+    res.matrix <- res.matrix[newIndizes, ]
+    #rbind(res.matrix[c(notRejectedIndex, setdiff()), ], res.matrix[-notRejectedIndex, ])
+    #res.matrix <- rbind(res.matrix[notRejectedIndex, ], res.matrix[-notRejectedIndex, ])
     
     #-----------------------------------------------------------------------------
     # create tcltk::tclArray for results matrix
@@ -6256,10 +6336,11 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
     #-----------------------------------------------------------------------------
     # create dialog window
     #-----------------------------------------------------------------------------
+    # fitContDistWindow <- tcltk::tktoplevel(width = 880, height = 200)
     fitContDistWindow <- tcltk::tktoplevel(width = 880, height = 200)
     tcltk::tkwm.title(fitContDistWindow, "Fitting continuous distributions")
-    tcltk::tkwm.resizable(fitContDistWindow, 0,0)  # fixed size, not resizeable
-    tcltk::tkwm.maxsize(fitContDistWindow, 880, 800)
+    tcltk::tkwm.resizable(fitContDistWindow, 1, 1)  # fixed size, not resizeable
+    tcltk::tkwm.maxsize(fitContDistWindow, 1000, 800)
     tcltk::tkwm.minsize(fitContDistWindow, 880, 200)
     allFrame <- tcltk::tkframe(fitContDistWindow)
     fontA <- tcltk::tkfont.create(size = 12, weight = "bold")
@@ -6521,14 +6602,10 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
 #' are provided only for the following distributions : "norm", "lnorm", "exp",
 #' "pois", "gamma", "logis", "nbinom" , "geom", "beta" and "unif".
 #' @return \code{rriskMMEdist} returns the named parameter or a named vector of parameters.
-# @note nothing...
-# @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
-#' # Continuous distributions
+#' ## Continuous distributions
 #' set.seed(1)
 #' x1 <- stats::rnorm(500, mean = 2, sd = 0.7)
 #' rriskMMEdist(x1, "norm")
@@ -6541,13 +6618,13 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
 #' #rriskMMEdist(x1, "beta")
 #' rriskMMEdist(x1, "unif")
 #'
-#' # Discrete distributions
+#' ## Discrete distributions
 #' set.seed(2)
 #' x2 <- rpois(500, lambda = 3)
 #' rriskMMEdist(x2, "pois")
 #' rriskMMEdist(x2, "nbinom")
 #' rriskMMEdist(x2, "geom")
-# }
+#'
 
 rriskMMEdist <- function(data, distr) {
     if (!is.character(distr)) {
@@ -6709,18 +6786,10 @@ rriskMMEdist <- function(data, distr) {
 #' at the solution found or computed in the user-supplied optimization function.
 #' It is used in \code{rriskFitdist.cont} to estimate standard errors.}
 #' \item{\code{optim.function}}{the name of the optimization function used for maximum likelihood.}
-# @note nothing...
-# @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
-# @importFrom mc2d dtriang
-# @importFrom mc2d ptriang
-#' @importFrom eha dgompertz
-#' @importFrom eha pgompertz
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
-#' # a basic fit of some distribution with maximum likelihood estimation
+#' ## a basic fit of some distribution with maximum likelihood estimation
 #' set.seed(1)
 #' x2 <- rchisq(500, 4)
 #' rriskMLEdist(x2, "norm")
@@ -6737,15 +6806,10 @@ rriskMMEdist <- function(data, distr) {
 #' rriskMLEdist(x2, "cauchy")
 #' rriskMLEdist(x2, "gompertz")
 #' #rriskMLEdist(x2, "triang")
-# }
-
 rriskMLEdist <- function(data, distr, 
                          start = NULL, optim.method = "default",
                          lower = -Inf, upper = Inf, 
                          custom.optim = NULL, ...) {
-    #     if (!is.character(distr)) {
-    #         distname <- substring(as.character(match.call()$distr), 2)
-    #     } else distname <- distr
     distname <- ifelse(!is.character(distr), 
                        substring(as.character(match.call()$distr), 2),
                        distr)
@@ -7066,19 +7130,13 @@ rriskMLEdist <- function(data, distr,
 #' \item{\code{adtest}}{the decision of the Anderson-Darling test or \code{NULL}, if not computed.}
 #' \item{\code{ks}}{the Kolmogorov-Smirnov statistic or \code{NULL}, if not computed.}
 #' \item{\code{kstest}}{the decision of the Kolmogorov-Smirnov test or \code{NULL}, if not computed.}
-# @note nothing...
-# @seealso nothing...
 #' @keywords fitdistrplus
 #' @export
-# @references Gemeinsames Paper...
 #' @examples
-# \donttest{
 #' set.seed(1)
 #' x <- stats::rnorm(5000, mean = 10, sd = 5)
 #' rriskFitdist.cont(x, "norm")
 #' rriskFitdist.cont(x, "t")
-# }
-
 rriskFitdist.cont <- function(data, distr, 
                               method = c("mle", "mme"), 
                               start, chisqbreaks, 
