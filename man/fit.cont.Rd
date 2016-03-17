@@ -23,7 +23,7 @@ This function is used for defining a Monte-Carlo random variate item
 }
 \examples{
 \dontrun{
-  if ( class(tcltk::tclRequire("Tktable")) == "tclObj" ){
+  if ( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
     res1 <- fit.cont(data2fit = rgamma(374, 4,0.08))
     res1
 
