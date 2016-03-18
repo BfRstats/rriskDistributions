@@ -12,8 +12,7 @@
 ################################################################################
 ################################################################################
 
-
-
+is.error <- function(x) inherits(x, "try-error")
 
 #*******************************************************************************
 #*******************************************************************************
@@ -81,7 +80,6 @@
 #'     chosenDistr6 <- fit.perc(p = p, q = q, tolPlot = 10)
 #'     chosenDistr6
 #' }
-
 fit.perc <- function(p = c(0.025, 0.5, 0.975), 
                      q = stats::qnorm(p), 
                      show.output = FALSE, 
@@ -680,10 +678,9 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
             else if (chosenD == "pert")      exitMessage <- "Beta-pert (pert)"
             else if (chosenD == "tnorm")     exitMessage <- "Truncated normal (tnorm)"
         } else exitMessage <- chosenD
-        cat(paste("Chosen continuous distribution is: ", exitMessage))
+        cat(paste("Chosen continuous distribution is:", exitMessage))
         cat("\nFitted parameters are: \n")
         print(fittedParams)
-        cat("--------------------------------------------------------------------\n")
     }
     
     #-----------------------------------------------------------------------------
@@ -716,6 +713,14 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
 #' @return Only graphical output.
 #' @keywords others
 #' @export
+#' @importFrom mc2d qtriang
+#' @importFrom mc2d ptriang
+#' @importFrom mc2d qpert
+#' @importFrom mc2d ppert
+#' @importFrom eha qgompertz
+#' @importFrom eha pgompertz
+#' @importFrom msm qtnorm
+#' @importFrom msm ptnorm
 #' @examples
 #' p <- c(0.025, 0.5, 0.975)
 #' q <- c(9.68, 29.20, 50.98)
@@ -815,14 +820,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$tnorm[1])) {
         test.quantiles <- suppressWarnings(msm::qtnorm(p, 
-                                                  mean = res.mat$tnorm[1], 
-                                                  sd = res.mat$tnorm[2]))
+                                                       mean = res.mat$tnorm[1], 
+                                                       sd = res.mat$tnorm[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
             graphics::lines(msm::ptnorm(xx, 
-                                   mean = res.mat$tnorm[1], 
-                                   sd = res.mat$tnorm[2],
-                                   lower = res.mat$tnorm[3], 
-                                   upper = res.mat$tnorm[4]) ~ xx, 
+                                        mean = res.mat$tnorm[1], 
+                                        sd = res.mat$tnorm[2],
+                                        lower = res.mat$tnorm[3], 
+                                        upper = res.mat$tnorm[4]) ~ xx, 
                             col = tnorm.color, lwd = 2)
             leg.txt <- c(leg.txt, "trunc. normal")
             leg.col <- c(leg.col, tnorm.color)
@@ -833,16 +838,16 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$pert[1])) {
         test.quantiles <- suppressWarnings(mc2d::qpert(p, 
-                                                 min = res.mat$pert[1], 
-                                                 mode = res.mat$pert[2], 
-                                                 max = res.mat$pert[3], 
-                                                 shape = res.mat$pert[4]))
+                                                       min = res.mat$pert[1], 
+                                                       mode = res.mat$pert[2], 
+                                                       max = res.mat$pert[3], 
+                                                       shape = res.mat$pert[4]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
             graphics::lines(mc2d::ppert(xx, 
-                                  min = res.mat$pert[1], 
-                                  mode = res.mat$pert[2],
-                                  max = res.mat$pert[3], 
-                                  shape = res.mat$pert[4]) ~ xx, 
+                                        min = res.mat$pert[1], 
+                                        mode = res.mat$pert[2],
+                                        max = res.mat$pert[3], 
+                                        shape = res.mat$pert[4]) ~ xx, 
                             col = pert.color, lwd = 2)
             leg.txt <- c(leg.txt, "Beta pert")
             leg.col <- c(leg.col, pert.color)
@@ -853,14 +858,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$triang[1])) {
         test.quantiles <- suppressWarnings(mc2d::qtriang(p, 
-                                                   min = res.mat$triang[1], 
-                                                   mode = res.mat$triang[2], 
-                                                   max = res.mat$triang[3]))
+                                                         min = res.mat$triang[1], 
+                                                         mode = res.mat$triang[2], 
+                                                         max = res.mat$triang[3]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
             graphics::lines(mc2d::ptriang(xx, 
-                                    min = res.mat$triang[1], 
-                                    mode = res.mat$triang[2],
-                                    max = res.mat$triang[3]) ~ xx, 
+                                          min = res.mat$triang[1], 
+                                          mode = res.mat$triang[2],
+                                          max = res.mat$triang[3]) ~ xx, 
                             col = triang.color, lwd = 2)
             leg.txt <- c(leg.txt, "Triangular")
             leg.col <- c(leg.col, triang.color)
@@ -871,12 +876,12 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$gompertz[1])) {
         test.quantiles <- suppressWarnings(eha::qgompertz(p, 
-                                                     shape = res.mat$gompertz[1] + 1/10000, 
-                                                     scale = res.mat$gompertz[2] + 1/10000))
+                                                          shape = res.mat$gompertz[1] + 1/10000, 
+                                                          scale = res.mat$gompertz[2] + 1/10000))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
             graphics::lines(eha::pgompertz(xx, 
-                                      shape = res.mat$gompertz[1] + 1/10000, 
-                                      scale = res.mat$gompertz[2] + 1/10000) ~ xx, 
+                                           shape = res.mat$gompertz[1] + 1/10000, 
+                                           scale = res.mat$gompertz[2] + 1/10000) ~ xx, 
                             col = gompertz.color, lwd = 2)
             leg.txt <- c(leg.txt, "Gompertz")
             leg.col <- c(leg.col, gompertz.color)
@@ -1071,9 +1076,8 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     } else {
         # change by LG: Now, the tkmessageBox is produced in method fit.perc(): there the call of 
         # plotDiagnostics.perc() is checked if the message produced below is thrown. Given that case 
-        # the message is caugth and the tkmessageBox with this message produced:
-        #tcltk::tkmessageBox(message = "Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!", icon = "error")
-        #cat("Warning: Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!\n")
+        # the message is caught and the tkmessageBox with this message produced:
+        # tcltk::tkmessageBox(message = "Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!", icon = "error")
         message("Warning: Neither of the fitted distributions satisfies the tolerance constraint for plotting diagnostics!\n")
     }
 } # end of plotDiagnostics.perc()
@@ -1111,6 +1115,10 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
 #' the function returns \code{NA}.
 #' @keywords fitdistrplus
 #' @export
+#' @importFrom mc2d qtriang
+#' @importFrom mc2d qpert
+#' @importFrom eha qgompertz
+#' @importFrom msm qtnorm
 #' @examples
 #' fit.results1 <- rriskFitdist.perc(show.output = FALSE)
 #' fit.results1
@@ -1133,13 +1141,14 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
 #' q <- mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5)
 #' fit.results5 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' fit.results5
+#' 
 rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975), 
                               q = c(9.68, 29.20, 50.98), 
                               show.output = TRUE, 
                               tolConv = 0.001, 
                               fit.weights = rep(1, length(p))) {
     #-----------------------------------------------------------------------------
-    # check consistency of the input data
+    # check general consistency of the input data
     #-----------------------------------------------------------------------------
     if (length(p) != length(q)) {
         on.exit(return(invisible(NA)))
@@ -1194,281 +1203,361 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     rownames(res.mat) <- c(paste("Para", 1:4, sep = ""), Perc * 100)
     res.mat[as.character(p * 100), "weight"] <- fit.weights
     
-    cat("\n----------------------------------------------------------------------- \n")
-    cat("Begin fitting distributions...\n")
+    message("\n-----------------------------------------------------------------------")
+    message("Begin fitting distributions...\n")
     
-    # tnorm
-    par <- suppressWarnings(get.tnorm.par(p = p, q = q, 
-                                          show.output = show.output, 
-                                          plot = FALSE, 
-                                          tol = tolConv, 
-                                          fit.weights = fit.weights))
+    ## tnorm
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.tnorm.par(p = p, q = q, 
+                          show.output = show.output, 
+                          plot = FALSE, 
+                          tol = tolConv, 
+                          fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Truncated normal distribution has been fitted successfully! \n")
+        message("Truncated normal distribution has been fitted successfully!")
         res.mat$tnorm[1:4] <- par
         res.mat$tnorm[-c(1:4)] <- msm::qtnorm(p = Perc, 
-                                         mean = par["mean"], 
-                                         sd = par["sd"], 
-                                         lower = par["lower"], 
-                                         upper = par["upper"])
+                                              mean = par["mean"], 
+                                              sd = par["sd"], 
+                                              lower = par["lower"], 
+                                              upper = par["upper"])
     } else {
-        cat("Warning: truncated normal distribution could not be fitted! \n")
+        message("    Warning: Truncated normal distribution could not be fitted!")
     }
     
-    # chisqnc
-    par <- suppressWarnings(get.chisqnc.par(p = p, q = q, 
-                                            show.output = show.output, 
-                                            plot = FALSE, 
-                                            tol = tolConv, 
-                                            fit.weights = fit.weights))
+    ## chisqnc
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.chisqnc.par(p = p, q = q, 
+                            show.output = show.output, 
+                            plot = FALSE, 
+                            tol = tolConv, 
+                            fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Non-central chi-square distribution has been fitted successfully! \n")
+        message("Non-central chi-square distribution has been fitted successfully!")
         res.mat$chisqnc[1:2] <- par
         res.mat$chisqnc[-c(1:4)] <- stats::qchisq(p = Perc, 
                                                   df = par["df"], 
                                                   ncp = par["ncp"])
     } else {
-        cat("Warning: non-central chi-square distribution could not be fitted! \n")
+        message("    Warning: Non-central chi-square distribution could not be fitted!")
     }
     
-    # pert
-    par <- suppressWarnings(get.pert.par(p = p, q = q, 
-                                         show.output = show.output, 
-                                         plot = FALSE, 
-                                         tol = tolConv, 
-                                         fit.weights = fit.weights))
+    ## pert
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.pert.par(p = p, q = q, 
+                         show.output = show.output, 
+                         plot = FALSE, 
+                         tol = tolConv, 
+                         fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Pert distribution has been fitted successfully! \n")
+        message("Pert distribution has been fitted successfully!")
         res.mat$pert[1:4] <- par
         res.mat$pert[-c(1:4)] <- mc2d::qpert(p = Perc, 
-                                       min = par["min"], 
-                                       mode = par["mode"], 
-                                       max = par["max"], 
-                                       shape = par["shape"])
+                                             min = par["min"], 
+                                             mode = par["mode"], 
+                                             max = par["max"], 
+                                             shape = par["shape"])
     } else {
-        cat("Warning: Pert distribution could not be fitted! \n")
+        message("    Warning: Pert distribution could not be fitted!")
     }
     
-    #triang
-    par <- suppressWarnings(get.triang.par(p = p, q = q, 
-                                           show.output = show.output, 
-                                           plot = FALSE, 
-                                           tol = tolConv, 
-                                           fit.weights = fit.weights))
+    ## triang
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.triang.par(p = p, q = q, 
+                           show.output = show.output, 
+                           plot = FALSE, 
+                           tol = tolConv, 
+                           fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Triangular distribution has been fitted successfully! \n")
+        message("Triangular distribution has been fitted successfully!")
         res.mat$triang[1:3] <- par
         res.mat$triang[-c(1:4)] <- mc2d::qtriang(p = Perc, 
-                                           min = par["min"], 
-                                           mode = par["mode"], 
-                                           max = par["max"])
+                                                 min = par["min"], 
+                                                 mode = par["mode"], 
+                                                 max = par["max"])
     } else {
-        cat("Warning: Triangular distribution could not be fitted! \n")
+        message("    Warning: Triangular distribution could not be fitted!")
     }
     
-    # gompertz
-    par <- suppressWarnings(get.gompertz.par(p = p, q = q, 
-                                             show.output = show.output, 
-                                             plot = FALSE, 
-                                             tol = tolConv, 
-                                             fit.weights = fit.weights))
+    ## gompertz
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.gompertz.par(p = p, q = q, 
+                             show.output = show.output, 
+                             plot = FALSE, 
+                             tol = tolConv, 
+                             fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Gompertz distribution has been fitted successfully! \n")
+        message("Gompertz distribution has been fitted successfully!")
         res.mat$gompertz[1:2] <- par
         res.mat$gompertz[-c(1:4)] <- eha::qgompertz(p = Perc, 
-                                               shape = par["shape"], 
-                                               scale = par["scale"])
+                                                    shape = par["shape"], 
+                                                    scale = par["scale"])
     } else {
-        cat("Warning: Gompertz distribution could not be fitted! \n")
+        message("    Warning: Gompertz distribution could not be fitted!")
     }
     
-    #normal
-    par <- suppressWarnings(get.norm.par(p = p, q = q, 
-                                         show.output = show.output, 
-                                         plot = FALSE, 
-                                         tol = tolConv, 
-                                         fit.weights = fit.weights))
+    ## normal
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.norm.par(p = p, q = q, 
+                         show.output = show.output, 
+                         plot = FALSE, 
+                         tol = tolConv, 
+                         fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Normal distribution has been fitted successfully! \n")
+        message("Normal distribution has been fitted successfully!")
         res.mat$norm[1:2] <- par
         res.mat$norm[-c(1:4)] <- stats::qnorm(p = Perc, 
                                               mean = par["mean"], 
                                               sd = par["sd"])
     } else {
-        cat("Warning: Normal distribution could not be fitted! \n")
+        message("    Warning: Normal distribution could not be fitted!")
     }
     
-    # beta
-    par <- suppressWarnings(get.beta.par(p = p, q = q, 
-                                         show.output = show.output, 
-                                         plot = FALSE, 
-                                         tol = tolConv, 
-                                         fit.weights = fit.weights))
+    ## beta
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.beta.par(p = p, q = q, 
+                         show.output = show.output, 
+                         plot = FALSE, 
+                         tol = tolConv, 
+                         fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Beta distribution has been fitted successfully! \n")
+        message("Beta distribution has been fitted successfully!")
         res.mat$beta[1:2] <- par
         res.mat$beta[-c(1:4)] <- stats::qbeta(p = Perc, 
                                               shape1 = par["shape1"], 
                                               shape2 = par["shape2"])
     } else {
-        cat("Warning: Beta distribution could not be fitted! \n")
+        message("    Warning: Beta distribution could not be fitted!")
     }
     
-    # cauchy
-    par <- suppressWarnings(get.cauchy.par(p = p, q = q, 
-                                           show.output = show.output, 
-                                           plot = FALSE, 
-                                           tol = tolConv, 
-                                           fit.weights = fit.weights))
+    ## cauchy
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.cauchy.par(p = p, q = q, 
+                           show.output = show.output, 
+                           plot = FALSE, 
+                           tol = tolConv, 
+                           fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Cauchy distribution has been fitted successfully! \n")
+        message("Cauchy distribution has been fitted successfully!")
         res.mat$cauchy[1:2] <- par
         res.mat$cauchy[-c(1:4)] <- stats::qcauchy(p = Perc, 
                                                   location = par["location"], 
                                                   scale = par["scale"])
     } else {
-        cat("Warning: Cauchy distribution could not be fitted! \n")
+        message("    Warning: Cauchy distribution could not be fitted!")
     }
     
-    # chisq
-    par <- suppressWarnings(get.chisq.par(p = p, q = q, 
-                                          show.output = show.output, 
-                                          plot = FALSE, 
-                                          tol = tolConv, 
-                                          fit.weights = fit.weights))
+    ## chisq
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.chisq.par(p = p, q = q, 
+                          show.output = show.output, 
+                          plot = FALSE, 
+                          tol = tolConv, 
+                          fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Chi-square distribution has been fitted successfully! \n")
+        message("Chi-square distribution has been fitted successfully!")
         res.mat$chisq[1] <- par
         res.mat$chisq[-c(1:4)] <- stats::qchisq(p = Perc, 
                                                 df = par["df"])
     } else {
-        cat("Warning: Chi-square distribution could not be fitted! \n")
+        message("    Warning: Chi-square distribution could not be fitted!")
     }
     
-    # logis
-    par <- suppressWarnings(get.logis.par(p = p, q = q, 
-                                          show.output = show.output, 
-                                          plot = FALSE, 
-                                          tol = tolConv, 
-                                          fit.weights = fit.weights))
+    ## logis
+    par <- NA
+    try({
+        par <- suppressWarnings({get.logis.par(p = p, q = q, 
+                                               show.output = show.output, 
+                                               plot = FALSE, 
+                                               tol = tolConv, 
+                                               fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Logistic distribution has been fitted successfully! \n")
+        message("Logistic distribution has been fitted successfully!")
         res.mat$logis[1:2] <- par
         res.mat$logis[-c(1:4)] <- stats::qlogis(p = Perc, 
                                                 location = par["location"], 
                                                 scale = par["scale"])
     } else {
-        cat("Warning: Logistic distribution could not be fitted! \n")
+        message("    Warning: Logistic distribution could not be fitted!")
     }
     
-    # t
-    par <- suppressWarnings(get.t.par(p = p, q = q, 
-                                      show.output = show.output, 
-                                      plot = FALSE, 
-                                      tol = tolConv, 
-                                      fit.weights = fit.weights))
+    ## t
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.t.par(p = p, q = q, 
+                      show.output = show.output, 
+                      plot = FALSE, 
+                      tol = tolConv, 
+                      fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Student's t distribution has been fitted successfully! \n")
+        message("Student's t distribution has been fitted successfully!")
         res.mat$t[1] <- par
         res.mat$t[-c(1:4)] <- stats::qt(p = Perc, 
                                         df = par["df"])
     } else {
-        cat("Warning: Student's t distribution could not be fitted! \n")
+        message("    Warning: Student's t distribution could not be fitted!")
     }
     
-    # exp
-    par <- suppressWarnings(get.exp.par(p = p, q = q, 
-                                        show.output = show.output, 
-                                        plot = FALSE, 
-                                        tol = tolConv, 
-                                        fit.weights = fit.weights))
+    ## exp
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.exp.par(p = p, q = q, 
+                        show.output = show.output, 
+                        plot = FALSE, 
+                        tol = tolConv, 
+                        fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Exponential distribution has been fitted successfully! \n")
+        message("Exponential distribution has been fitted successfully!")
         res.mat$exp[1] <- par
         res.mat$exp[-c(1:4)] <- stats::qexp(p = Perc, 
                                             rate = par["rate"])
     } else {
-        cat("Warning: Exponential distribution could not be fitted! \n")
+        message("    Warning: Exponential distribution could not be fitted!")
     }
     
-    # F
-    par <- suppressWarnings(get.f.par(p = p, q = q, 
-                                      show.output = show.output, 
-                                      plot = FALSE, 
-                                      tol = tolConv, 
-                                      fit.weights = fit.weights))
+    ## F
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.f.par(p = p, q = q, 
+                      show.output = show.output, 
+                      plot = FALSE, 
+                      tol = tolConv, 
+                      fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("F distribution has been fitted successfully! \n")
+        message("F distribution has been fitted successfully!")
         res.mat$f[1:2] <- par
         res.mat$f[-c(1:4)] <- stats::qf(p = Perc, 
                                         df1 = par["df1"], 
                                         df2 = par["df2"])
     } else {
-        cat("Warning: F distribution could not be fitted! \n")
+        message("    Warning: F distribution could not be fitted!")
     }
     
-    # gamma
-    par <- suppressWarnings(get.gamma.par(p = p, q = q, 
-                                          show.output = show.output, 
-                                          plot = FALSE, 
-                                          tol = tolConv, 
-                                          fit.weights = fit.weights))
+    ## gamma
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.gamma.par(p = p, q = q, 
+                          show.output = show.output, 
+                          plot = FALSE, 
+                          tol = tolConv, 
+                          fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Gamma distribution has been fitted successfully! \n")
+        message("Gamma distribution has been fitted successfully!")
         res.mat$gamma[1:2] <- par
         res.mat$gamma[-c(1:4)] <- stats::qgamma(p = Perc, 
                                                 shape = par["shape"], 
                                                 rate = par["rate"])
     } else {
-        cat("Warning: Gamma distribution could not be fitted! \n")
+        message("    Warning: Gamma distribution could not be fitted!")
     }
     
-    # Weibull
-    par <- suppressWarnings(get.weibull.par(p = p, q = q, 
-                                            show.output = show.output, 
-                                            plot = FALSE, 
-                                            tol = tolConv, 
-                                            fit.weights = fit.weights))
+    ## Weibull
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.weibull.par(p = p, q = q, 
+                            show.output = show.output, 
+                            plot = FALSE, 
+                            tol = tolConv, 
+                            fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Weibull distribution has been fitted successfully! \n")
+        message("Weibull distribution has been fitted successfully!")
         res.mat$weibull[1:2] <- par
         res.mat$weibull[-c(1:4)] <- stats::qweibull(p = Perc, 
                                                     shape = par["shape"], 
                                                     scale = par["scale"])
     } else {
-        cat("Warning: Weibull distribution could not be fitted! \n")
+        message("    Warning: Weibull distribution could not be fitted!")
     }
     
-    # Lognormal
-    par <- suppressWarnings(get.lnorm.par(p = p, q = q, 
-                                          show.output = show.output, 
-                                          plot = FALSE, 
-                                          tol = tolConv, 
-                                          fit.weights = fit.weights))
+    ## lognormal
+    par <- NA
+    try({
+        par <- suppressWarnings({
+            get.lnorm.par(p = p, q = q, 
+                          show.output = show.output, 
+                          plot = FALSE, 
+                          tol = tolConv, 
+                          fit.weights = fit.weights)
+        })
+    })
     if (!any(is.na(par))) {
-        cat("Lognormal distribution has been fitted successfully! \n")
+        message("Lognormal distribution has been fitted successfully!")
         res.mat$lnorm[1:2] <- par
         res.mat$lnorm[-c(1:4)] <- stats::qlnorm(p = Perc, 
                                                 meanlog = par["meanlog"], 
                                                 sdlog = par["sdlog"])
     } else {
-        cat("Warning: Lognormal distribution could not be fitted! \n")
+        message("    Warning: Lognormal distribution could not be fitted!")
     }
     
-    # Unif
-    par <- suppressWarnings(get.unif.par(p = p, q = q, plot = FALSE))
+    ## uniform
+    par <- NA
+    try(par <- suppressWarnings(get.unif.par(p = p, q = q, plot = FALSE)))
     if (!any(is.na(par))) {
-        cat("Uniform distribution has been fitted successfully! \n")
+        message("Uniform distribution has been fitted successfully!")
         res.mat$unif[1:2] <- par
         res.mat$unif[-c(1:4)] <- qunif(p = Perc, 
                                        min = par["min"], 
                                        max = par["max"])
     } else {
-        cat("Warning: Uniform distribution could not be fitted! \n")
+        message("    Warning: Uniform distribution could not be fitted!")
     }
     
-    cat("End fitting distributions...\n")
-    cat("----------------------------------------------------------------------- \n")
+    message("\n...End fitting distributions")
+    message("-----------------------------------------------------------------------\n")
     
     if (all(is.na(res.mat[1:4, -1]))) {
         if (is.element("package:rrisk", search())) { # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
@@ -1545,7 +1634,7 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the eror massage "convergence error occured or
+#' If the function terminates with the eror massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good til very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -1611,7 +1700,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -1645,11 +1734,11 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking the output
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(minimize, method = "CG"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'CG' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'CG' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'CG' was successful ! \n") 
             Par <- fit$par
@@ -1744,7 +1833,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the eror massage "convergence error occured or
+#' If the function terminates with the eror massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good til very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -1806,7 +1895,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -1841,11 +1930,11 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)   # CRAN complaining that start is not defined!
         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
             Par <- fit$par
@@ -1937,7 +2026,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -1945,9 +2034,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
@@ -1955,10 +2042,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q, scaleX = c(0.1, 0.1))
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
@@ -1966,10 +2050,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 20)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
@@ -1977,17 +2058,13 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisq.par(q = q, fit.weights =c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights =c(1, 100, 1))
 #'
-#'
-#' # example with only one quantile
-#'
+#' ## example with only one quantile
 #' q <- stats::qchisq(p = c(0.025), df = 20)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.chisq.par(p = c(0.025), q = q)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 100)
 #'
-
 get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -2013,7 +2090,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
         on.exit(return(invisible(NA)))
@@ -2051,11 +2128,11 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
             Par <- fit$par
@@ -2146,7 +2223,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the eror massage "convergence error occured or
+#' If the function terminates with the eror massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -2154,9 +2231,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 2, ncp = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, scaleX = c(0.1, 0.9999999))
@@ -2165,21 +2240,15 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1, ncp = 0.4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1, ncp = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
@@ -2187,11 +2256,8 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantile
-#'
+#' ## example with only two quantile
 #' q <- stats::qchisq(p = c(0.025, 0.95), df = 20, ncp = 20)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q)
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
@@ -2199,7 +2265,6 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #'
-
 get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
                             show.output = TRUE, plot = TRUE, 
                             tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -2225,7 +2290,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -2259,11 +2324,11 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         }  else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
             Par <- fit$par
@@ -2356,7 +2421,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the eror massage "convergence error occured or
+#' If the function terminates with the eror massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good til very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -2364,20 +2429,15 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 2)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
 #' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
@@ -2385,10 +2445,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.001)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
@@ -2396,10 +2453,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, tol = 0.2, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
@@ -2407,17 +2461,13 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only one quantile
-#'
+#' ## example with only one quantile
 #' q <- stats::qexp(p = c(0.025), rate = 2)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.exp.par(p = c(0.025), q = q)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 100)
 #'
-
 get.exp.par <- function(p = c(0.025, 0.50,.975), q,
                         show.output = TRUE, plot = TRUE, 
                         tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -2443,7 +2493,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
         on.exit(return(invisible(NA)))
@@ -2478,11 +2528,11 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = Start, minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -2577,7 +2627,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -2585,9 +2635,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 2, df2 = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.5))
@@ -2595,10 +2643,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.5))
 #'
-#'
-#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 0.2, df2 = 0.3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.999))
@@ -2606,10 +2651,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.9999))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.9999))
 #'
-#'
-#'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 1, df2 = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.2))
@@ -2617,17 +2659,13 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.2))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qf(p = c(0.025, 0.975), df1 = 2, df2 = 3)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.f.par(p = c(0.025, 0.975), q = q)
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #'
-
 get.f.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE,
                       tol = 0.001, fit.weights = rep(1, length(p)),
@@ -2653,7 +2691,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -2687,11 +2725,11 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -2786,7 +2824,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -2794,9 +2832,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 10, rate = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, scaleX = c(0.00001, 0.9999))
@@ -2805,21 +2841,15 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 0.1, rate = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 1, rate = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
@@ -2827,11 +2857,8 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qgamma(p = c(0.025, 0.975), shape = 10, rate = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(p = c(0.025, 0.975), q = q)
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
@@ -2839,7 +2866,6 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #'
-
 get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -2865,7 +2891,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -2899,11 +2925,11 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -3007,7 +3033,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -3016,31 +3042,23 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 2, scale = 5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 0.2, scale = 0.5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
@@ -3048,11 +3066,8 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- eha::qgompertz(p = c(0.025, 0.975), shape = 2, scale = 5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q)
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.0001, 0.9999))
@@ -3060,14 +3075,10 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #'
-
 get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
                              show.output = TRUE, plot = TRUE, 
                              tol = 0.001, fit.weights = rep(1, length(p)), 
                              scaleX = c(0.1, 0.9), ...) {
-    # these packages are listed in the "Depends" field of the package DESCRIPTION file, require call
-    # is not needed:
-    #suppressWarnings(require("eha"))
     #-----------------------------------------------------------------------------
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
@@ -3089,7 +3100,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -3113,22 +3124,25 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(eha::pgompertz(q = q, shape = theta[1], scale = theta[2]) - p)
+        summand <- suppressWarnings(eha::pgompertz(q = q, 
+                                                   shape = theta[1], 
+                                                   scale = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
     try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B",
-                                          lower = c(0.001, 0.001), upper = c(10000, 10000)), silent = TRUE)
+                                          lower = c(0.001, 0.001), upper = c(10000, 10000)), 
+                      silent = TRUE)
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -3151,11 +3165,11 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
         main <- paste("Gompertz (", main1, ", ", main2, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(eha::qgompertz(p = min(p) * scaleX[1], 
-                                   shape = Par["shape"], 
-                                   scale = Par["scale"]),
+                                        shape = Par["shape"], 
+                                        scale = Par["scale"]),
                          eha::qgompertz(p = (max(p) + (1 - max(p)) * scaleX[2]), 
-                                   shape = Par["shape"], 
-                                   scale = Par["scale"]))
+                                        shape = Par["shape"], 
+                                        scale = Par["scale"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
         Probability <- eha::pgompertz(Support, Par["shape"], Par["scale"])
         graphics::plot(Support, Probability, type = "l", 
@@ -3228,7 +3242,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -3236,9 +3250,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 5, n = 3, k = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
 #' get.hyper.par(q = q, tol = 1)
@@ -3247,10 +3259,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 10, n = 5, k = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
 #' get.hyper.par(q = q, fit.weights = c(100, 1, 100))
@@ -3258,7 +3267,6 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
 #'
-
 get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -3284,7 +3292,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 3) {
         on.exit(return(invisible(NA)))
@@ -3318,11 +3326,11 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(9, 6,7), minimize, method = "SANN"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'SANN' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'SANN' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'SANN' was successful ! \n") 
@@ -3426,7 +3434,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -3434,20 +3442,15 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 4, sdlog = 0.8)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog=-4, sdlog = 0.8)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
@@ -3455,10 +3458,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 1, sdlog = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
@@ -3466,10 +3466,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.000001, 0.99999999))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 0.1, sdlog = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
@@ -3477,11 +3474,8 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qlnorm(p = c(0.025, 0.975), meanlog = 4, sdlog = 0.8)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q)
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.1, 0.001))
@@ -3489,7 +3483,6 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #'
-
 get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -3499,7 +3492,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
     #-----------------------------------------------------------------------------
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
         on.exit(return(invisible(NA)))
@@ -3515,7 +3508,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -3549,11 +3542,11 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 3), minimize, method = "Nelder-Mead"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'Nelder-Mead' was successful ! \n") 
@@ -3653,7 +3646,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -3678,17 +3671,13 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.logis.par(q = q, fit.weights = c(1, 100, 1))
 #' get.logis.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qlogis(p = c(0.025, 0.975), location = 0, scale = 3)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.logis.par(p = c(0.025, 0.975), q = q)
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #'
-
 get.logis.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -3710,7 +3699,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -3747,11 +3736,11 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
             Par <- fit$par
@@ -3850,7 +3839,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -3859,7 +3848,6 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 10, prob = 0.5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
@@ -3867,10 +3855,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q, tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
@@ -3878,10 +3863,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.nbinom.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
 #'
-#'
-#'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
@@ -3890,10 +3872,8 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
 #'
 #'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qnbinom(p = c(0.025, 0.975), size = 10, prob = 0.5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q,)
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
@@ -3901,7 +3881,6 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #'
-
 get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
                            show.output = TRUE, plot = TRUE, 
                            tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -3927,7 +3906,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -3963,11 +3942,11 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(sizeStart, probStart), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -4068,7 +4047,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the 
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or 
+#' If the function terminates with the error massage "convergence error occurred or 
 #' specified tolerance not achieved", one may try to set the convergence tolerance 
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters 
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -4077,7 +4056,6 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 12, sd = 34)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, scaleX = c(0.00001, 0.99999))
@@ -4086,21 +4064,15 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
-#'
-#'
 #'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0.1, sd = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, fit.weights = c(10, 1, 10))
@@ -4108,11 +4080,8 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qnorm(p = c(0.025, 0.975), mean = 12, sd = 34)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.par(p = c(0.025, 0.975), q = q)
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
@@ -4120,7 +4089,6 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #'
-
 get.norm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
                          tol = 0.001, fit.weights = rep(1, length(p)),
@@ -4142,7 +4110,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -4180,13 +4148,13 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
         if (show.output) {
-            cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n")
+            cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n")
         }
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
             if (show.output) {
-                cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n")
+                cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n")
             }
             Par <- NA
         } else if (fit$value < tol) {
@@ -4276,7 +4244,6 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 2)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, scaleX = c(0.0001, 0.9999))
@@ -4285,10 +4252,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 176, sd = 15)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
@@ -4296,12 +4260,9 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
 #'
-#'
-#' # The estimating model is not suitable for the following quantiles.
-#' # Because the quantile is unsymmetrical, which could not be from a normally distributed data.
-#'
+#' ## The estimation model is not suitable for the following quantiles.
+#' ## Because the quantile is unsymmetrical, which could not be from a normally distributed data.
 #' q <- c(-2, 30, 31)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
@@ -4310,13 +4271,11 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.0001, 0.9999))
 #'
 #'
-#' # The estimating from an actually exponetial distributed data
-#'
+#' ## Estimating from actually exponentially distributed data
 #' x.exp <- rexp(n = 10, rate = 5)
 #' mean(x.exp)
 #' stats::sd(x.exp)
 #' q <- quantile(x.exp, c(0.025, 0.5, 0.975))
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
@@ -4324,8 +4283,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #'
-#'
-#' # other examples
+#' ## other examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 1, sd = 1)
 #' get.norm.sd(q = q)
 #'
@@ -4334,7 +4292,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0.01, sd = 0.1)
 #' get.norm.sd(q = q)
-
+#' 
 get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
                         show.output = TRUE, plot = TRUE, 
                         fit.weights = rep(1, length(p)), 
@@ -4360,7 +4318,7 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -4478,7 +4436,7 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -4512,10 +4470,7 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-#'
-#'
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min=-10, mode = 5, max = 10, shape = 0.4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
@@ -4523,7 +4478,6 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-
 get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
                          show.output = TRUE, plot = TRUE, 
                          tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -4545,7 +4499,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 4) {
         on.exit(return(invisible(NA)))
@@ -4580,14 +4534,14 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 5, 10, 4), 
                                               minimize, 
                                               method = "BFGS"), 
                           silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         }  else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -4612,15 +4566,15 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
         main <- paste("Pert (", main1, ", ", main2, ", ", main3, ", ", main4, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(mc2d::qpert(p = min(p) * scaleX[1], 
-                               min = Par["min"], 
-                               mode = Par["mode"], 
-                               max = Par["max"], 
-                               shape = Par["shape"]),
+                                     min = Par["min"], 
+                                     mode = Par["mode"], 
+                                     max = Par["max"], 
+                                     shape = Par["shape"]),
                          mc2d::qpert(p = (max(p) + (1 - max(p)) * scaleX[2]), 
-                               min = Par["min"], 
-                               mode = Par["mode"], 
-                               max = Par["max"], 
-                               shape = Par["shape"]))
+                                     min = Par["min"], 
+                                     mode = Par["mode"], 
+                                     max = Par["max"], 
+                                     shape = Par["shape"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
         Probability <- mc2d::ppert(Support, Par["min"], Par["mode"], Par["max"], shape = Par["shape"])
         graphics::plot(Support, Probability, type = "l", 
@@ -4693,7 +4647,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -4702,18 +4656,14 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100))
 #' get.pois.par(q = q, fit.weights = c(10, 1, 10))
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100))
@@ -4721,10 +4671,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 0.5)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 1)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 1)
@@ -4732,10 +4679,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
 #'
-#'
-#'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 0.01)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 0.01)
@@ -4743,7 +4687,6 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
 #'
-
 get.pois.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
                          tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -4769,7 +4712,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
         on.exit(return(invisible(NA)))
@@ -4803,7 +4746,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
         Par <- NA
     } else if (fit$value < tol) {
         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
@@ -4896,7 +4839,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -4905,7 +4848,6 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q)
 #' get.t.par(q = q, fit.weights = c(100, 1, 100))
@@ -4913,21 +4855,15 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.t.par(q = q, fit.weights = c(1, 100, 1))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
-#'
-#'
 #'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
@@ -4935,17 +4871,13 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #'
-#'
-#' # example with only one quantile
-#'
+#' ## example with only one quantile
 #' q <- stats::qt(p = c(0.025), df = 3)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.t.par(p = c(0.025), q = q)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 100)
 #'
-
 get.t.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE, 
                       tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -4967,7 +4899,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
         on.exit(return(invisible(NA)))
@@ -5001,11 +4933,11 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         }  else if (fit$value < tol) {  
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -5104,7 +5036,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -5112,9 +5044,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 3, lower = 0, upper = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, scaleX = c(0.1, 0.999999))
@@ -5123,21 +5053,15 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-#'
-#'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 0.1, lower=-1, upper = 4)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
-#'
-#'
 #'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 0, sd = 1, lower=-2, upper = 2)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
@@ -5145,7 +5069,6 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 #'
-
 get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
                           tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -5167,7 +5090,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 4) {
         on.exit(return(invisible(NA)))
@@ -5192,32 +5115,44 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
     fit.weights <- fit.weights/sum(fit.weights)
     lm <- lm(q ~ p)
     suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
-    suppressWarnings(s<-(predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
+    suppressWarnings(s <- (predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
     minimize <- function(theta) {
-        summand <- suppressWarnings(msm::ptnorm(q = q, mean = theta[1], sd = theta[2], lower = theta[3], upper = theta[4]) - p)
+        summand <- suppressWarnings(msm::ptnorm(q = q, 
+                                                mean = theta[1], 
+                                                sd = theta[2], 
+                                                lower = theta[3], 
+                                                upper = theta[4]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(m, s, min(q) - s, max(q) + s), minimize, method = "L-BFGS-B", lower = c(-10000, 0.001,-10000,-10000), upper = c(10000, 10000, 10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(m, s, min(q) - s, max(q) + s), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(-10000, 0.001, -10000, -10000), 
+                            upper = c(10000, 10000, 10000, 10000)), 
+        silent = TRUE)
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(m, s,min(q) - s, max(q) + s), minimize, method = "Nelder-Mead"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(m, s, min(q) - s, max(q) + s), 
+                                minimize, method = "Nelder-Mead"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'Nelder-Mead' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("mean", "sd", "lower", "upper")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("mean", "sd", "lower", "upper")
         if (show.output) print(fit) 
@@ -5233,15 +5168,15 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
         main <- paste("trunc. normal (", main1, ", ", main2, ", ", main3, ", ", main4, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(msm::qtnorm(p = min(p) * scaleX[1], 
-                                mean = Par["mean"], 
-                                sd = Par["sd"], 
-                                lower = Par["lower"], 
-                                upper = Par["upper"]),
+                                     mean = Par["mean"], 
+                                     sd = Par["sd"], 
+                                     lower = Par["lower"], 
+                                     upper = Par["upper"]),
                          msm::qtnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
-                                mean = Par["mean"], 
-                                sd = Par["sd"], 
-                                lower = Par["lower"], 
-                                upper = Par["upper"]))
+                                     mean = Par["mean"], 
+                                     sd = Par["sd"], 
+                                     lower = Par["lower"], 
+                                     upper = Par["upper"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
         Probability <- msm::ptnorm(Support, Par["mean"], Par["sd"], Par["lower"], Par["upper"])
         graphics::plot(Support, Probability, type = "l", 
@@ -5315,7 +5250,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -5324,9 +5259,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 0, mode = 3, max = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, fit.weights = c(100, 1, 100))
@@ -5334,10 +5267,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 1, mode = 5, max = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, scaleX = c(0.00001, 0.99999))
@@ -5346,11 +5276,8 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # bad fit for negative values
-#'
+#' ## bad fit for negative values
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q, tol = 0.1)
 #' get.triang.par(q = q)
@@ -5359,11 +5286,10 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1), tol = 1)
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1), tol = 1)
 #'
-#'
-#' # other examples
+#' ## other examples
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
 #' get.triang.par(q = q, tol = 0.3)
-
+#'
 get.triang.par <- function(p = c(0.025, 0.5, 0.975), q, 
                            show.output = TRUE, plot = TRUE, 
                            tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -5385,7 +5311,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 3) {
         on.exit(return(invisible(NA)))
@@ -5420,11 +5346,11 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = c(1, 5,10), minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         } else if (fit$value < tol) {
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -5448,13 +5374,13 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
         main <- paste("Triangular (", main1, ", ", main2, ", ", main3, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(mc2d::qtriang(p = min(p) * scaleX[1], 
-                                 min = Par["min"], 
-                                 mode = Par["mode"], 
-                                 max = Par["max"]),
+                                       min = Par["min"], 
+                                       mode = Par["mode"], 
+                                       max = Par["max"]),
                          mc2d::qtriang(p = (max(p) + (1 - max(p)) * scaleX[2]), 
-                                 min = Par["min"], 
-                                 mode = Par["mode"], 
-                                 max = Par["max"]))
+                                       min = Par["min"], 
+                                       mode = Par["mode"], 
+                                       max = Par["max"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
         Probability <- mc2d::ptriang(Support, Par["min"], Par["mode"], Par["max"])
         graphics::plot(Support, Probability, type = "l", 
@@ -5506,7 +5432,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -5519,6 +5445,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
 #'
 #' q <- qunif (p = c(0.025, 0.975), min=-6, max = 5)
 #' get.unif.par(q = q)
+#' 
 get.unif.par <- function(p = c(0.025, 0.975), q, 
                          plot = TRUE, 
                          scaleX = c(0.1, 0.9), ...) {
@@ -5644,7 +5571,7 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' look very similar. Therefore, the optimization method cannot always find the
 #' "right" distribution, but a "similar" one.
 #' \cr \cr
-#' If the function terminates with the error massage "convergence error occured or
+#' If the function terminates with the error massage "convergence error occurred or
 #' specified tolerance not achieved", one may try to set the convergence tolerance
 #' to a higher value. It is yet to be noted, that good till very good fits of parameters
 #' could only be obtained for tolerance values that are smaller than 0.001.
@@ -5653,7 +5580,6 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.01, scale = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.03))
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.99))
@@ -5661,10 +5587,7 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.03))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.03))
 #'
-#'
-#'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.1, scale = 0.1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.05))
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.00000001, 0.99999999999))
@@ -5672,21 +5595,15 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.00000001, 0.01))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.00000001, 0.1))
 #'
-#'
-#'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 2, scale = 3)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
 #' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
-#'
-#'
 #'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
-# X11(width = 9, height = 6)
 #' graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
@@ -5694,17 +5611,13 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
 #'
-#'
-#' # example with only two quantiles
-#'
+#' ## example with only two quantiles
 #' q <- stats::qweibull(p = c(0.025, 0.975), shape = 2, scale = 1)
-# X11(width = 9, height = 3)
 #' graphics::par(mfrow = c(1, 3))
 #' get.weibull.par(p = c(0.025, 0.975), q = q)
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #'
-
 get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q, 
                             show.output = TRUE, plot = TRUE, 
                             tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -5730,7 +5643,7 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
         on.exit(return(invisible(NA)))
-        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same langth.", call. = FALSE)
+        stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
         on.exit(return(invisible(NA)))
@@ -5764,11 +5677,11 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking results
     #-----------------------------------------------------------------------------
     if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occured or specified tolerance not achieved)!\nTry another optimization method...\n") 
+        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
         fit <- c(); fit$value <- tol + 1
         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occured or specified tolerance not achieved)! \n") 
+            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
             Par <- NA
         }  else if (fit$value < tol) {  
             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
@@ -5849,7 +5762,6 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' \code{chisq}, \code{unif}, \code{gamma}, \code{lnorm}, \code{weibull},
 #' \code{f}, \code{t}, \code{gompertz}, \code{triang}.
 #' @return Returns matrix with fitting results. More information...
-# @note nothing...
 #' @keywords others
 #' @export
 #' @examples
@@ -5861,7 +5773,6 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' res2 <- useFitdist(data2fit = x2)
 #' res2
 #'
-
 useFitdist <- function(data2fit, show.output = TRUE,
                        distributions = c("norm", "cauchy", "logis", "beta", "exp", 
                                          "chisq", "unif", "gamma", "lnorm", "weibull", 
@@ -6154,6 +6065,14 @@ useFitdist <- function(data2fit, show.output = TRUE,
 #' (\code{mcrv}) in the \code{rrisk} project.
 #' @keywords gui
 #' @export
+#' @importFrom eha rgompertz
+#' @importFrom eha dgompertz
+#' @importFrom eha pgompertz
+#' @importFrom eha qgompertz
+#' @importFrom mc2d rtriang
+#' @importFrom mc2d dtriang
+#' @importFrom mc2d ptriang
+#' @importFrom mc2d qtriang
 #' @examples
 #' \dontrun{
 #'   if ( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
@@ -6170,7 +6089,7 @@ useFitdist <- function(data2fit, show.output = TRUE,
 #'     res4
 #'   }
 #' }
-
+#' 
 fit.cont <- function(data2fit = stats::rnorm(1000)) {
     if (class(tcltk::tclRequire("Tktable")) != "tclObj") {
         stop("Tcl package \"Tktable\" required. Please install it.")
@@ -6609,14 +6528,14 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
 #' set.seed(1)
 #' x1 <- stats::rnorm(500, mean = 2, sd = 0.7)
 #' rriskMMEdist(x1, "norm")
-#' # produces an error:
-#' #rriskMMEdist(x1, "lnorm")
 #' rriskMMEdist(x1, "exp")
 #' rriskMMEdist(x1, "gamma")
 #' rriskMMEdist(x1, "logis")
-#' # produces an error:
-#' #rriskMMEdist(x1, "beta")
 #' rriskMMEdist(x1, "unif")
+#' 
+#' ## produces an error:
+#' # rriskMMEdist(x1, "lnorm")
+#' # rriskMMEdist(x1, "beta")
 #'
 #' ## Discrete distributions
 #' set.seed(2)
@@ -6625,7 +6544,6 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
 #' rriskMMEdist(x2, "nbinom")
 #' rriskMMEdist(x2, "geom")
 #'
-
 rriskMMEdist <- function(data, distr) {
     if (!is.character(distr)) {
         distname <- substring(as.character(match.call()$distr), 2)
@@ -6788,6 +6706,10 @@ rriskMMEdist <- function(data, distr) {
 #' \item{\code{optim.function}}{the name of the optimization function used for maximum likelihood.}
 #' @keywords fitdistrplus
 #' @export
+# @importFrom mc2d dtriang
+# @importFrom mc2d ptriang
+#' @importFrom eha dgompertz
+#' @importFrom eha pgompertz
 #' @examples
 #' ## a basic fit of some distribution with maximum likelihood estimation
 #' set.seed(1)
@@ -6798,14 +6720,16 @@ rriskMMEdist <- function(data, distr) {
 #' rriskMLEdist(x2, "logis")
 #' rriskMLEdist(x2, "gamma")
 #' rriskMLEdist(x2, "weibull")
-#' # produces an error:
 #' #rriskMLEdist(x2, "beta")
 #' rriskMLEdist(x2, "chisq")
 #' rriskMLEdist(x2, "t")
 #' rriskMLEdist(x2, "f")
 #' rriskMLEdist(x2, "cauchy")
 #' rriskMLEdist(x2, "gompertz")
-#' #rriskMLEdist(x2, "triang")
+#' 
+#' ## produces an error:
+#' # rriskMLEdist(x2, "triang")
+#' 
 rriskMLEdist <- function(data, distr, 
                          start = NULL, optim.method = "default",
                          lower = -Inf, upper = Inf, 
@@ -6816,16 +6740,16 @@ rriskMLEdist <- function(data, distr,
     ddistname <- paste("d", distname, sep = "")
     #pdistname<- paste("p", distname, sep = "")  #????
     if (!exists(ddistname, mode = "function")) {
-        stop(paste("The ", ddistname, " function must be defined"))
+        stop(paste("The", ddistname, "function must be defined"))
     }
     if (distname == "unif") {
         stop("Maximum likelihood estimation is not available for the uniform distribution")
     }
     if (is.vector(data)) {
         cens <- FALSE
-    }
-    if (!(is.numeric(data) & length(data) > 1)) {
-        stop("data must be a numerical vector of length greater than 1 for non censored data\n            or a dataframe with two columns named left and right and more than one line for censored data")
+        if (!(is.numeric(data) & length(data) > 1)) {
+            stop("data must be a numerical vector of length greater than 1 for non censored data\n            or a data frame with two columns named left and right and more than one line for censored data")
+        }
     } else {
         cens <- TRUE
         censdata <- data
