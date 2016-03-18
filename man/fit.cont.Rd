@@ -24,7 +24,7 @@ This function is used for defining a Monte-Carlo random variate item
 \examples{
 \dontrun{
   if ( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
-    res1 <- fit.cont(data2fit = rgamma(374, 4,0.08))
+    res1 <- fit.cont(data2fit = rgamma(374, 4, 0.08))
     res1
 
     res2 <- fit.cont(data2fit = rbeta(300, shape1 = 1, shape2 = 2))
@@ -37,6 +37,7 @@ This function is used for defining a Monte-Carlo random variate item
     res4
   }
 }
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

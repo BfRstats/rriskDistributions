@@ -53,11 +53,12 @@ q <- c(10, 20, 40)
 fit.results4 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 fit.results4
 
-# Example with fitted pert distribution
+## Example with fitted pert distribution
 p <- c(0.025, 0.5, 0.6, 0.975)
 q <- mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5)
 fit.results5 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 fit.results5
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

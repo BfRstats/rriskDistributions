@@ -5,7 +5,7 @@
 \title{Fitting parameters of a negative binomial distribution from two or more quantiles}
 \usage{
 get.nbinom.par(p = c(0.025, 0.5, 0.975), q, show.output = TRUE,
-    plot = TRUE, tol = 0.001, fit.weights = rep(1, length(p)), scaleX = c(0.1, 0.9),...)
+    plot = TRUE, tol = 0.001, fit.weights = rep(1, length(p)), scaleX = c(0.1, 0.9), ...)
 }
 \arguments{
 \item{p}{numeric, single value or vector of probabilities.}
@@ -70,7 +70,7 @@ keep in mind that a distribution for different combinations of parameters may
 look very similar. Therefore, the optimization method cannot always find the
 "right" distribution, but a "similar" one.
 \cr \cr
-If the function terminates with the error massage "convergence error occured or
+If the function terminates with the error massage "convergence error occurred or
 specified tolerance not achieved", one may try to set the convergence tolerance
 to a higher value. It is yet to be noted, that good till very good fits of parameters
 could only be obtained for tolerance values that are smaller than 0.001.
@@ -79,28 +79,29 @@ could only be obtained for tolerance values that are smaller than 0.001.
 q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 10, prob = 0.5)
 graphics::par(mfrow = c(2, 3))
 get.nbinom.par(q = q)
-get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
-get.nbinom.par(q = q, fit.weights = c(10, 1,10))
+get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
 
 q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.5)
 graphics::par(mfrow = c(2, 3))
 get.nbinom.par(q = q, tol = 0.01)
-get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 get.nbinom.par(q = q, fit.weights = c(1, 100, 1), tol = 0.01)
-get.nbinom.par(q = q, fit.weights = c(10, 1,10), tol = 0.01)
+get.nbinom.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 get.nbinom.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
 
 q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.1)
 graphics::par(mfrow = c(2, 3))
 get.nbinom.par(q = q)
-get.nbinom.par(q = q, fit.weights = c(100, 1,100))
+get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
-get.nbinom.par(q = q, fit.weights = c(10, 1,10))
+get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
 
-# example with only two quantiles
+
+## example with only two quantiles
 q <- stats::qnbinom(p = c(0.025, 0.975), size = 10, prob = 0.5)
 graphics::par(mfrow = c(2, 3))
 get.nbinom.par(p = c(0.025, 0.975), q = q,)
@@ -108,6 +109,7 @@ get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

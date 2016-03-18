@@ -35,6 +35,7 @@ res1
 x2 <- rbeta(300, shape1 = 1, shape2 = 2)
 res2 <- useFitdist(data2fit = x2)
 res2
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

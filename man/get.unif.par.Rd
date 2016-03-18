@@ -4,7 +4,7 @@
 \alias{get.unif.par}
 \title{Fitting parameters of a uniform distribution from two or more quantiles}
 \usage{
-get.unif.par(p = c(0.025, 0.975), q, plot = TRUE, scaleX = c(0.1, 0.9),...)
+get.unif.par(p = c(0.025, 0.975), q, plot = TRUE, scaleX = c(0.1, 0.9), ...)
 }
 \arguments{
 \item{p}{numeric, single value or vector of probabilities.}
@@ -46,7 +46,7 @@ keep in mind that a distribution for different combinations of parameters may
 look very similar. Therefore, the optimization method cannot always find the
 "right" distribution, but a "similar" one.
 \cr \cr
-If the function terminates with the error massage "convergence error occured or
+If the function terminates with the error massage "convergence error occurred or
 specified tolerance not achieved", one may try to set the convergence tolerance
 to a higher value. It is yet to be noted, that good till very good fits of parameters
 could only be obtained for tolerance values that are smaller than 0.001.
@@ -58,6 +58,7 @@ get.unif.par(q = q, scaleX = c(0.001, 0.999))
 
 q <- qunif (p = c(0.025, 0.975), min=-6, max = 5)
 get.unif.par(q = q)
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

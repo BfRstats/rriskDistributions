@@ -64,23 +64,25 @@ And the following discrete distributions can be fitted: (wird ergaenzt).
 called in \code{rriskFitdist.cont}.
 }
 \examples{
-# a basic fit of some distribution with maximum likelihood estimation
+## a basic fit of some distribution with maximum likelihood estimation
 set.seed(1)
 x2 <- rchisq(500, 4)
-rriskMLEdist(x2,"norm")
-rriskMLEdist(x2,"exp")
-rriskMLEdist(x2,"lnorm")
-rriskMLEdist(x2,"logis")
-rriskMLEdist(x2,"gamma")
-rriskMLEdist(x2,"weibull")
-# produces an error:
-#rriskMLEdist(x2,"beta")
-rriskMLEdist(x2,"chisq")
-rriskMLEdist(x2,"t")
-rriskMLEdist(x2,"f")
-rriskMLEdist(x2,"cauchy")
-rriskMLEdist(x2,"gompertz")
-#rriskMLEdist(x2,"triang")
+rriskMLEdist(x2, "norm")
+rriskMLEdist(x2, "exp")
+rriskMLEdist(x2, "lnorm")
+rriskMLEdist(x2, "logis")
+rriskMLEdist(x2, "gamma")
+rriskMLEdist(x2, "weibull")
+#rriskMLEdist(x2, "beta")
+rriskMLEdist(x2, "chisq")
+rriskMLEdist(x2, "t")
+rriskMLEdist(x2, "f")
+rriskMLEdist(x2, "cauchy")
+rriskMLEdist(x2, "gompertz")
+
+## produces an error:
+# rriskMLEdist(x2, "triang")
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

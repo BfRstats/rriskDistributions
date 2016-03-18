@@ -5,7 +5,7 @@
 \title{Fitting parameters of truncated normal distribution from four or more quantiles}
 \usage{
 get.tnorm.par(p = c(0.025, 0.5, 0.75, 0.975), q, show.output = TRUE,
-   plot = TRUE, tol = 0.001, fit.weights = rep(1, length(p)), scaleX = c(0.1, 0.9),...)
+   plot = TRUE, tol = 0.001, fit.weights = rep(1, length(p)), scaleX = c(0.1, 0.9), ...)
 }
 \arguments{
 \item{p}{numeric, single value or vector of probabilities.}
@@ -71,7 +71,7 @@ keep in mind that a distribution for different combinations of parameters may
 look very similar. Therefore, the optimization method cannot always find the
 "right" distribution, but a "similar" one.
 \cr \cr
-If the function terminates with the error massage "convergence error occured or
+If the function terminates with the error massage "convergence error occurred or
 specified tolerance not achieved", one may try to set the convergence tolerance
 to a higher value. It is yet to be noted, that good till very good fits of parameters
 could only be obtained for tolerance values that are smaller than 0.001.
@@ -81,26 +81,27 @@ q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 3, lower = 0, up
 graphics::par(mfrow = c(2, 3))
 get.tnorm.par(q = q)
 get.tnorm.par(q = q, scaleX = c(0.1, 0.999999))
-get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
+get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 
 q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 0.1, lower=-1, upper = 4)
 graphics::par(mfrow = c(2, 3))
 get.tnorm.par(q = q)
-get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
+get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
 
 q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 0, sd = 1, lower=-2, upper = 2)
 graphics::par(mfrow = c(2, 3))
 get.tnorm.par(q = q)
-get.tnorm.par(q = q, fit.weights = c(100, 1,1, 100))
-get.tnorm.par(q = q, fit.weights = c(10, 1,1, 10))
-get.tnorm.par(q = q, fit.weights = c(1, 100, 1,1))
-get.tnorm.par(q = q, fit.weights = c(1, 10, 1,1))
+get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
+get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
+get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
+get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

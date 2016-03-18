@@ -5,7 +5,7 @@
 \title{Fitting univariate distributions by maximum likelihood or by matching moments}
 \usage{
 rriskFitdist.cont(data, distr, method = c("mle", "mme"), start,
-   chisqbreaks, meancount,...)
+   chisqbreaks, meancount, ...)
 }
 \arguments{
 \item{data}{A numerical vector, data to be fitted.}
@@ -74,8 +74,8 @@ called in \code{useFitdist}.
 \examples{
 set.seed(1)
 x <- stats::rnorm(5000, mean = 10, sd = 5)
-rriskFitdist.cont(x,"norm")
-rriskFitdist.cont(x,"t")
+rriskFitdist.cont(x, "norm")
+rriskFitdist.cont(x, "t")
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

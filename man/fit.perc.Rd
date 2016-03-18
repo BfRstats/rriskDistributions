@@ -45,26 +45,26 @@ This function is used for defining a Monte-Carlo random variate item
 }
 \examples{
 \dontrun{
-  chosenDistr1 <- fit.perc()
-  chosenDistr1
+    chosenDistr1 <- fit.perc()
+    chosenDistr1
+    
+    chosenDistr2 <- fit.perc(tolPlot = 5)
+    chosenDistr2
+    
+    chosenDistr3 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 20, 40))
+    chosenDistr3
+    
+    chosenDistr4 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40))
+    chosenDistr4
+    
+    chosenDistr5 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40), tolPlot = 10)
+    chosenDistr5
 
-  chosenDistr2 <- fit.perc(tolPlot = 5)
-  chosenDistr2
-
-  chosenDistr3 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 20, 40))
-  chosenDistr3
-
-  chosenDistr4 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40))
-  chosenDistr4
-
-  chosenDistr5 <- fit.perc(p = c(0.3, 0.8, 0.9), q = c(10, 30, 40), tolPlot = 10)
-  chosenDistr5
-
-  # Fitting a PERT distribution
-  p <- c(0.025, 0.5, 0.6, 0.975)
-  q <- round(mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5), digits = 2)
-  chosenDistr6 <- fit.perc(p = p, q = q, tolPlot = 10)
-  chosenDistr6
+    ## Fitting a PERT distribution
+    p <- c(0.025, 0.5, 0.6, 0.975)
+    q <- round(mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5), digits = 2)
+    chosenDistr6 <- fit.perc(p = p, q = q, tolPlot = 10)
+    chosenDistr6
 }
 }
 \author{
