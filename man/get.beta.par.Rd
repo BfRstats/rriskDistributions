@@ -110,6 +110,7 @@ get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

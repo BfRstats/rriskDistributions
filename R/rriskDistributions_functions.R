@@ -354,7 +354,7 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
             stop("INVALID INPUT", call. = FALSE)
         }
         if ( any(is.na(fit.weights))) {
-            cltk::tkmessageBox(message = "One or more item(s) is not numeric, please correct your input!", icon = "error")
+            tcltk::tkmessageBox(message = "One or more item(s) is not numeric, please correct your input!", icon = "error")
             tcltk::tkfocus(wEntry)
             stop("INVALID INPUT", call. = FALSE)
         }
@@ -749,6 +749,7 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
 #' q <- mc2d::qpert(p = p, min = 0, mode = 3, max = 10, shape = 5)
 #' fit.results5 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results5)
+#' 
 plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     #-----------------------------------------------------------------------------
     # checking consistency of the input data
@@ -1203,361 +1204,347 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     rownames(res.mat) <- c(paste("Para", 1:4, sep = ""), Perc * 100)
     res.mat[as.character(p * 100), "weight"] <- fit.weights
     
-    message("\n-----------------------------------------------------------------------")
-    message("Begin fitting distributions...\n")
+    message("\nBegin fitting distributions ---------------------------------------")
     
     ## tnorm
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.tnorm.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Truncated normal distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$tnorm[1:4] <- par
         res.mat$tnorm[-c(1:4)] <- msm::qtnorm(p = Perc, 
                                               mean = par["mean"], 
                                               sd = par["sd"], 
                                               lower = par["lower"], 
                                               upper = par["upper"])
-    } else {
-        message("    Warning: Truncated normal distribution could not be fitted!")
     }
+    message("* fitting truncated normal distribution ... ", res)
     
     ## chisqnc
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.chisqnc.par(p = p, q = q, 
                             show.output = show.output, 
                             plot = FALSE, 
                             tol = tolConv, 
                             fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Non-central chi-square distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$chisqnc[1:2] <- par
         res.mat$chisqnc[-c(1:4)] <- stats::qchisq(p = Perc, 
                                                   df = par["df"], 
                                                   ncp = par["ncp"])
-    } else {
-        message("    Warning: Non-central chi-square distribution could not be fitted!")
-    }
+    } 
+    message("* fitting non-central chi-square distribution ... ", res)
     
     ## pert
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.pert.par(p = p, q = q, 
                          show.output = show.output, 
                          plot = FALSE, 
                          tol = tolConv, 
                          fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Pert distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$pert[1:4] <- par
         res.mat$pert[-c(1:4)] <- mc2d::qpert(p = Perc, 
                                              min = par["min"], 
                                              mode = par["mode"], 
                                              max = par["max"], 
                                              shape = par["shape"])
-    } else {
-        message("    Warning: Pert distribution could not be fitted!")
     }
+    message("* fitting PERT distribution ... ", res)
     
     ## triang
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.triang.par(p = p, q = q, 
                            show.output = show.output, 
                            plot = FALSE, 
                            tol = tolConv, 
                            fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Triangular distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$triang[1:3] <- par
         res.mat$triang[-c(1:4)] <- mc2d::qtriang(p = Perc, 
                                                  min = par["min"], 
                                                  mode = par["mode"], 
                                                  max = par["max"])
-    } else {
-        message("    Warning: Triangular distribution could not be fitted!")
     }
+    message("* fitting triangular distribution ... ", res)
     
     ## gompertz
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.gompertz.par(p = p, q = q, 
                              show.output = show.output, 
                              plot = FALSE, 
                              tol = tolConv, 
                              fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Gompertz distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$gompertz[1:2] <- par
         res.mat$gompertz[-c(1:4)] <- eha::qgompertz(p = Perc, 
                                                     shape = par["shape"], 
                                                     scale = par["scale"])
-    } else {
-        message("    Warning: Gompertz distribution could not be fitted!")
     }
+    message("* fitting Gompertz distribution ... ", res)
     
     ## normal
     par <- NA
     try({
-        par <- suppressWarnings({
-            get.norm.par(p = p, q = q, 
-                         show.output = show.output, 
-                         plot = FALSE, 
-                         tol = tolConv, 
-                         fit.weights = fit.weights)
-        })
+        par <- suppressMessages(suppressWarnings({
+                get.norm.par(p = p, q = q, 
+                             show.output = show.output, 
+                             plot = FALSE, 
+                             tol = tolConv, 
+                             fit.weights = fit.weights)
+            }))
     })
-    if (!any(is.na(par))) {
-        message("Normal distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$norm[1:2] <- par
         res.mat$norm[-c(1:4)] <- stats::qnorm(p = Perc, 
                                               mean = par["mean"], 
                                               sd = par["sd"])
-    } else {
-        message("    Warning: Normal distribution could not be fitted!")
     }
+    message("* fitting normal distribution ... ", res)
     
     ## beta
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.beta.par(p = p, q = q, 
                          show.output = show.output, 
                          plot = FALSE, 
                          tol = tolConv, 
                          fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Beta distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$beta[1:2] <- par
         res.mat$beta[-c(1:4)] <- stats::qbeta(p = Perc, 
                                               shape1 = par["shape1"], 
                                               shape2 = par["shape2"])
-    } else {
-        message("    Warning: Beta distribution could not be fitted!")
     }
+    message("* fitting beta distribution ... ", res)
     
     ## cauchy
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.cauchy.par(p = p, q = q, 
                            show.output = show.output, 
                            plot = FALSE, 
                            tol = tolConv, 
                            fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Cauchy distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$cauchy[1:2] <- par
         res.mat$cauchy[-c(1:4)] <- stats::qcauchy(p = Perc, 
                                                   location = par["location"], 
                                                   scale = par["scale"])
-    } else {
-        message("    Warning: Cauchy distribution could not be fitted!")
     }
+    message("* fitting Cauchy distribution ... ", res)
     
     ## chisq
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.chisq.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Chi-square distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$chisq[1] <- par
         res.mat$chisq[-c(1:4)] <- stats::qchisq(p = Perc, 
                                                 df = par["df"])
-    } else {
-        message("    Warning: Chi-square distribution could not be fitted!")
     }
+    message("* fitting chi-square distribution ... ", res)
     
     ## logis
     par <- NA
     try({
-        par <- suppressWarnings({get.logis.par(p = p, q = q, 
+        par <- suppressMessages(suppressWarnings({
+            get.logis.par(p = p, q = q, 
                                                show.output = show.output, 
                                                plot = FALSE, 
                                                tol = tolConv, 
                                                fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Logistic distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$logis[1:2] <- par
         res.mat$logis[-c(1:4)] <- stats::qlogis(p = Perc, 
                                                 location = par["location"], 
                                                 scale = par["scale"])
-    } else {
-        message("    Warning: Logistic distribution could not be fitted!")
     }
+    message("* fitting logistic distribution ... ", res)
     
     ## t
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.t.par(p = p, q = q, 
                       show.output = show.output, 
                       plot = FALSE, 
                       tol = tolConv, 
                       fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Student's t distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$t[1] <- par
         res.mat$t[-c(1:4)] <- stats::qt(p = Perc, 
                                         df = par["df"])
-    } else {
-        message("    Warning: Student's t distribution could not be fitted!")
     }
+    message("* fitting Student's t-distribution ... ", res)
     
     ## exp
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.exp.par(p = p, q = q, 
                         show.output = show.output, 
                         plot = FALSE, 
                         tol = tolConv, 
                         fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Exponential distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$exp[1] <- par
         res.mat$exp[-c(1:4)] <- stats::qexp(p = Perc, 
                                             rate = par["rate"])
-    } else {
-        message("    Warning: Exponential distribution could not be fitted!")
     }
+    message("* fitting exponential distribution ... ", res)
     
     ## F
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.f.par(p = p, q = q, 
                       show.output = show.output, 
                       plot = FALSE, 
                       tol = tolConv, 
                       fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("F distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$f[1:2] <- par
         res.mat$f[-c(1:4)] <- stats::qf(p = Perc, 
                                         df1 = par["df1"], 
                                         df2 = par["df2"])
-    } else {
-        message("    Warning: F distribution could not be fitted!")
     }
+    message("* fitting F-distribution ... ", res)
     
     ## gamma
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.gamma.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Gamma distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$gamma[1:2] <- par
         res.mat$gamma[-c(1:4)] <- stats::qgamma(p = Perc, 
                                                 shape = par["shape"], 
                                                 rate = par["rate"])
-    } else {
-        message("    Warning: Gamma distribution could not be fitted!")
     }
+    message("* fitting gamma distribution ... ", res)
     
     ## Weibull
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.weibull.par(p = p, q = q, 
                             show.output = show.output, 
                             plot = FALSE, 
                             tol = tolConv, 
                             fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Weibull distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$weibull[1:2] <- par
         res.mat$weibull[-c(1:4)] <- stats::qweibull(p = Perc, 
                                                     shape = par["shape"], 
                                                     scale = par["scale"])
-    } else {
-        message("    Warning: Weibull distribution could not be fitted!")
     }
+    message("* fitting Weibull distribution ... ", res)
     
     ## lognormal
     par <- NA
     try({
-        par <- suppressWarnings({
+        par <- suppressMessages(suppressWarnings({
             get.lnorm.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        })
+        }))
     })
-    if (!any(is.na(par))) {
-        message("Lognormal distribution has been fitted successfully!")
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$lnorm[1:2] <- par
         res.mat$lnorm[-c(1:4)] <- stats::qlnorm(p = Perc, 
                                                 meanlog = par["meanlog"], 
                                                 sdlog = par["sdlog"])
-    } else {
-        message("    Warning: Lognormal distribution could not be fitted!")
     }
+    message("* fitting lognormal distribution ... ", res)
     
     ## uniform
     par <- NA
-    try(par <- suppressWarnings(get.unif.par(p = p, q = q, plot = FALSE)))
-    if (!any(is.na(par))) {
-        message("Uniform distribution has been fitted successfully!")
+    try(
+        par <- suppressMessages(suppressWarnings({
+            get.unif.par(p = p, q = q, plot = FALSE)
+        }))
+    )
+    res <- ifelse(any(is.na(par)), "failed", "OK")
+    if (res == "OK") {
         res.mat$unif[1:2] <- par
         res.mat$unif[-c(1:4)] <- qunif(p = Perc, 
                                        min = par["min"], 
                                        max = par["max"])
-    } else {
-        message("    Warning: Uniform distribution could not be fitted!")
     }
+    message("* fitting uniform distribution ... ", res)
     
-    message("\n...End fitting distributions")
-    message("-----------------------------------------------------------------------\n")
+    message("End fitting distributions -----------------------------------------\n")
     
     if (all(is.na(res.mat[1:4, -1]))) {
         if (is.element("package:rrisk", search())) { # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
@@ -1675,6 +1662,7 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
+#' 
 get.beta.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
                          tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -1729,28 +1717,56 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(0.1, 0.1), minimize, method = "L-BFGS-B", lower = 0.001, upper = 10000), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(0.1, 0.1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = 0.001, upper = 10000), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking the output
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(minimize, method = "CG"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'CG' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(minimize, 
+                                method = "CG"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'CG' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'CG' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'CG' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("shape1", "shape2")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("shape1", "shape2")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(minimize, method = "CG"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'CG' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'CG' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("shape1", "shape2")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("shape1", "shape2")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # creating graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -1759,12 +1775,21 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
         main2 <- paste("shape2 = ", round(Par["shape2"], digits = 2))
         main <- paste("Beta (", main1, ", ", main2, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(stats::qbeta(p = min(p) * scaleX[1], shape1 = Par["shape1"], shape2 = Par["shape2"]),
-                         stats::qbeta(p = (max(p) + (1 - max(p)) * scaleX[2]), shape1 = Par["shape1"], shape2 = Par["shape2"]))
+        Support.lim <- c(stats::qbeta(p = min(p) * scaleX[1], 
+                                      shape1 = Par["shape1"], 
+                                      shape2 = Par["shape2"]),
+                         stats::qbeta(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                                      shape1 = Par["shape1"], 
+                                      shape2 = Par["shape2"]))
         #Support <- seq(Support.lim[1], Support.lim[2], length = 200)
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pbeta(Support, Par["shape1"], Par["shape2"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, 
+                       type = "l", xlim = range(Support.lim, q), 
+                       main = main, xlab = "Quantiles", 
+                       sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
     #-----------------------------------------------------------------------------
@@ -1874,6 +1899,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100), scaleX = c(0.5, 0.5))
+#' 
 get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q, 
                            show.output = TRUE, plot = TRUE, 
                            tol = 0.001, fit.weights = rep(1, length(p)), 
@@ -1924,29 +1950,58 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B", lower = c(-10000, 0.001), upper = c(10000, 10000)), silent = TRUE)
-    
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(-10000, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)   # CRAN complaining that start is not defined!
-        if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 1),  # formerly 'par = start' which was not defined!
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("location", "scale")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("location", "scale")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") || fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)   
+#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("location", "scale")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("location", "scale")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2123,28 +2178,57 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
     # using the approximation of the chisq median
     start <- ((3 * m^3 + 6 * m^2 + 2 * m)/81 + 2 * m * sqrt(2 * m + 3)/(81 * sqrt(3)))^(1 / 3) + (3 * m^2 + 4 * m)/(27 * ((3 * m^3 + 6 * m^2 + 2 * m)/81 + 2 * m * sqrt(2 * m + 3)/(81 * sqrt(3)))^(1/3)) + (3 * m + 2)/9
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = start, minimize, method = "L-BFGS-B", lower = 0.001, upper = 10000), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = start, 
+                            minimize, method = "L-BFGS-B", 
+                            lower = 0.001, upper = 10000), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = start,
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("df")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("df")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") || fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("df")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("df")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2314,33 +2398,67 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pchisq(q = q, df = theta[1], ncp = theta[2]) - p)
+        summand <- suppressWarnings(stats::pchisq(q = q, 
+                                                  df = theta[1], 
+                                                  ncp = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B", lower = c(0.001, 0.00001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.00001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 1),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        }  else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("df", "ncp")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("df", "ncp")
         if (show.output) print(fit) 
     }
+    
+#     if (is.error(try1) || fit$value >= tol) {
+#         warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
+#         fit <- c(); fit$value <- tol + 1
+#         try2 <- try(fit <- stats::optim(par = c(1, 1), 
+#                                         minimize, method = "BFGS"), 
+#                     silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         }  else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("df", "ncp")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("df", "ncp")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2523,29 +2641,58 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
     }
     fit <- c(); fit$value <- tol + 1
     Start <- 1/mean(q)
-    try.result <- try(fit <- stats::optim(par = Start, minimize, method = "L-BFGS-B", lower = 0.001, upper = 10000), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = Start, 
+                            minimize, method = "L-BFGS-B", 
+                            lower = 0.001, upper = 10000), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = Start, minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = Start,
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("rate")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("rate")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = Start, minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("rate")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("rate")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2553,11 +2700,18 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
         main1 <- paste("rate = ", round(Par["rate"], digits = 2))
         main <- paste("Exponential (", main1, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(stats::qexp(p = min(p) * scaleX[1], rate = Par["rate"]),
-                         stats::qexp(p = (max(p) + (1 - max(p)) * scaleX[2]), rate = Par["rate"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support.lim <- c(stats::qexp(p = min(p) * scaleX[1], 
+                                     rate = Par["rate"]),
+                         stats::qexp(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                                     rate = Par["rate"]))
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pexp(Support, Par["rate"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, type = "l", 
+                       xlim = range(Support.lim, q), 
+                       main = main, xlab = "Quantiles", 
+                       sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
     #-----------------------------------------------------------------------------
@@ -2720,29 +2874,58 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B", lower = c(0.001, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.001), upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 1),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("df1", "df2")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("df1", "df2")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") || fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("df1", "df2")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("df1", "df2")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2751,11 +2934,20 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
         main2 <- paste("df2 = ", round(Par["df2"], digits = 2))
         main <- paste("F (", main1, ", ", main2, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(stats::qf(p = min(p) * scaleX[1], df1 = Par["df1"], df2 = Par["df2"]),
-                         stats::qf(p = (max(p) + (1 - max(p)) * scaleX[2]), df1 = Par["df1"], df2 = Par["df2"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support.lim <- c(stats::qf(p = min(p) * scaleX[1], 
+                                   df1 = Par["df1"], 
+                                   df2 = Par["df2"]),
+                         stats::qf(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                                   df1 = Par["df1"], 
+                                   df2 = Par["df2"]))
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pf(Support, Par["df1"], Par["df2"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, type = "l", 
+                       xlim = range(Support.lim, q), 
+                       main = main, xlab = "Quantiles", 
+                       sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
     #-----------------------------------------------------------------------------
@@ -2920,29 +3112,59 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B", lower = c(0.001, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 1),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("shape", "rate")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("shape", "rate")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("shape", "rate")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("shape", "rate")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3131,31 +3353,58 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "L-BFGS-B",
-                                          lower = c(0.001, 0.001), upper = c(10000, 10000)), 
-                      silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 1), 
+                            minimize, method = "L-BFGS-B",
+                            lower = c(0.001, 0.001), upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 1),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("shape", "scale")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("shape", "scale")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") || fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("shape", "scale")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("shape", "scale")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3321,29 +3570,59 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(9, 6,7), minimize, method = "L-BFGS-B", lower = c(0.001, 0.001, 0.001), upper = c(10000, 10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(9, 6, 7), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.001, 0.001), 
+                            upper = c(10000, 10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(9, 6,7), minimize, method = "SANN"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'SANN' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(9, 6, 7),
+                                minimize, 
+                                method = "SANN"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'SANN' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'SANN' was successful ! \n") 
+            message("The fitting procedure 'SANN' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("m", "n", "k")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("m", "n", "k")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(9, 6,7), minimize, method = "SANN"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'SANN' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'SANN' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("m", "n", "k")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("m", "n", "k")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3537,29 +3816,59 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 0.35), minimize, method = "L-BFGS-B", lower = c(-10000, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 0.35), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(-10000, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 3), minimize, method = "Nelder-Mead"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 3),
+                                minimize, 
+                                method = "Nelder-Mead"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'Nelder-Mead' was successful ! \n") 
+            message("The fitting procedure 'Nelder-Mead' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("meanlog", "sdlog")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("meanlog", "sdlog")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 3), minimize, method = "Nelder-Mead"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'Nelder-Mead' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("meanlog", "sdlog")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("meanlog", "sdlog")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3574,7 +3883,9 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
                          stats::qlnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                        meanlog = Par["meanlog"], 
                                        sdlog = Par["sdlog"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::plnorm(Support, Par["meanlog"], Par["sdlog"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
@@ -3731,28 +4042,58 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
     suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
     suppressWarnings(s <- stats::sd(q)/pi * sqrt(2))
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "L-BFGS-B", lower = c(-10000, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(m, s), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(-10000, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") || fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(m, s),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("location", "scale")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("location", "scale")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") || fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("location", "scale")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("location", "scale")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3937,29 +4278,59 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit <- c(); fit$value <- tol + 1
     sizeStart <- mean(q)^2/(stats::sd(q)^2 - mean(q))
     probStart<-(stats::sd(q)^2 - mean(q))/stats::sd(q)^2
-    try.result <- try(fit <- stats::optim(par = c(sizeStart, probStart), minimize, method = "L-BFGS-B", lower = c(0.001, 0.001), upper = c(10000, 0.999)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(sizeStart, probStart), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.001), 
+                            upper = c(10000, 0.999)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(sizeStart, probStart), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(sizeStart, probStart),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("size", "prob")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("size", "prob")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(sizeStart, probStart), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("size", "prob")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("size", "prob")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -4142,34 +4513,64 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "L-BFGS-B", lower = c(-10000, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(m, s), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(-10000, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) {
-            cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n")
-        }
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-            if (show.output) {
-                cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n")
-            }
+        try2 <- try(
+            fit <- stats::optim(par = c(m, s),
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("mean", "sd")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("mean", "sd")
         if (show.output) print(fit) 
     }
-    #-----------------------------------------------------------------------------
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) {
+#             cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n")
+#         }
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
+#             if (show.output) {
+#                 cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n")
+#             }
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("mean", "sd")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("mean", "sd")
+#         if (show.output) print(fit) 
+#     }
+#     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
     if (prod(!is.na(Par)) & plot) {
@@ -4523,38 +4924,71 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(mc2d::ppert(q = q, min = theta[1], mode = theta[2], max = theta[3], shape = theta[4]) - p)
+        summand <- suppressWarnings(mc2d::ppert(q = q, 
+                                                min = theta[1], 
+                                                mode = theta[2], 
+                                                max = theta[3], 
+                                                shape = theta[4]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 5, 10, 4), minimize, method = "L-BFGS-B",
-                                          lower = c(-10000, -10000, -10000, 0.001), upper = c(10000, 10000, 10000, 1000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 5, 10, 4), 
+                            minimize, method = "L-BFGS-B",
+                            lower = c(-10000, -10000, -10000, 0.001), 
+                            upper = c(10000, 10000, 10000, 1000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 5, 10, 4), 
-                                              minimize, 
-                                              method = "BFGS"), 
-                          silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 5, 10, 4), 
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        }  else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("min", "mode", "max", "shape")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("min", "mode", "max", "shape")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 5, 10, 4), 
+#                                               minimize, 
+#                                               method = "BFGS"), 
+#                           silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         }  else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("min", "mode", "max", "shape")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("min", "mode", "max", "shape")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -4741,15 +5175,20 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = 1, minimize, method = "L-BFGS-B", lower = 0.001, upper = 10000), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = 1, 
+                            minimize, method = "L-BFGS-B", 
+                            lower = 0.001, upper = 10000), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         Par <- NA
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- as.integer(fit$par)
         names(Par) <- c("lambda")
         if (show.output) print(fit) 
@@ -4928,29 +5367,58 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = 1, minimize, method = "L-BFGS-B", lower = 0.001, upper = 10000), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = 1, 
+                            minimize, method = "L-BFGS-B", 
+                            lower = 0.001, upper = 10000), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = 1, 
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        }  else if (fit$value < tol) {  
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("df")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("df")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         }  else if (fit$value < tol) {  
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("df")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("df")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5340,30 +5808,59 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(1, 5,10), minimize, method = "L-BFGS-B",
-                                          lower = c(-10000,-10000,-10000), upper = c(10000, 10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(1, 5, 10), 
+                            minimize, method = "L-BFGS-B",
+                            lower = c(-10000,-10000,-10000), 
+                            upper = c(10000, 10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = c(1, 5,10), minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(1, 5, 10), 
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
         } else if (fit$value < tol) {
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("min", "mode", "max")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("min", "mode", "max")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = c(1, 5,10), minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         } else if (fit$value < tol) {
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("min", "mode", "max")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("min", "mode", "max")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5481,7 +5978,7 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
     # defining parameters
     #-----------------------------------------------------------------------------
     weight1 <- p[1]/(p[2] - p[1])
-    weight2<-(1 - p[2])/(p[2] - p[1])
+    weight2 <- (1 - p[2])/(p[2] - p[1])
     a <- q[1] - weight1 * (q[2] - q[1])
     b <- q[2] + weight2 * (q[2] - q[1])
     Par <- c(min = a, max = b)
@@ -5667,34 +6164,66 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pweibull(q = q, shape = theta[1], scale = theta[2]) - p)
+        summand <- suppressWarnings(stats::pweibull(q = q, 
+                                                    shape = theta[1], 
+                                                    scale = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
     fit <- c(); fit$value <- tol + 1
-    try.result <- try(fit <- stats::optim(par = c(0, 1), minimize, method = "L-BFGS-B", lower = c(0.001, 0.001), upper = c(10000, 10000)), silent = TRUE)
+    try1 <- try(
+        fit <- stats::optim(par = c(0, 1), 
+                            minimize, method = "L-BFGS-B", 
+                            lower = c(0.001, 0.001), 
+                            upper = c(10000, 10000)), 
+        silent = TRUE
+    )
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
-    if (inherits(try.result, "try-error") | fit$value >= tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+    if (is.error(try1) || fit$value >= tol) {
+        warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
         fit <- c(); fit$value <- tol + 1
-        try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
-        if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-            if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+        try2 <- try(
+            fit <- stats::optim(par = c(0, 1),       #1, 
+                                minimize, 
+                                method = "BFGS"), 
+            silent = TRUE)
+        if (is.error(try2) || fit$value >= tol) { 
+            warning("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE) 
             Par <- NA
-        }  else if (fit$value < tol) {  
-            if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+        } else if (fit$value < tol) {
+            message("The fitting procedure 'BFGS' was successful!\n(Used this fallback optimization method because 'L-BFGS-B' has failed...)") 
             Par <- fit$par
             names(Par) <- c("shape", "scale")
             if (show.output) print(fit) 
         }
     } else if (fit$value < tol) {
-        if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+        message("The fitting procedure 'L-BFGS-B' was successful!") 
         Par <- fit$par
         names(Par) <- c("shape", "scale")
         if (show.output) print(fit) 
     }
+    
+#     if (inherits(try.result, "try-error") | fit$value >= tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
+#         fit <- c(); fit$value <- tol + 1
+#         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
+#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
+#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
+#             Par <- NA
+#         }  else if (fit$value < tol) {  
+#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
+#             Par <- fit$par
+#             names(Par) <- c("shape", "scale")
+#             if (show.output) print(fit) 
+#         }
+#     } else if (fit$value < tol) {
+#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
+#         Par <- fit$par
+#         names(Par) <- c("shape", "scale")
+#         if (show.output) print(fit) 
+#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
