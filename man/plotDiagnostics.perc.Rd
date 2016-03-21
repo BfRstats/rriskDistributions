@@ -27,9 +27,10 @@ This function plots distribution whose percentiles go through the given percenti
 p <- c(0.025, 0.5, 0.975)
 q <- c(9.68, 29.20, 50.98)
 fit.results1 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE, tolConv = 0.5)
-graphics::par(mfrow = c(1, 2))
+old.par <- graphics::par(mfrow = c(1, 2))
 plotDiagnostics.perc(fit.results1)
 plotDiagnostics.perc(fit.results1, tolPlot = 5)
+graphics::par(old.par)
 
 p <- c(0.2, 0.7)
 q <- c(2.6, 19.1)

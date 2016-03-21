@@ -475,11 +475,9 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
     #-----------------------------------------------------------------------------
     # create GUI window and frames
     #-----------------------------------------------------------------------------
-    fitpercWindow <- tcltk::tktoplevel(width = 8600, height = 580)  #(width = 860, height = 580)
+    fitpercWindow <- tcltk::tktoplevel(width = 860, height = 580)
     tcltk::tkwm.title(fitpercWindow, "Fitting continuous distributions to given percentiles")
-    tcltk::tkwm.resizable(fitpercWindow, TRUE, TRUE)  # fixed size, not resizeable
-    tcltk::tkwm.maxsize(fitpercWindow, 1000, 800)
-    tcltk::tkwm.minsize(fitpercWindow, 1000, 800)
+    tcltk::tkwm.resizable(fitpercWindow, FALSE, FALSE)  # fixed size, not resizeable
     #tcltk::tkwm.maxsize(fitpercWindow, 880, 580)
     #tcltk::tkwm.minsize(fitpercWindow, 880, 580)
     allFrame <- tcltk::tkframe(fitpercWindow)
@@ -631,15 +629,17 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
         }
         # changed by LG: cf. comment in method plotDiagnostics.perc() where the message is produced:
         withCallingHandlers(
-            tkrplot::tkrreplot(imgPlot,
-                               fun = function() plotDiagnostics.perc(fit.results, tolPlot = tolPlot),
-                               hscale = 1.4, vscale = 1.2),
+            tkrplot::tkrreplot(
+                imgPlot,
+                fun = function() plotDiagnostics.perc(fit.results, tolPlot = tolPlot),
+                hscale = 1.4, vscale = 1.2),
             message = function(m) tcltk::tkmessageBox(message = m$message, icon = "error")
         )
         tcltk::tkconfigure(fitResultTable, variable = tclarray, rows = tableRows)
     } else {
-        tcltk::tkmessageBox(message = "Sorry, no pdfs found that match with the specified percentiles!", 
-                            icon = "error")
+        tcltk::tkmessageBox(
+            message = "Sorry, no pdfs found that match with the specified percentiles!", 
+            icon = "error")
         tcltk::tkfocus(pEntry)
     }
     
@@ -725,9 +725,10 @@ fit.perc <- function(p = c(0.025, 0.5, 0.975),
 #' p <- c(0.025, 0.5, 0.975)
 #' q <- c(9.68, 29.20, 50.98)
 #' fit.results1 <- rriskFitdist.perc(p = p, q = q, show.output = FALSE, tolConv = 0.5)
-#' graphics::par(mfrow = c(1, 2))
+#' old.par <- graphics::par(mfrow = c(1, 2))
 #' plotDiagnostics.perc(fit.results1)
 #' plotDiagnostics.perc(fit.results1, tolPlot = 5)
+#' graphics::par(old.par)
 #'
 #' p <- c(0.2, 0.7)
 #' q <- c(2.6, 19.1)
@@ -1630,38 +1631,42 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
 #' @export
 #' @examples
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 2, shape2 = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
 #' get.beta.par(q = q, scaleX = c(0.001, 0.999))
 #' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
 #' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 1, shape2 = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
 #' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
 #' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qbeta(p = c(0.025, 0.5, 0.975), shape1 = 0.3, shape2 = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.beta.par(q = q)
 #' get.beta.par(q = q, fit.weights = c(10, 1, 10))
 #' get.beta.par(q = q, fit.weights = c(1, 10, 1))
 #' get.beta.par(q = q, fit.weights = c(100, 1, 100))
 #' get.beta.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qbeta(p = c(0.025, 0.975), shape1 = 2, shape2 = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.beta.par(p = c(0.025, 0.975), q = q)
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.beta.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
+#' graphics::par(old.par)
 #' 
 get.beta.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
@@ -1867,38 +1872,42 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 0, scale = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q)
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 3, scale = 5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qcauchy(p = c(0.025, 0.5, 0.975), location = 0.1, scale = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qcauchy(p = c(0.025, 0.975), location = 0.1, scale = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10), scaleX = c(0.5, 0.5))
 #' get.cauchy.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #' 
 get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q, 
                            show.output = TRUE, plot = TRUE, 
@@ -2090,35 +2099,39 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q, scaleX = c(0.1, 0.1))
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights = c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 20)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisq.par(q = q)
 #' get.chisq.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisq.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisq.par(q = q, fit.weights =c(1, 10, 1))
 #' get.chisq.par(q = q, fit.weights =c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only one quantile
 #' q <- stats::qchisq(p = c(0.025), df = 20)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.chisq.par(p = c(0.025), q = q)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.chisq.par(p = c(0.025), q = q, fit.weights = 100)
+#' graphics::par(old.par)
 #'
 get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -2316,38 +2329,42 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 2, ncp = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, scaleX = c(0.1, 0.9999999))
 #' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 0.1, ncp = 0.4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qchisq(p = c(0.025, 0.5, 0.975), df = 1, ncp = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(q = q)
 #' get.chisqnc.par(q = q, fit.weights = c(100, 1, 100))
 #' get.chisqnc.par(q = q, fit.weights = c(10, 1, 10))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 100, 1))
 #' get.chisqnc.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantile
 #' q <- stats::qchisq(p = c(0.025, 0.95), df = 20, ncp = 20)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q)
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+#' graphics::par(old.par)
 #'
 get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
                             show.output = TRUE, plot = TRUE, 
@@ -2548,43 +2565,48 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 2)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
 #' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
 #' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 0.001)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
 #' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, tol = 0.2, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qexp(p = c(0.025, 0.5, 0.975), rate = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.exp.par(q = q)
 #' get.exp.par(q = q, fit.weights = c(100, 1, 100))
 #' get.exp.par(q = q, fit.weights = c(10, 1, 10))
 #' get.exp.par(q = q, fit.weights = c(1, 100, 1))
 #' get.exp.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only one quantile
 #' q <- stats::qexp(p = c(0.025), rate = 2)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.exp.par(p = c(0.025), q = q)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.exp.par(p = c(0.025), q = q, fit.weights = 100)
+#' graphics::par(old.par)
 #'
 get.exp.par <- function(p = c(0.025, 0.50,.975), q,
                         show.output = TRUE, plot = TRUE, 
@@ -2790,35 +2812,39 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' @export
 #' @examples
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 2, df2 = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.5))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.5))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 0.2, df2 = 0.3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.999))
 #' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.9999))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.9999))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qf(p = c(0.025, 0.5, 0.975), df1 = 1, df2 = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.f.par(q = q, scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.2))
 #' get.f.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.2))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qf(p = c(0.025, 0.975), df1 = 2, df2 = 3)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.f.par(p = c(0.025, 0.975), q = q)
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.f.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
+#' graphics::par(old.par)
 #'
 get.f.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE,
@@ -3025,38 +3051,42 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 10, rate = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, scaleX = c(0.00001, 0.9999))
 #' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 0.1, rate = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qgamma(p = c(0.025, 0.5, 0.975), shape = 1, rate = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(q = q)
 #' get.gamma.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gamma.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gamma.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gamma.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qgamma(p = c(0.025, 0.975), shape = 10, rate = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gamma.par(p = c(0.025, 0.975), q = q)
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gamma.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+#' graphics::par(old.par)
 #'
 get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3265,37 +3295,41 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 2, scale = 5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 0.2, scale = 0.5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- eha::qgompertz(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(q = q)
 #' get.gompertz.par(q = q, fit.weights = c(100, 1, 100))
 #' get.gompertz.par(q = q, fit.weights = c(10, 1, 10))
 #' get.gompertz.par(q = q, fit.weights = c(1, 100, 1))
 #' get.gompertz.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- eha::qgompertz(p = c(0.025, 0.975), shape = 2, scale = 5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q)
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.0001, 0.9999))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.gompertz.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+#' graphics::par(old.par)
 #'
 get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
                              show.output = TRUE, plot = TRUE, 
@@ -3500,21 +3534,23 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 5, n = 3, k = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
 #' get.hyper.par(q = q, tol = 1)
 #' get.hyper.par(q = q, fit.weights = c(100, 1, 100))
 #' get.hyper.par(q = q, fit.weights = c(10, 1, 10))
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qhyper(p = c(0.025, 0.5, 0.975), m = 10, n = 5, k = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.hyper.par(q = q)
 #' get.hyper.par(q = q, fit.weights = c(100, 1, 100))
 #' get.hyper.par(q = q, fit.weights = c(10, 1, 10))
 #' get.hyper.par(q = q, fit.weights = c(1, 100, 1))
 #' get.hyper.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3722,45 +3758,50 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 4, sdlog = 0.8)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog=-4, sdlog = 0.8)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 1, sdlog = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.000001, 0.99999999))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qlnorm(p = c(0.025, 0.5, 0.975), meanlog = 0.1, sdlog = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(q = q)
 #' get.lnorm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.lnorm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.lnorm.par(q = q, fit.weights = c(1, 100, 1))
 #' get.lnorm.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qlnorm(p = c(0.025, 0.975), meanlog = 4, sdlog = 0.8)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q)
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1), scaleX = c(0.1, 0.001))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100), scaleX = c(0.1, 0.001))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.lnorm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+#' graphics::par(old.par)
 #'
 get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -3966,28 +4007,31 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qlogis(p = c(0.025, 0.5, 0.975), location = 0, scale = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.logis.par(q = q)
 #' get.logis.par(q = q, scaleX = c(0.5, 0.5))
 #' get.logis.par(q = q, fit.weights = c(100, 1, 100))
 #' get.logis.par(q = q, fit.weights = c(10, 1, 10))
 #' get.logis.par(q = q, fit.weights = c(1, 100, 1))
 #' get.logis.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qlogis(p = c(0.025, 0.5, 0.975), location = 0, scale = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.logis.par(q = q)
 #' get.logis.par(q = q, fit.weights = c(100, 1, 100))
 #' get.logis.par(q = q, fit.weights = c(10, 1, 10))
 #' get.logis.par(q = q, fit.weights = c(1, 100, 1))
 #' get.logis.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qlogis(p = c(0.025, 0.975), location = 0, scale = 3)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.logis.par(p = c(0.025, 0.975), q = q)
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
+#' graphics::par(old.par)
 #'
 get.logis.par <- function(p = c(0.025, 0.5, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -4189,38 +4233,41 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 10, prob = 0.5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
 #' get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q, tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1), tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
+#' graphics::par(old.par)
 #'
 #' q <- stats::qnbinom(p = c(0.025, 0.5, 0.975), size = 1, prob = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(q = q)
 #' get.nbinom.par(q = q, fit.weights = c(100, 1, 100))
 #' get.nbinom.par(q = q, fit.weights = c(1, 100, 1))
 #' get.nbinom.par(q = q, fit.weights = c(10, 1, 10))
 #' get.nbinom.par(q = q, fit.weights = c(1, 10, 1))
-#'
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qnbinom(p = c(0.025, 0.975), size = 10, prob = 0.5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q,)
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.nbinom.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
+#' graphics::par(old.par)
 #'
 get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
                            show.output = TRUE, plot = TRUE, 
@@ -4427,38 +4474,42 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 12, sd = 34)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, scaleX = c(0.00001, 0.99999))
 #' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0.1, sd = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.par(q = q)
 #' get.norm.par(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.par(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.par(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.par(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qnorm(p = c(0.025, 0.975), mean = 12, sd = 34)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.par(p = c(0.025, 0.975), q = q)
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 #' get.norm.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 100))
+#' graphics::par(old.par)
 #'
 get.norm.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
@@ -4645,44 +4696,47 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0, sd = 2)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, scaleX = c(0.0001, 0.9999))
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 176, sd = 15)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
+#' graphics::par(old.par)
 #'
 #' ## The estimation model is not suitable for the following quantiles.
 #' ## Because the quantile is unsymmetrical, which could not be from a normally distributed data.
 #' q <- c(-2, 30, 31)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.0001, 0.9999))
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.0001, 0.9999))
-#'
+#' graphics::par(old.par)
 #'
 #' ## Estimating from actually exponentially distributed data
 #' x.exp <- rexp(n = 10, rate = 5)
 #' mean(x.exp)
 #' stats::sd(x.exp)
 #' q <- quantile(x.exp, c(0.025, 0.5, 0.975))
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.norm.sd(q = q)
 #' get.norm.sd(q = q, fit.weights = c(1, 10, 1))
 #' get.norm.sd(q = q, fit.weights = c(10, 1, 10))
 #' get.norm.sd(q = q, fit.weights = c(1, 100, 1))
 #' get.norm.sd(q = q, fit.weights = c(100, 1, 100))
+#' graphics::par(old.par)
 #'
 #' ## other examples
 #' q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 1, sd = 1)
@@ -4847,37 +4901,41 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min = 0, mode = 3, max = 10, shape = 5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min = 1, mode = 5, max = 10, shape = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, scaleX = c(0.0001, 0.999999))
 #' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min=-10, mode = 5, max = 10, shape = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 #' q <- mc2d::qpert(p = c(0.025, 0.5, 0.6, 0.975), min=-10, mode = 5, max = 10, shape = 0.4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pert.par(q = q)
 #' get.pert.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.pert.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.pert.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.pert.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
                          show.output = TRUE, plot = TRUE, 
@@ -5090,36 +5148,40 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100))
 #' get.pois.par(q = q, fit.weights = c(10, 1, 10))
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100))
 #' get.pois.par(q = q, fit.weights = c(10, 1, 10))
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 0.5)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 1)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 1)
 #' get.pois.par(q = q, fit.weights = c(10, 1, 10), tol = 1)
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1), tol = 0.01)
+#' graphics::par(old.par)
 #'
 #' q <- stats::qpois(p = c(0.025, 0.5, 0.975), lambda = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.pois.par(q = q, tol = 0.01)
 #' get.pois.par(q = q, fit.weights = c(100, 1, 100), tol = 0.01)
 #' get.pois.par(q = q, fit.weights = c(10, 1, 10), tol = 0.01)
 #' get.pois.par(q = q, fit.weights = c(1, 100, 1))
 #' get.pois.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 get.pois.par <- function(p = c(0.025, 0.5, 0.975), q, 
                          show.output = TRUE, plot = TRUE, 
@@ -5287,35 +5349,39 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q)
 #' get.t.par(q = q, fit.weights = c(100, 1, 100))
 #' get.t.par(q = q, fit.weights = c(10, 1, 10))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qt(p = c(0.025, 0.5, 0.975), df = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.t.par(q = q, scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.5, 0.5))
 #' get.t.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.5, 0.5))
+#' graphics::par(old.par)
 #'
 #' ## example with only one quantile
 #' q <- stats::qt(p = c(0.025), df = 3)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.t.par(p = c(0.025), q = q)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 10)
 #' get.t.par(p = c(0.025), q = q, fit.weights = 100)
+#' graphics::par(old.par)
 #'
 get.t.par <- function(p = c(0.025, 0.5, 0.975), q, 
                       show.output = TRUE, plot = TRUE, 
@@ -5513,29 +5579,32 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @export
 #' @examples
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 3, lower = 0, upper = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, scaleX = c(0.1, 0.999999))
 #' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 3, sd = 0.1, lower=-1, upper = 4)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 #' q <- msm::qtnorm(p = c(0.025, 0.5, 0.75, 0.975), mean = 0, sd = 1, lower=-2, upper = 2)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.tnorm.par(q = q)
 #' get.tnorm.par(q = q, fit.weights = c(100, 1, 1, 100))
 #' get.tnorm.par(q = q, fit.weights = c(10, 1, 1, 10))
 #' get.tnorm.par(q = q, fit.weights = c(1, 100, 1, 1))
 #' get.tnorm.par(q = q, fit.weights = c(1, 10, 1, 1))
+#' graphics::par(old.par)
 #'
 get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q, 
                           show.output = TRUE, plot = TRUE, 
@@ -5728,31 +5797,34 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' @export
 #' @examples
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 0, mode = 3, max = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, fit.weights = c(100, 1, 100))
 #' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min = 1, mode = 5, max = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, scaleX = c(0.00001, 0.99999))
 #' get.triang.par(q = q, fit.weights = c(100, 1, 100))
 #' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1))
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## bad fit for negative values
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.triang.par(q = q, tol = 0.1)
 #' get.triang.par(q = q)
 #' get.triang.par(q = q, fit.weights = c(100, 1, 100))
 #' get.triang.par(q = q, fit.weights = c(10, 1, 10))
 #' get.triang.par(q = q, fit.weights = c(1, 100, 1), tol = 1)
 #' get.triang.par(q = q, fit.weights = c(1, 10, 1), tol = 1)
+#' graphics::par(old.par)
 #'
 #' ## other examples
 #' q <- mc2d::qtriang(p = c(0.025, 0.5, 0.975), min=-20, mode = 5, max = 10)
@@ -6077,43 +6149,48 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' @export
 #' @examples
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.01, scale = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.03))
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.1, 0.99))
 #' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.1, 0.03))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.1, 0.03))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.1, scale = 0.1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q, scaleX = c(0.1, 0.05))
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100), scaleX = c(0.00000001, 0.99999999999))
 #' get.weibull.par(q = q, fit.weights = c(10, 1, 10), scaleX = c(0.00000001, 0.99999999999))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1), scaleX = c(0.00000001, 0.01))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1), scaleX = c(0.00000001, 0.1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 2, scale = 3)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
 #' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 1, scale = 1)
-#' graphics::par(mfrow = c(2, 3))
+#' old.par <- graphics::par(mfrow = c(2, 3))
 #' get.weibull.par(q = q)
 #' get.weibull.par(q = q, fit.weights = c(100, 1, 100))
 #' get.weibull.par(q = q, fit.weights = c(10, 1, 10))
 #' get.weibull.par(q = q, fit.weights = c(1, 100, 1))
 #' get.weibull.par(q = q, fit.weights = c(1, 10, 1))
+#' graphics::par(old.par)
 #'
 #' ## example with only two quantiles
 #' q <- stats::qweibull(p = c(0.025, 0.975), shape = 2, scale = 1)
-#' graphics::par(mfrow = c(1, 3))
+#' old.par <- graphics::par(mfrow = c(1, 3))
 #' get.weibull.par(p = c(0.025, 0.975), q = q)
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(100, 1))
 #' get.weibull.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
+#' graphics::par(old.par)
 #'
 get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q, 
                             show.output = TRUE, plot = TRUE, 
@@ -6351,117 +6428,118 @@ useFitdist <- function(data2fit, show.output = TRUE,
     #-----------------------------------------------------------------------------
     # fitting procedures
     #-----------------------------------------------------------------------------
-    if (show.output)  cat("\n-------------------------------------------------------------------\n") 
-    if (show.output) cat("Begin fitting distributions... \n") 
+#     if (show.output) cat("\n-------------------------------------------------------------------\n") 
+#     if (show.output) cat("Begin fitting distributions... \n") 
+    if (show.output) message("\nBegin fitting distributions ---------------------------------------")
     
     # fit normal distributions
     if (is.element("norm", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "norm")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Normal distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting normal distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Normal"
             index <- index + 1
-        } else if (show.output) cat("Warning: Normal distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting normal distribution ... failed") 
     }
     
     # fit cauchy distribution
     if (is.element("cauchy", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "cauchy")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Cauchy distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting Cauchy  distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Cauchy"
             index <- index + 1
-        } else if (show.output) cat("Warning: Cauchy distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting Cauchy distribution ... failed") 
     }
     
     # fit logistic distribution
     if (is.element("logis", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "logis")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Logistic distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting logistic distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Logistic"
             index <- index + 1
-        } else if (show.output) cat("Warning: Logistic distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting logistic distribution ... failed") 
     }
     
     # fit beta distribution
     if (is.element("beta", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "beta")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Beta distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting beta distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Beta"
             index <- index + 1
-        } else if (show.output) cat("Warning: Beta distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting beta distribution ... failed") 
     }
     
     # fit exponential distribution
     if (is.element("exp", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "exp")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Exponential distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting exponential distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Exponential"
             index <- index + 1
-        } else if (show.output) cat("Warning: Exponential distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting exponential distribution ... failed") 
     }
     
     # fit exponential distribution
     if (is.element("chisq", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "chisq", start = mean(data2fit))), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Chi-square distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting chi-square distribution ... OK")
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Chi-square"
             index <- index + 1
-        } else if (show.output) cat("Warning: Chi-square distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting chi-square distribution ... failed")
     }
     
     # fit uniform distribution
     if (is.element("unif", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "unif", method = "mme")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Uniform distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting uniform distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Uniform"
             index <- index + 1
-        } else if (show.output) cat("Warning: Uniform distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting uniform distribution ... failed") 
     }
     
     # fit gamma distribution
     if (is.element("gamma", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "gamma")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Gamma distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting gamma distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Gamma"
             index <- index + 1
-        } else if (show.output) cat("Warning: gamma distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting gamma distribution ... failed") 
     }
     
     # fit lognormal distribution
     if (is.element("lnorm", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "lnorm")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Lognormal distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting lognormal distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Lognormal"
             index <- index + 1
-        } else if (show.output) cat("Warning: Lognormal distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting lognormal distribution ... failed") 
     }
     
     # fit weibull distribution
     if (is.element("weibull", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "weibull")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Weibull distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting Weibull distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Weibull"
             index <- index + 1
-        } else if (show.output) cat("Warning: Weibull distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting Weibull distribution ... failed") 
     }
     
     # fit F distribution
@@ -6479,11 +6557,11 @@ useFitdist <- function(data2fit, show.output = TRUE,
         if (n == 0) n <- n + 0.001
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "f", start = c(m, n))), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("F distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting F-distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "F"
             index <- index + 1
-        } else if (show.output) cat("Warning: F distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting F-distribution ... failed") 
     }
     
     # fit t distribution
@@ -6495,36 +6573,37 @@ useFitdist <- function(data2fit, show.output = TRUE,
         }
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "t", start = start.val)), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Student distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting Student's t-distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Student"
             index <- index + 1
-        } else if (show.output) cat("Warning: Student distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting Student's t-distribution ... failed") 
     }
     
     # fit gompertz distribution
     if (is.element("gompertz", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "gompertz")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Gompertz distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting Gompertz distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Gompertz"
             index <- index + 1
-        } else if (show.output) cat("Warning: Gompertz distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting Gompertz distribution ... failed") 
     }
     
     # fit triangular distribution
     if (is.element("triang", distributions)) {
         try.result <- try(temp <- suppressWarnings(rriskFitdist.cont(data2fit, "triang")), silent = TRUE)
         if (!inherits(try.result, "try-error")) {
-            if (show.output) cat("Triangular distribution has been fitted successfully! \n") 
+            if (show.output) message("* fitting triangular distribution ... OK") 
             fit.list[[index]] <- temp
             names(fit.list)[index] <- "Triangular"
             index <- index + 1
-        } else if (show.output) cat("Warning: Triangular distribution couldn't be fitted! \n") 
+        } else if (show.output) message("* fitting triangular distribution ... failed") 
     }
-    if (show.output) cat("End fitting distributions... \n") 
-    if (show.output) cat("------------------------------------------------------------------- \n") 
+#     if (show.output) cat("End fitting distributions... \n") 
+#     if (show.output) cat("------------------------------------------------------------------- \n") 
+    if (show.output) message("End fitting distributions -----------------------------------------\n")
     
     #-----------------------------------------------------------------------------
     # exit, if neither distribution could be fitted
@@ -6561,7 +6640,6 @@ useFitdist <- function(data2fit, show.output = TRUE,
     res.matrix <- apply(res.matrix, c(1, 2), function(x) trim.whitespace(x))
     
     if (show.output) print(as.data.frame(res.matrix)) 
-    if (show.output)  cat("-------------------------------------------------------------------\n") 
     
     #-----------------------------------------------------------------------------
     # create output
@@ -7009,10 +7087,10 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
     names(output) <- c("data2fit", "chosenDistr", "fittedParams")
     
     print.on.exit <- function(chosenD) {
-        cat(paste("Chosen continuous distribution is: ", exitMessage))
+        cat(paste("\nChosen continuous distribution is:", exitMessage))
         cat("\nFitted parameters are: \n")
         print(fittedParams)
-        cat("--------------------------------------------------------------------\n")
+        cat("\n")
     } # end of fucntion print.on.exit()
     
     on.exit(print.on.exit(chosenD))
