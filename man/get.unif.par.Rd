@@ -38,7 +38,7 @@ Parameters of the uniform distribution are estimated exactly.
 The items of the probability vector \code{p} should lie between 0 and 1.
 }
 \note{
-it should be noted that there might be deviations between the estimated
+It should be noted that there might be deviations between the estimated
 and the theoretical distribution parameters in certain circumstances. This is
 because the estimation of the parameters is based on a numerical optimization
 method and depends strongly on the initial values. In addition, one must always

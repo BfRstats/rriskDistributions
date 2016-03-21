@@ -62,7 +62,7 @@ between the given probabilities and the theoretical probabilities of the specifi
 distribution evaluated at the given quantile points (least squares estimation).
 }
 \note{
-it should be noted that there might be deviations between the estimated
+It should be noted that there might be deviations between the estimated
 and the theoretical distribution parameters in certain circumstances. This is
 because it is based on a numerical optimization
 method and depends strongly on the initial values. In addition, one must always

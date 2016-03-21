@@ -66,7 +66,8 @@ distribution evaluated at the given quantile points (least squares estimation).
 Comply with a parametrization of this distribution. The definition of this
 distribution in the literature is not unique.
 \cr \cr
-it should be noted that there might be deviations between the estimated
+
+It should be noted that there might be deviations between the estimated
 and the theoretical distribution parameters in certain circumstances. This is
 because the estimation of the parameters is based on a numerical optimization
 method and depends strongly on the initial values. In addition, one must always
