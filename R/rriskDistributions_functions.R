@@ -1614,7 +1614,7 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a Beta distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -1711,6 +1711,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -1728,6 +1729,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = 0.001, upper = 10000), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking the output
     #-----------------------------------------------------------------------------
@@ -1754,24 +1756,6 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(minimize, method = "CG"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'CG' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'CG' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("shape1", "shape2")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("shape1", "shape2")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # creating graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -1797,6 +1781,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
                        sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -1855,7 +1840,7 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a Cauchy distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -1948,13 +1933,16 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights / sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pcauchy(q = q, location = theta[1], scale = theta[2]) - p)
+        summand <- suppressWarnings(stats::pcauchy(q = q, 
+                                                   location = theta[1], 
+                                                   scale = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -1966,6 +1954,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -1993,24 +1982,6 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") || fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)   
-#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("location", "scale")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("location", "scale")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2019,13 +1990,22 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
         main2 <- paste("scale = ", round(Par["scale"], digits = 2))
         main <- paste("Cauchy (", main1, ", ", main2, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(stats::qcauchy(p = min(p) * scaleX[1], location = Par["location"], scale = Par["scale"]),
-                         stats::qcauchy(p = (max(p) + (1 - max(p)) * scaleX[2]), location = Par["location"], scale = Par["scale"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support.lim <- c(stats::qcauchy(p = min(p) * scaleX[1], 
+                                        location = Par["location"], 
+                                        scale = Par["scale"]),
+                         stats::qcauchy(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                                        location = Par["location"], 
+                                        scale = Par["scale"]))
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pcauchy(Support, Par["location"], Par["scale"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, type = "l", 
+                       xlim = range(Support.lim, q), main = main, 
+                       xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -2082,7 +2062,7 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE})
 #' @return Returns fitted parameters of a chi-square distribution or missing
 #' values (\code{NA}'s), if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -2176,6 +2156,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -2197,6 +2178,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = 0.001, upper = 10000), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -2224,24 +2206,6 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") || fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = start, minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("df")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("df")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2249,12 +2213,18 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
         main1 <- paste("df = ", round(Par["df"], digits = 2))
         main <- paste("Chi-square (", main1, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
-        Support.lim <- c(stats::qchisq(p = min(p) * scaleX[1], df = Par["df"]), stats::qchisq(p = (max(p) + (1 - max(p)) * scaleX[2]), df = Par["df"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support.lim <- c(stats::qchisq(p = min(p) * scaleX[1], df = Par["df"]), 
+                         stats::qchisq(p = (max(p) + (1 - max(p)) * scaleX[2]), df = Par["df"]))
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pchisq(Support, Par["df"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, type = "l", 
+                       xlim = range(Support.lim, q), main = main, 
+                       xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -2312,7 +2282,7 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a non-central chi-square distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -2409,6 +2379,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -2429,6 +2400,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -2456,26 +2428,6 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (is.error(try1) || fit$value >= tol) {
-#         warning("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!", call. = FALSE)
-#         fit <- c(); fit$value <- tol + 1
-#         try2 <- try(fit <- stats::optim(par = c(1, 1), 
-#                                         minimize, method = "BFGS"), 
-#                     silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         }  else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("df", "ncp")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("df", "ncp")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2486,11 +2438,16 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(stats::qchisq(p = min(p) * scaleX[1], df = Par["df"]),
                          stats::qchisq(p = (max(p) + (1 - max(p)) * scaleX[2]), df = Par["df"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pchisq(Support, Par["df"], Par["ncp"])
-        graphics::plot(Support, Probability, type = "l", xlim = range(Support.lim, q), main = main, xlab = "Quantiles", sub = sub, ...)
+        graphics::plot(Support, Probability, type = "l", 
+                       xlim = range(Support.lim, q), main = main, 
+                       xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -2548,7 +2505,7 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of an exponential distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -2651,6 +2608,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizinmg procedure
     #-----------------------------------------------------------------------------
@@ -2669,6 +2627,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
                             lower = 0.001, upper = 10000), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -2696,25 +2655,6 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = Start, minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("rate")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("rate")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2736,6 +2676,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
                        sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -2795,7 +2736,7 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a F distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -2889,6 +2830,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -2906,6 +2848,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = c(0.001, 0.001), upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -2933,25 +2876,6 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") || fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine Ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("df1", "df2")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("df1", "df2")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -2976,6 +2900,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
                        sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -3034,7 +2959,7 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a gamma distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -3131,6 +3056,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -3149,6 +3075,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -3176,25 +3103,6 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("shape", "rate")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("shape", "rate")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3216,6 +3124,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -3277,7 +3186,7 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @note Comply with a parametrization of this distribution. The definition of this
 #' distribution in the literature is not unique.
 #' \cr \cr
-#' it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -3374,6 +3283,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -3393,6 +3303,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = c(0.001, 0.001), upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -3420,25 +3331,6 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") || fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 1), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("shape", "scale")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("shape", "scale")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3460,6 +3352,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -3517,7 +3410,7 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a hypergeometric distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -3595,6 +3488,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -3613,6 +3507,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -3640,25 +3535,6 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(9, 6,7), minimize, method = "SANN"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'SANN' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'SANN' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("m", "n", "k")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("m", "n", "k")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3679,6 +3555,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -3741,7 +3618,7 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @note Comply with a parametrization of this distribution. The definition of this
 #' distribution in the literature is not unique.
 #' \cr \cr
-#' it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -3846,6 +3723,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -3864,6 +3742,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -3891,25 +3770,6 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 3), minimize, method = "Nelder-Mead"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'Nelder-Mead' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'Nelder-Mead' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("meanlog", "sdlog")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("meanlog", "sdlog")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -3933,6 +3793,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -3990,7 +3851,7 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a logistic distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -4072,13 +3933,16 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::plogis(q = q, location = theta[1], scale = theta[2]) - p)
+        summand <- suppressWarnings(stats::plogis(q = q, 
+                                                  location = theta[1], 
+                                                  scale = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -4093,6 +3957,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -4120,24 +3985,6 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") || fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") || fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {  if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("location", "scale")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("location", "scale")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -4152,13 +3999,16 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
                          stats::qlogis(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                        location = Par["location"], 
                                        scale = Par["scale"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::plogis(Support, Par["location"], Par["scale"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -4216,7 +4066,7 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a negative binomial distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -4312,13 +4162,16 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pnbinom(q = q, size = theta[1], prob = theta[2]) - p)
+        summand <- suppressWarnings(stats::pnbinom(q = q, 
+                                                   size = theta[1], 
+                                                   prob = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -4332,6 +4185,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 0.999)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -4359,25 +4213,6 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(sizeStart, probStart), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("size", "prob")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("size", "prob")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -4399,6 +4234,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -4457,7 +4293,7 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a normal distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated 
+#' @note It should be noted that there might be deviations between the estimated 
 #' and the theoretical distribution parameters in certain circumstances. This is 
 #' because the estimation of the parameters is based on a numerical optimization 
 #' method and depends strongly on the initial values. In addition, one must always 
@@ -4550,16 +4386,19 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     } 
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
-    lm <- lm(q ~ p)
-    suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
-    suppressWarnings(s <- (predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
+    lm.fit <- lm(q ~ p)
+    suppressWarnings(m <- predict(lm.fit, newdata = list(p = 0.5))[[1]])
+    suppressWarnings(s <- (predict(lm.fit, newdata = list(p = 0.975))[[1]] - m)/1.96)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pnorm(q = q, mean = theta[1], sd = theta[2]) - p)
+        summand <- suppressWarnings(stats::pnorm(q = q, 
+                                                 mean = theta[1], 
+                                                 sd = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -4571,6 +4410,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -4598,30 +4438,7 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) {
-#             cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n")
-#         }
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(m, s), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei Fehlermeldung keine ausgabe
-#             if (show.output) {
-#                 cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n")
-#             }
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("mean", "sd")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("mean", "sd")
-#         if (show.output) print(fit) 
-#     }
-#     #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
     if (prod(!is.na(Par)) & plot) {
@@ -4635,7 +4452,9 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
                          stats::qnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                       mean = Par["mean"], 
                                       sd = Par["sd"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pnorm(Support, Par["mean"], Par["sd"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), 
@@ -4643,13 +4462,12 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
     return(Par)   
 }
-
-
 
 
 ################################################################################
@@ -4791,11 +4609,11 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     #-----------------------------------------------------------------------------
     # estimating procedure
     #-----------------------------------------------------------------------------
-    #get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q, show.out = TRUE, plot = TRUE, fit.weights = c(1, 1, 1))
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     q.theor <- stats::qnorm(p)
     lmodel <- lm(q ~ q.theor, weights = fit.weights)
+
     #-----------------------------------------------------------------------------
     # checking output
     #-----------------------------------------------------------------------------
@@ -4808,7 +4626,8 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     # creating graphical diagnostics
     #-----------------------------------------------------------------------------
     if (prod(!is.na(lmodel$par)) & plot) {
-        main1 <- paste("mean = ", round(lmodel$par["mean"], digits = 2), "sd = ", round(lmodel$par["sd"], digits = 2))
+        main1 <- paste("mean = ", round(lmodel$par["mean"], digits = 2), 
+                       ", sd = ", round(lmodel$par["sd"], digits = 2))
         main <- paste("Normal (", main1, ")", sep = "")
         sub = paste("fit.weights = c(", paste(fit.weights.original, collapse = ", "), ")", sep = "")
         Support.lim <- c(stats::qnorm(p = min(p) * scaleX[1], 
@@ -4817,7 +4636,9 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
                          stats::qnorm(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                       sd = lmodel$par["sd"], 
                                       mean = lmodel$par["mean"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pnorm(Support, mean = lmodel$par["mean"], sd = lmodel$par["sd"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
@@ -4883,7 +4704,7 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a pert distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -4976,6 +4797,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -4998,6 +4820,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
                             upper = c(10000, 10000, 10000, 1000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -5025,28 +4848,6 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 5, 10, 4), 
-#                                               minimize, 
-#                                               method = "BFGS"), 
-#                           silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         }  else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("min", "mode", "max", "shape")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("min", "mode", "max", "shape")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5068,12 +4869,14 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
                                      max = Par["max"], 
                                      shape = Par["shape"]))
         Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
-        Probability <- mc2d::ppert(Support, Par["min"], Par["mode"], Par["max"], shape = Par["shape"])
+        Probability <- mc2d::ppert(Support, Par["min"], Par["mode"], 
+                                   Par["max"], shape = Par["shape"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -5131,7 +4934,7 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE})
 #' @return Returns fitted parameters of a Poisson distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because it is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -5226,6 +5029,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -5243,6 +5047,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = 0.001, upper = 10000), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -5255,6 +5060,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
         names(Par) <- c("lambda")
         if (show.output) print(fit) 
     }
+    
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5266,13 +5072,16 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
                                       lambda = Par["lambda"]),
                          stats::qpois(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                       lambda = Par["lambda"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::ppois(Support, Par["lambda"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -5332,7 +5141,7 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a Student's t distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -5422,6 +5231,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -5439,6 +5249,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
                             lower = 0.001, upper = 10000), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -5466,25 +5277,6 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         }  else if (fit$value < tol) {  
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("df")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("df")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5496,13 +5288,16 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
                                    df = Par["df"]), 
                          stats::qt(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                    df = Par["df"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pt(Support, Par["df"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -5562,7 +5357,7 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a truncated normal distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -5645,6 +5440,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -5669,6 +5465,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
                             lower = c(-10000, 0.001, -10000, -10000), 
                             upper = c(10000, 10000, 10000, 10000)), 
         silent = TRUE)
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -5694,6 +5491,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
         names(Par) <- c("mean", "sd", "lower", "upper")
         if (show.output) print(fit) 
     }
+    
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5721,6 +5519,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -5779,7 +5578,7 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a triangular distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -5869,13 +5668,17 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(mc2d::ptriang(q = q, min = theta[1], mode = theta[2], max = theta[3]) - p)
+        summand <- suppressWarnings(mc2d::ptriang(q = q, 
+                                                  min = theta[1], 
+                                                  mode = theta[2], 
+                                                  max = theta[3]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -5887,6 +5690,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -5914,25 +5718,6 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = c(1, 5,10), minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         } else if (fit$value < tol) {
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("min", "mode", "max")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("min", "mode", "max")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -5950,13 +5735,16 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
                                        min = Par["min"], 
                                        mode = Par["mode"], 
                                        max = Par["max"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- mc2d::ptriang(Support, Par["min"], Par["mode"], Par["max"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
@@ -5993,7 +5781,7 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' value, the further it goes within the upper percentile.
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE})
 #' @return Returns fitted parameters of a uniform distribution.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -6054,6 +5842,7 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
     a <- q[1] - weight1 * (q[2] - q[1])
     b <- q[2] + weight2 * (q[2] - q[1])
     Par <- c(min = a, max = b)
+    
     #-----------------------------------------------------------------------------
     # plot graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -6067,7 +5856,9 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
                          qunif(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                min = Par["min"], 
                                max = Par["max"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- punif(Support, Par["min"], Par["max"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
@@ -6132,7 +5923,7 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
 #' @param ...	further arguments passed to the functions \code{plot} and \code{points} (relevant only if \code{plot = TRUE}).
 #' @return Returns fitted parameters of a Weibull distribution or missing
 #' values (\code{NA}'s) if the distribution cannot fit the specified quantiles.
-#' @note it should be noted that there might be deviations between the estimated
+#' @note It should be noted that there might be deviations between the estimated
 #' and the theoretical distribution parameters in certain circumstances. This is
 #' because the estimation of the parameters is based on a numerical optimization
 #' method and depends strongly on the initial values. In addition, one must always
@@ -6235,6 +6026,7 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
         on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
+    
     #-----------------------------------------------------------------------------
     # minimizing procedure
     #-----------------------------------------------------------------------------
@@ -6255,6 +6047,7 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
                             upper = c(10000, 10000)), 
         silent = TRUE
     )
+    
     #-----------------------------------------------------------------------------
     # checking results
     #-----------------------------------------------------------------------------
@@ -6282,25 +6075,6 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
         if (show.output) print(fit) 
     }
     
-#     if (inherits(try.result, "try-error") | fit$value >= tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' has failed (convergence error occurred or specified tolerance not achieved)!\nTry another optimization method...\n") 
-#         fit <- c(); fit$value <- tol + 1
-#         try.result <- try(fit <- stats::optim(par = 1, minimize, method = "BFGS"), silent = TRUE)
-#         if (inherits(try.result, "try-error") | fit$value >= tol) { # bei fehlermeldung keine ausgabe
-#             if (show.output) cat("The fitting procedure 'BFGS' has failed (convergence error occurred or specified tolerance not achieved)! \n") 
-#             Par <- NA
-#         }  else if (fit$value < tol) {  
-#             if (show.output) cat("The fitting procedure 'BFGS' was successful ! \n") 
-#             Par <- fit$par
-#             names(Par) <- c("shape", "scale")
-#             if (show.output) print(fit) 
-#         }
-#     } else if (fit$value < tol) {
-#         if (show.output) cat("The fitting procedure 'L-BFGS-B' was successful! \n") 
-#         Par <- fit$par
-#         names(Par) <- c("shape", "scale")
-#         if (show.output) print(fit) 
-#     }
     #-----------------------------------------------------------------------------
     # plotting graphical diagnostics
     #-----------------------------------------------------------------------------
@@ -6315,21 +6089,21 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
                          stats::qweibull(p = (max(p) + (1 - max(p)) * scaleX[2]), 
                                          shape = Par["shape"], 
                                          scale = Par["scale"]))
-        Support <- seq(min(min(q), Support.lim[1]), max(max(q), Support.lim[2]), length = 200)
+        Support <- seq(min(min(q), Support.lim[1]), 
+                       max(max(q), Support.lim[2]), 
+                       length = 200)
         Probability <- stats::pweibull(Support, Par["shape"], Par["scale"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", sub = sub, ...)
         graphics::points(x = q, y = p, pch = 19, ...)
     }
+    
     #-----------------------------------------------------------------------------
     # output
     #-----------------------------------------------------------------------------
     return(Par)
 } # end of get.weibull.par()
-
-
-
 
 
 
@@ -6636,7 +6410,9 @@ useFitdist <- function(data2fit, show.output = TRUE,
         }
     }
     dimnames(res.matrix) <- list(names(fit.list), c("logL", "AIC", "BIC",
-                                                    "Chisq(value)", "Chisq(p)", "AD(value)", "H(AD)", "KS(value)", "H(KS)"))
+                                                    "Chisq(value)", "Chisq(p)", 
+                                                    "AD(value)", "H(AD)", 
+                                                    "KS(value)", "H(KS)"))
     res.matrix <- apply(res.matrix, c(1, 2), function(x) trim.whitespace(x))
     
     if (show.output) print(as.data.frame(res.matrix)) 
