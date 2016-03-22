@@ -76,6 +76,7 @@ set.seed(1)
 x <- stats::rnorm(5000, mean = 10, sd = 5)
 rriskFitdist.cont(x, "norm")
 rriskFitdist.cont(x, "t")
+
 }
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr

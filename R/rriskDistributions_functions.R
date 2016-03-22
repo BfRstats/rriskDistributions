@@ -1208,340 +1208,357 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     message("\nBegin fitting distributions ---------------------------------------")
     
     ## tnorm
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.tnorm.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$tnorm[1:4] <- par
+        res.mat$tnorm[1:4] <- parameters
         res.mat$tnorm[-c(1:4)] <- msm::qtnorm(p = Perc, 
-                                              mean = par["mean"], 
-                                              sd = par["sd"], 
-                                              lower = par["lower"], 
-                                              upper = par["upper"])
+                                              mean = parameters["mean"], 
+                                              sd = parameters["sd"], 
+                                              lower = parameters["lower"], 
+                                              upper = parameters["upper"])
     }
     message("* fitting truncated normal distribution ... ", res)
     
     ## chisqnc
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.chisqnc.par(p = p, q = q, 
                             show.output = show.output, 
                             plot = FALSE, 
                             tol = tolConv, 
                             fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$chisqnc[1:2] <- par
+        res.mat$chisqnc[1:2] <- parameters
         res.mat$chisqnc[-c(1:4)] <- stats::qchisq(p = Perc, 
-                                                  df = par["df"], 
-                                                  ncp = par["ncp"])
+                                                  df = parameters["df"], 
+                                                  ncp = parameters["ncp"])
     } 
     message("* fitting non-central chi-square distribution ... ", res)
     
     ## pert
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.pert.par(p = p, q = q, 
                          show.output = show.output, 
                          plot = FALSE, 
                          tol = tolConv, 
                          fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$pert[1:4] <- par
+        res.mat$pert[1:4] <- parameters
         res.mat$pert[-c(1:4)] <- mc2d::qpert(p = Perc, 
-                                             min = par["min"], 
-                                             mode = par["mode"], 
-                                             max = par["max"], 
-                                             shape = par["shape"])
+                                             min = parameters["min"], 
+                                             mode = parameters["mode"], 
+                                             max = parameters["max"], 
+                                             shape = parameters["shape"])
     }
     message("* fitting PERT distribution ... ", res)
     
     ## triang
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.triang.par(p = p, q = q, 
                            show.output = show.output, 
                            plot = FALSE, 
                            tol = tolConv, 
                            fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$triang[1:3] <- par
+        res.mat$triang[1:3] <- parameters
         res.mat$triang[-c(1:4)] <- mc2d::qtriang(p = Perc, 
-                                                 min = par["min"], 
-                                                 mode = par["mode"], 
-                                                 max = par["max"])
+                                                 min = parameters["min"], 
+                                                 mode = parameters["mode"], 
+                                                 max = parameters["max"])
     }
     message("* fitting triangular distribution ... ", res)
     
     ## gompertz
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.gompertz.par(p = p, q = q, 
                              show.output = show.output, 
                              plot = FALSE, 
                              tol = tolConv, 
                              fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$gompertz[1:2] <- par
+        res.mat$gompertz[1:2] <- parameters
         res.mat$gompertz[-c(1:4)] <- eha::qgompertz(p = Perc, 
-                                                    shape = par["shape"], 
-                                                    scale = par["scale"])
+                                                    shape = parameters["shape"], 
+                                                    scale = parameters["scale"])
     }
     message("* fitting Gompertz distribution ... ", res)
     
     ## normal
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
                 get.norm.par(p = p, q = q, 
                              show.output = show.output, 
                              plot = FALSE, 
                              tol = tolConv, 
                              fit.weights = fit.weights)
-            }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+            }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$norm[1:2] <- par
+        res.mat$norm[1:2] <- parameters
         res.mat$norm[-c(1:4)] <- stats::qnorm(p = Perc, 
-                                              mean = par["mean"], 
-                                              sd = par["sd"])
+                                              mean = parameters["mean"], 
+                                              sd = parameters["sd"])
     }
     message("* fitting normal distribution ... ", res)
     
     ## beta
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.beta.par(p = p, q = q, 
                          show.output = show.output, 
                          plot = FALSE, 
                          tol = tolConv, 
                          fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$beta[1:2] <- par
+        res.mat$beta[1:2] <- parameters
         res.mat$beta[-c(1:4)] <- stats::qbeta(p = Perc, 
-                                              shape1 = par["shape1"], 
-                                              shape2 = par["shape2"])
+                                              shape1 = parameters["shape1"], 
+                                              shape2 = parameters["shape2"])
     }
     message("* fitting beta distribution ... ", res)
     
     ## cauchy
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.cauchy.par(p = p, q = q, 
                            show.output = show.output, 
                            plot = FALSE, 
                            tol = tolConv, 
                            fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$cauchy[1:2] <- par
+        res.mat$cauchy[1:2] <- parameters
         res.mat$cauchy[-c(1:4)] <- stats::qcauchy(p = Perc, 
-                                                  location = par["location"], 
-                                                  scale = par["scale"])
+                                                  location = parameters["location"], 
+                                                  scale = parameters["scale"])
     }
     message("* fitting Cauchy distribution ... ", res)
     
     ## chisq
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.chisq.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$chisq[1] <- par
+        res.mat$chisq[1] <- parameters
         res.mat$chisq[-c(1:4)] <- stats::qchisq(p = Perc, 
-                                                df = par["df"])
+                                                df = parameters["df"])
     }
     message("* fitting chi-square distribution ... ", res)
     
     ## logis
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.logis.par(p = p, q = q, 
                                                show.output = show.output, 
                                                plot = FALSE, 
                                                tol = tolConv, 
                                                fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$logis[1:2] <- par
+        res.mat$logis[1:2] <- parameters
         res.mat$logis[-c(1:4)] <- stats::qlogis(p = Perc, 
-                                                location = par["location"], 
-                                                scale = par["scale"])
+                                                location = parameters["location"], 
+                                                scale = parameters["scale"])
     }
     message("* fitting logistic distribution ... ", res)
     
     ## t
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.t.par(p = p, q = q, 
                       show.output = show.output, 
                       plot = FALSE, 
                       tol = tolConv, 
                       fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$t[1] <- par
+        res.mat$t[1] <- parameters
         res.mat$t[-c(1:4)] <- stats::qt(p = Perc, 
-                                        df = par["df"])
+                                        df = parameters["df"])
     }
     message("* fitting Student's t-distribution ... ", res)
     
     ## exp
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.exp.par(p = p, q = q, 
                         show.output = show.output, 
                         plot = FALSE, 
                         tol = tolConv, 
                         fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$exp[1] <- par
+        res.mat$exp[1] <- parameters
         res.mat$exp[-c(1:4)] <- stats::qexp(p = Perc, 
-                                            rate = par["rate"])
+                                            rate = parameters["rate"])
     }
     message("* fitting exponential distribution ... ", res)
     
     ## F
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.f.par(p = p, q = q, 
                       show.output = show.output, 
                       plot = FALSE, 
                       tol = tolConv, 
                       fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$f[1:2] <- par
+        res.mat$f[1:2] <- parameters
         res.mat$f[-c(1:4)] <- stats::qf(p = Perc, 
-                                        df1 = par["df1"], 
-                                        df2 = par["df2"])
+                                        df1 = parameters["df1"], 
+                                        df2 = parameters["df2"])
     }
     message("* fitting F-distribution ... ", res)
     
     ## gamma
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.gamma.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$gamma[1:2] <- par
+        res.mat$gamma[1:2] <- parameters
         res.mat$gamma[-c(1:4)] <- stats::qgamma(p = Perc, 
-                                                shape = par["shape"], 
-                                                rate = par["rate"])
+                                                shape = parameters["shape"], 
+                                                rate = parameters["rate"])
     }
     message("* fitting gamma distribution ... ", res)
     
     ## Weibull
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.weibull.par(p = p, q = q, 
                             show.output = show.output, 
                             plot = FALSE, 
                             tol = tolConv, 
                             fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$weibull[1:2] <- par
+        res.mat$weibull[1:2] <- parameters
         res.mat$weibull[-c(1:4)] <- stats::qweibull(p = Perc, 
-                                                    shape = par["shape"], 
-                                                    scale = par["scale"])
+                                                    shape = parameters["shape"], 
+                                                    scale = parameters["scale"])
     }
     message("* fitting Weibull distribution ... ", res)
     
     ## lognormal
-    par <- NA
+    parameters <- NA
     try({
-        par <- suppressMessages(suppressWarnings({
+        parameters <- suppressMessages(suppressWarnings({
             get.lnorm.par(p = p, q = q, 
                           show.output = show.output, 
                           plot = FALSE, 
                           tol = tolConv, 
                           fit.weights = fit.weights)
-        }))
-    })
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+        }))},
+        silent = TRUE
+    )
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$lnorm[1:2] <- par
+        res.mat$lnorm[1:2] <- parameters
         res.mat$lnorm[-c(1:4)] <- stats::qlnorm(p = Perc, 
-                                                meanlog = par["meanlog"], 
-                                                sdlog = par["sdlog"])
+                                                meanlog = parameters["meanlog"], 
+                                                sdlog = parameters["sdlog"])
     }
     message("* fitting lognormal distribution ... ", res)
     
     ## uniform
-    par <- NA
-    try(
-        par <- suppressMessages(suppressWarnings({
+    parameters <- NA
+    try({
+        parameters <- suppressMessages(suppressWarnings({
             get.unif.par(p = p, q = q, plot = FALSE)
-        }))
+        }))},
+        silent = TRUE
     )
-    res <- ifelse(any(is.na(par)), "failed", "OK")
+    res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
-        res.mat$unif[1:2] <- par
+        res.mat$unif[1:2] <- parameters
         res.mat$unif[-c(1:4)] <- qunif(p = Perc, 
-                                       min = par["min"], 
-                                       max = par["max"])
+                                       min = parameters["min"], 
+                                       max = parameters["max"])
     }
     message("* fitting uniform distribution ... ", res)
     
@@ -1557,11 +1574,6 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
         }
     }
     res.mat <- data.frame(apply(res.mat, c(1, 2), function(x) round(x, digits = 2)))
-    ## debug start
-    cat(sprintf("res.mat (%d, %d):\n", dim(res.mat)[1], dim(res.mat)[2]),
-        file = stdout())
-    print(res.mat)
-    ## debug end
     output <- list(data.frame(p, q), res.mat)
     names(output) <- c("p/q", "results")
     return(output)
@@ -1681,39 +1693,39 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0 | max(q) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain (0, 1) => beta distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -1909,35 +1921,35 @@ get.cauchy.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -2128,39 +2140,39 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, The vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, Items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => chi-square distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -2351,39 +2363,39 @@ get.chisqnc.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, The vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, Items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => chi-square distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -2580,39 +2592,39 @@ get.exp.par <- function(p = c(0.025, 0.50,.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(1) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => exponential distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -2802,39 +2814,39 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
-    if (min(q)<=0) {
-        on.exit(return(invisible(NA)))
+    if (min(q) <= 0) {
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => F distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -3030,39 +3042,39 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => Gamma distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -3259,39 +3271,39 @@ get.gompertz.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
-    if (min(q)<=0) {
-        on.exit(return(invisible(NA)))
+    if (min(q) <= 0) {
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain (0, inf) => Gompertz distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -3464,39 +3476,39 @@ get.hyper.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0 | any(abs(q - trunc(q)) != 0)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles must be integer and positive => Hypergeometric distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 3) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least three quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -3699,39 +3711,39 @@ get.lnorm.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
-    if (min(q)<=0) {
-        on.exit(return(invisible(NA)))
+    if (min(q) <= 0) {
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain (0, inf) => Lognormal distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -3913,35 +3925,35 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -4138,39 +4150,39 @@ get.nbinom.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0 | any(abs(q - trunc(q)) != 0)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles must be integer and positive => negative binomial distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -4366,35 +4378,35 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     } 
     
@@ -4585,35 +4597,35 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(fit.weights) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the weighting vector should be positive", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     
@@ -4777,35 +4789,35 @@ get.pert.par <- function(p = c(0.025, 0.5, 0.6, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 4) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least four quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -5005,39 +5017,39 @@ get.pois.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0 | any(abs(q-trunc(q)) != 0)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles must be integer and positive => Poisson distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -5211,35 +5223,35 @@ get.t.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least one quantile must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -5420,35 +5432,35 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
     # checking consistency of the input
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 4) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least four quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -5648,35 +5660,35 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 3) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least three quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
@@ -5821,27 +5833,27 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p' and/or 'q'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (length(q) != 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, uniform distribution can be fitted only by TWO given percentiles!", call. = FALSE)
     }
     if (length(p) != length(q)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p' and 'q' are not of the same length! The vector of quantile should be of the same length as a corresponding vector of probabilities!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     
@@ -6002,39 +6014,39 @@ get.weibull.par <- function(p = c(0.025, 0.5, 0.975), q,
     # checking consistency of the input data
     #-----------------------------------------------------------------------------
     if (!is.numeric(p) | !is.numeric(q) | !is.numeric(fit.weights)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, not numerical items in the input vectors 'p', 'q' and/or 'fit.weights'!", call. = FALSE)
     }
     if (prod(order(p) == seq(1:length(p))) == 0 | prod(order(q) == seq(1:length(q))) == 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the vector of probabilities/percentiles is not ordered!", call. = FALSE)
     }
     if (min(p) < 0 | max(p) > 1) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, items of the probability vector should lie between 0 and 1!", call. = FALSE)
     }
     if (min(q) < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, percentiles are out of the domain [0, inf) => Weibull distribution couldn't be fitted!", call. = FALSE)
     }
     if (length(p) != length(q) | length(p) != length(fit.weights) | length(q) != length(fit.weights) ) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, 'p', 'q' and 'fit.weights' are not of the same length! The vectors of quantiles, probabilities and weightings should be of the same length.", call. = FALSE)
     }
     if (length(q) < 2) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, at least two quantiles must be known!", call. = FALSE)
     }
     if (!is.logical(show.output)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'show.output' should be logical!", call. = FALSE)
     }
     if (!is.logical(plot)) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'plot' should be logical!", call. = FALSE)
     }
     if (!is.numeric(tol) | length(tol) != 1 | tol < 0) {
-        on.exit(return(invisible(NA)))
+        # on.exit(return(invisible(NA)))
         stop("INVALID INPUT, the argument 'tol' should be a single positive numerical value!", call. = FALSE)
     }
     
