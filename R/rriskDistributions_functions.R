@@ -1557,6 +1557,11 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
         }
     }
     res.mat <- data.frame(apply(res.mat, c(1, 2), function(x) round(x, digits = 2)))
+    ## debug start
+    cat(sprintf("res.mat (%d, %d):\n", dim(res.mat)[1], dim(res.mat)[2]),
+        file = stdout())
+    print(res.mat)
+    ## debug end
     output <- list(data.frame(p, q), res.mat)
     names(output) <- c("p/q", "results")
     return(output)
@@ -1718,7 +1723,9 @@ get.beta.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights / sum(fit.weights)
     minimize <- function(shape) {
-        summand <- suppressWarnings(stats::pbeta(q = q, shape1 = shape[1], shape2 = shape[2]) - p)
+        summand <- suppressWarnings(stats::pbeta(q = q, 
+                                                 shape1 = shape[1], 
+                                                 shape2 = shape[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -2837,7 +2844,9 @@ get.f.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pf(q = q, df1 = theta[1], df2 = theta[2]) - p)
+        summand <- suppressWarnings(stats::pf(q = q, 
+                                              df1 = theta[1], 
+                                              df2 = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -3063,7 +3072,9 @@ get.gamma.par <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     minimize <- function(theta) {
-        summand <- suppressWarnings(stats::pgamma(q = q, shape = theta[1], rate = theta[2]) - p)
+        summand <- suppressWarnings(stats::pgamma(q = q, 
+                                                  shape = theta[1], 
+                                                  rate = theta[2]) - p)
         summand <- summand * fit.weights
         sum(summand^2)
     }
@@ -7307,20 +7318,23 @@ rriskMLEdist <- function(data, distr,
                                                    ...), silent = TRUE)
         } else {
             opttryerror <- try(opt <- stats::optim(par = vstart, fn = fnobjcens,
-                                                   rcens = rcens, lcens = lcens, icens = icens, ncens = ncens,
-                                                   ddistnam = ddistname, pdistnam = pdistname, hessian = TRUE,
-                                                   method = meth, lower = lower, upper = upper, ...),
+                                                   rcens = rcens, lcens = lcens, 
+                                                   icens = icens, ncens = ncens,
+                                                   ddistnam = ddistname, 
+                                                   pdistnam = pdistname, hessian = TRUE,
+                                                   method = meth, 
+                                                   lower = lower, upper = upper, ...),
                                silent = TRUE)
         }
         if (inherits(opttryerror, "try-error")) {
-            warnings("The function optim encountered an error and stopped")
+            warning("The function optim encountered an error and stopped")
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = 100,
                         loglik = NA, 
                         hessian = NA))
         }
         if (opt$convergence > 0) {
-            warnings("The function optim failed to converge, with the error code ",
+            warning("The function optim failed to converge, with the error code ",
                      opt$convergence)
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = opt$convergence,
@@ -7348,14 +7362,14 @@ rriskMLEdist <- function(data, distr,
         }
         if (inherits(opttryerror, "try-error")) {
             print(opttryerror)
-            warnings("The customized optimization function encountered an error and stopped")
+            warning("The customized optimization function encountered an error and stopped")
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = 100,
                         loglik = NA, 
                         hessian = NA))
         }
         if (opt$convergence > 0) {
-            warnings("The customized optimization function failed to converge, with the error code ",
+            warning("The customized optimization function failed to converge, with the error code ",
                      opt$convergence)
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = opt$convergence,
@@ -7444,6 +7458,7 @@ rriskMLEdist <- function(data, distr,
 #' x <- stats::rnorm(5000, mean = 10, sd = 5)
 #' rriskFitdist.cont(x, "norm")
 #' rriskFitdist.cont(x, "t")
+#' 
 rriskFitdist.cont <- function(data, distr, 
                               method = c("mle", "mme"), 
                               start, chisqbreaks, 
@@ -7453,18 +7468,18 @@ rriskFitdist.cont <- function(data, distr,
     } else distname <- distr
     ddistname <- paste("d", distname, sep = "")
     if (!exists(ddistname, mode = "function")) {
-        stop(paste("The ", ddistname, " function must be defined"))
+        stop(paste("the ", ddistname, "function must be defined"))
     }
     pdistname <- paste("p", distname, sep = "")
     if (!exists(pdistname, mode = "function")) {
-        stop(paste("The ", pdistname, " function must be defined"))
+        stop(paste("the ", pdistname, " function must be defined"))
     }
     if (any(method == "mom")) {
-        warning("the name \"mom\" for matching moments is NO MORE used and is replaced by \"mme\".")
+        warning("the method \"mom\" for matching moments is deprecated and is replaced by \"mme\".")
     }
     method <- match.arg(method)
     if (!missing(start) & method == "mme") {
-        warnings("Starting values for parameters will not be used with matching moments")
+        warning("starting values for parameters will not be used with matching moments")
     }
     if (!(is.vector(data) & is.numeric(data) & length(data) > 1)) {
         stop("data must be a numerical vector of length greater than 1")
@@ -7482,7 +7497,7 @@ rriskFitdist.cont <- function(data, distr,
             mle <- rriskMLEdist(data, distname, ...)
         } else mle <- rriskMLEdist(data, distname, start, ...)
         if (mle$convergence > 0) {
-            stop("the function mle failed to estimate the parameters, \n                with the error code ",
+            stop("the method \"mle\" failed to estimate the parameters, \n                with the error code ",
                  mle$convergence, "\n")
         }
         estimate <- mle$estimate
@@ -7519,7 +7534,7 @@ rriskFitdist.cont <- function(data, distr,
             sdata <- sdata[sdata > limit]
             chisqbreaks <- limit
         } else {
-            warnings("The sample is too small to automatically define chisqbreaks")
+            warning("The sample is too small to automatically define chisqbreaks")
             chisq <- NULL
             chisqbreaks <- NULL
             chisqpvalue <- NULL
@@ -7601,7 +7616,7 @@ rriskFitdist.cont <- function(data, distr,
             adtest <- ifelse(ad > interp(n), "rejected", "not rejected")
         } else adtest <- NULL
         if (length(table(data)) != length(data)) {
-            warnings("Kolmogorov-Smirnov and Anderson-Darling statistics may not be correct with ties")
+            warning("Kolmogorov-Smirnov and Anderson-Darling statistics may not be correct with ties")
         }
     } else {
         ks <- NULL
