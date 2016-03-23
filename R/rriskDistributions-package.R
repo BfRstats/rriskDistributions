@@ -1,4 +1,5 @@
-###############################################################################
+
+################################################################################
 ################################################################################
 #' This packages provides a collection of functions for estimation parameters of
 #' continuous or discrete distributions (related to the \code{rrisk} project)
@@ -34,6 +35,7 @@
 #' get.weibull.par(q = q)
 #' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.01, scale = 1)
 #' get.weibull.par(q = q)
+#' 
 #' \dontrun{
 #'   if( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
 #'     res.fitcont <- fit.cont(data2fit = rnorm(100))
@@ -44,15 +46,15 @@
 #'     res.fitperc
 #'   }
 #' }
-#' p = c(0.025, 0.50, 0.975)
-#' q = c(9.68, 29.2, 50.98)
+#' p <- c(0.025, 0.50, 0.975)
+#' q <- c(9.68, 29.2, 50.98)
 #' fit.results <- rriskFitdist.perc(p, q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results)
 #'
-#' p = c(0.25, 0.50, 0.75)
-#' q = c(9.68, 29.2, 50.98)
+#' p <- c(0.25, 0.50, 0.75)
+#' q <- c(9.68, 29.2, 50.98)
 #' fit.results <- rriskFitdist.perc(p, q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results)
 #' plotDiagnostics.perc(fit.results, tolPlot = 2)
-# }
+#' 
 NULL
