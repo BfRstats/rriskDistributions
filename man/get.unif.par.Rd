@@ -52,11 +52,11 @@ to a higher value. It is yet to be noted, that good till very good fits of param
 could only be obtained for tolerance values that are smaller than 0.001.
 }
 \examples{
-q <- qunif (p = c(0.025, 0.975), min = 0, max = 5)
+q <- stats::qunif(p = c(0.025, 0.975), min = 0, max = 5)
 get.unif.par(q = q)
 get.unif.par(q = q, scaleX = c(0.001, 0.999))
 
-q <- qunif (p = c(0.025, 0.975), min=-6, max = 5)
+q <- stats::qunif(p = c(0.025, 0.975), min=-6, max = 5)
 get.unif.par(q = q)
 
 }

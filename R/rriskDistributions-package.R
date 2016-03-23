@@ -1,6 +1,3 @@
-
-
-
 ###############################################################################
 ################################################################################
 #' This packages provides a collection of functions for estimation parameters of
@@ -27,37 +24,35 @@
 #' to be modelled. \code{rrisk} has a functionality, to fit all continuous or
 #' discrete distributions simultaneously without urging the user to specify the
 #' distribution family in advance.
-# @references Gemeinsames Paper...
 #' @keywords package
 #' @author Natalia Belgorodski \email{belgorodski@@stat-up.de} (\acronym{STAT-UP} Statistical Consulting), \cr
 #' Matthias Greiner \email{matthias.greiner@@bfr.bund.de} (Federal Institute for Risk Assessment, Germany), \cr
 #' Kristin Tolksdorf \email{kristin.tolksdorf@@bfr.bund.de} (Federal Institute for Risk Assessment, Germany), \cr
 #' Katharina Schueller \email{schueller@@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 #' @examples
-# \donttest{
-#' q<-qweibull(p=c(0.025,0.5,0.975),shape=2,scale=3)
-#' get.weibull.par(q=q)
-#' q<-qweibull(p=c(0.025,0.5,0.975),shape=0.01,scale=1)
-#' get.weibull.par(q=q)
+#' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 2, scale = 3)
+#' get.weibull.par(q = q)
+#' q <- stats::qweibull(p = c(0.025, 0.5, 0.975), shape = 0.01, scale = 1)
+#' get.weibull.par(q = q)
 #' \dontrun{
-#'   if( class(tcltk::tclRequire("Tktable"))=="tclObj" ){
-#'     res.fitcont<-fit.cont(data2fit=rnorm(100))
+#'   if( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
+#'     res.fitcont <- fit.cont(data2fit = rnorm(100))
 #'     res.fitcont
 #'   }
-#'   if( class(tcltk::tclRequire("Tktable"))=="tclObj" ){
-#'     res.fitperc<-fit.perc()
+#'   if( class(tcltk::tclRequire("Tktable")) == "tclObj" ) {
+#'     res.fitperc <- fit.perc()
 #'     res.fitperc
 #'   }
 #' }
-#' p=c(0.025,0.50,0.975)
-#' q=c(9.68,29.2,50.98)
-#' fit.results<-rriskFitdist.perc(p,q,show.output=FALSE)
+#' p = c(0.025, 0.50, 0.975)
+#' q = c(9.68, 29.2, 50.98)
+#' fit.results <- rriskFitdist.perc(p, q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results)
 #'
-#' p=c(0.25,0.50,0.75)
-#' q=c(9.68,29.2,50.98)
-#' fit.results<-rriskFitdist.perc(p,q,show.output=FALSE)
+#' p = c(0.25, 0.50, 0.75)
+#' q = c(9.68, 29.2, 50.98)
+#' fit.results <- rriskFitdist.perc(p, q, show.output = FALSE)
 #' plotDiagnostics.perc(fit.results)
-#' plotDiagnostics.perc(fit.results,tolPlot=2)
+#' plotDiagnostics.perc(fit.results, tolPlot = 2)
 # }
 NULL
