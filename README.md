@@ -34,3 +34,8 @@ Authors
 -   Matthias Greiner (Federal Institute for Risk Assessment, Germany)
 -   Kristin Tolksdorf (Federal Institute for Risk Assessment, Germany)
 -   Katharina Schueller (STAT-UP Statistical Consulting)
+
+With contributions from
+
+-   Lutz Göhring (Lutz Göhring Consulting)
+-   Matthias Flor (Federal Institute for Risk Assessment, Germany)
