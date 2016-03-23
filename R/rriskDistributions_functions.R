@@ -1057,13 +1057,13 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # fitting unif distribution
     #-----------------------------------------------------------------------------
     if (!is.na(res.mat$unif[1])) {
-        test.quantiles <- suppressWarnings(qunif(p, 
-                                                 min = res.mat$unif[1], 
-                                                 max = res.mat$unif[2]))
+        test.quantiles <- suppressWarnings(stats::qunif(p, 
+                                                        min = res.mat$unif[1], 
+                                                        max = res.mat$unif[2]))
         try(if (sum(abs(test.quantiles - q)) < tolPlot) {
-            graphics::lines(punif(xx, 
-                                  min = res.mat$unif[1], 
-                                  max = res.mat$unif[2]) ~ xx, 
+            graphics::lines(stats::punif(xx, 
+                                         min = res.mat$unif[1], 
+                                         max = res.mat$unif[2]) ~ xx, 
                             col = unif.color, lwd = 2)
             leg.txt <- c(leg.txt, "Uniform")
             leg.col <- c(leg.col, unif.color)
@@ -1074,7 +1074,7 @@ plotDiagnostics.perc <- function(fit.results, tolPlot = 0.1) {
     # creating legend
     #-----------------------------------------------------------------------------
     if (length(leg.txt) > 0) {
-        legend("bottomright", legend = leg.txt, col = leg.col, lty = 1, bty = "n", lwd = 2)
+        graphics::legend("bottomright", legend = leg.txt, col = leg.col, lty = 1, bty = "n", lwd = 2)
     } else {
         # change by LG: Now, the tkmessageBox is produced in method fit.perc(): there the call of 
         # plotDiagnostics.perc() is checked if the message produced below is thrown. Given that case 
@@ -1321,12 +1321,12 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     parameters <- NA
     try({
         parameters <- suppressMessages(suppressWarnings({
-                get.norm.par(p = p, q = q, 
-                             show.output = show.output, 
-                             plot = FALSE, 
-                             tol = tolConv, 
-                             fit.weights = fit.weights)
-            }))},
+            get.norm.par(p = p, q = q, 
+                         show.output = show.output, 
+                         plot = FALSE, 
+                         tol = tolConv, 
+                         fit.weights = fit.weights)
+        }))},
         silent = TRUE
     )
     res <- ifelse(any(is.na(parameters)), "failed", "OK")
@@ -1405,10 +1405,10 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     try({
         parameters <- suppressMessages(suppressWarnings({
             get.logis.par(p = p, q = q, 
-                                               show.output = show.output, 
-                                               plot = FALSE, 
-                                               tol = tolConv, 
-                                               fit.weights = fit.weights)
+                          show.output = show.output, 
+                          plot = FALSE, 
+                          tol = tolConv, 
+                          fit.weights = fit.weights)
         }))},
         silent = TRUE
     )
@@ -1556,9 +1556,9 @@ rriskFitdist.perc <- function(p = c(0.025, 0.5, 0.975),
     res <- ifelse(any(is.na(parameters)), "failed", "OK")
     if (res == "OK") {
         res.mat$unif[1:2] <- parameters
-        res.mat$unif[-c(1:4)] <- qunif(p = Perc, 
-                                       min = parameters["min"], 
-                                       max = parameters["max"])
+        res.mat$unif[-c(1:4)] <- stats::qunif(p = Perc, 
+                                              min = parameters["min"], 
+                                              max = parameters["max"])
     }
     message("* fitting uniform distribution ... ", res)
     
@@ -2186,8 +2186,8 @@ get.chisq.par <- function(p = c(0.025, 0.5, 0.975), q,
         summand <- summand * fit.weights
         sum(summand^2)
     }
-    suppressWarnings(lm <- lm(q ~ p)    )
-    suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
+    suppressWarnings(lm <- stats::lm(q ~ p)    )
+    suppressWarnings(m <- stats::predict(lm, newdata = list(p = 0.5))[[1]])
     # using the approximation of the chisq median
     start <- ((3 * m^3 + 6 * m^2 + 2 * m)/81 + 2 * m * sqrt(2 * m + 3)/(81 * sqrt(3)))^(1 / 3) + (3 * m^2 + 4 * m)/(27 * ((3 * m^3 + 6 * m^2 + 2 * m)/81 + 2 * m * sqrt(2 * m + 3)/(81 * sqrt(3)))^(1/3)) + (3 * m + 2)/9
     fit <- c(); fit$value <- tol + 1
@@ -3969,8 +3969,8 @@ get.logis.par <- function(p = c(0.025, 0.5, 0.975), q,
         summand <- summand * fit.weights
         sum(summand^2)
     }
-    lm <- lm(q ~ p)
-    suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
+    lm <- stats::lm(q ~ p)
+    suppressWarnings(m <- stats::predict(lm, newdata = list(p = 0.5))[[1]])
     suppressWarnings(s <- stats::sd(q)/pi * sqrt(2))
     fit <- c(); fit$value <- tol + 1
     try1 <- try(
@@ -4415,9 +4415,9 @@ get.norm.par <- function(p = c(0.025, 0.5, 0.975), q,
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
-    lm.fit <- lm(q ~ p)
-    suppressWarnings(m <- predict(lm.fit, newdata = list(p = 0.5))[[1]])
-    suppressWarnings(s <- (predict(lm.fit, newdata = list(p = 0.975))[[1]] - m)/1.96)
+    lm.fit <- stats::lm(q ~ p)
+    suppressWarnings(m <- stats::predict(lm.fit, newdata = list(p = 0.5))[[1]])
+    suppressWarnings(s <- (stats::predict(lm.fit, newdata = list(p = 0.975))[[1]] - m)/1.96)
     minimize <- function(theta) {
         summand <- suppressWarnings(stats::pnorm(q = q, 
                                                  mean = theta[1], 
@@ -4635,8 +4635,8 @@ get.norm.sd <- function(p = c(0.025, 0.5, 0.975), q,
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
     q.theor <- stats::qnorm(p)
-    lmodel <- lm(q ~ q.theor, weights = fit.weights)
-
+    lmodel <- stats::lm(q ~ q.theor, weights = fit.weights)
+    
     #-----------------------------------------------------------------------------
     # checking output
     #-----------------------------------------------------------------------------
@@ -5469,9 +5469,9 @@ get.tnorm.par <- function(p = c(0.025, 0.5, 0.75, 0.975), q,
     #-----------------------------------------------------------------------------
     fit.weights.original <- fit.weights
     fit.weights <- fit.weights/sum(fit.weights)
-    lm <- lm(q ~ p)
-    suppressWarnings(m <- predict(lm, newdata = list(p = 0.5))[[1]])
-    suppressWarnings(s <- (predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
+    lm <- stats::lm(q ~ p)
+    suppressWarnings(m <- stats::predict(lm, newdata = list(p = 0.5))[[1]])
+    suppressWarnings(s <- (stats::predict(lm, newdata = list(p = 0.975))[[1]] - m)/1.96)
     minimize <- function(theta) {
         summand <- suppressWarnings(msm::ptnorm(q = q, 
                                                 mean = theta[1], 
@@ -5819,11 +5819,11 @@ get.triang.par <- function(p = c(0.025, 0.5, 0.975), q,
 #' @keywords fitpercentiles
 #' @export
 #' @examples
-#' q <- qunif (p = c(0.025, 0.975), min = 0, max = 5)
+#' q <- stats::qunif(p = c(0.025, 0.975), min = 0, max = 5)
 #' get.unif.par(q = q)
 #' get.unif.par(q = q, scaleX = c(0.001, 0.999))
 #'
-#' q <- qunif (p = c(0.025, 0.975), min=-6, max = 5)
+#' q <- stats::qunif(p = c(0.025, 0.975), min=-6, max = 5)
 #' get.unif.par(q = q)
 #' 
 get.unif.par <- function(p = c(0.025, 0.975), q, 
@@ -5873,16 +5873,16 @@ get.unif.par <- function(p = c(0.025, 0.975), q,
         main1 <- paste("min = ", round(Par["min"], digits = 2), sep = "")
         main2 <- paste("max = ", round(Par["max"], digits = 2), sep = "")
         main <- paste("Uniform (", main1, ", ", main2, ")", sep = "")
-        Support.lim <- c(qunif(p = min(p) * scaleX[1], 
-                               min = Par["min"], 
-                               max = Par["max"]),
-                         qunif(p = (max(p) + (1 - max(p)) * scaleX[2]), 
-                               min = Par["min"], 
-                               max = Par["max"]))
+        Support.lim <- c(stats::qunif(p = min(p) * scaleX[1], 
+                                      min = Par["min"], 
+                                      max = Par["max"]),
+                         stats::qunif(p = (max(p) + (1 - max(p)) * scaleX[2]), 
+                                      min = Par["min"], 
+                                      max = Par["max"]))
         Support <- seq(min(min(q), Support.lim[1]), 
                        max(max(q), Support.lim[2]), 
                        length = 200)
-        Probability <- punif(Support, Par["min"], Par["max"])
+        Probability <- stats::punif(Support, Par["min"], Par["max"])
         graphics::plot(Support, Probability, type = "l", 
                        xlim = range(Support.lim, q), main = main, 
                        xlab = "Quantiles", ...)
@@ -6225,8 +6225,8 @@ useFitdist <- function(data2fit, show.output = TRUE,
     #-----------------------------------------------------------------------------
     # fitting procedures
     #-----------------------------------------------------------------------------
-#     if (show.output) cat("\n-------------------------------------------------------------------\n") 
-#     if (show.output) cat("Begin fitting distributions... \n") 
+    #     if (show.output) cat("\n-------------------------------------------------------------------\n") 
+    #     if (show.output) cat("Begin fitting distributions... \n") 
     if (show.output) message("\nBegin fitting distributions ---------------------------------------")
     
     # fit normal distributions
@@ -6398,8 +6398,8 @@ useFitdist <- function(data2fit, show.output = TRUE,
             index <- index + 1
         } else if (show.output) message("* fitting triangular distribution ... failed") 
     }
-#     if (show.output) cat("End fitting distributions... \n") 
-#     if (show.output) cat("------------------------------------------------------------------- \n") 
+    #     if (show.output) cat("End fitting distributions... \n") 
+    #     if (show.output) cat("------------------------------------------------------------------- \n") 
     if (show.output) message("End fitting distributions -----------------------------------------\n")
     
     #-----------------------------------------------------------------------------
@@ -6523,12 +6523,12 @@ fit.cont <- function(data2fit = stats::rnorm(1000)) {
         # if (is.element("package:rrisk", search())) # wenn "rrisk" vorhanden, mache weiter. sonst breche ab.
         #{
         #  on.exit(.generate.newitem())
-        #  winDialog(type = "ok", "Neither continuous distribution could be fitted to the data")
+        #  utils::winDialog(type = "ok", "Neither continuous distribution could be fitted to the data")
         #  stop("exit fit.cont() and call generate.newitem()", call. = FALSE)
         #} else
         #{
         on.exit(return(invisible(NULL)))
-        winDialog(type = "ok", "Neither continuous distribution could be fitted to the data")
+        utils::winDialog(type = "ok", "Neither continuous distribution could be fitted to the data")
         stop("exit fit.cont() and return NA's", call. = FALSE)
         #}
     }
@@ -7347,7 +7347,7 @@ rriskMLEdist <- function(data, distr,
         }
         if (opt$convergence > 0) {
             warning("The function optim failed to converge, with the error code ",
-                     opt$convergence)
+                    opt$convergence)
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = opt$convergence,
                         loglik = NA, 
@@ -7382,7 +7382,7 @@ rriskMLEdist <- function(data, distr,
         }
         if (opt$convergence > 0) {
             warning("The customized optimization function failed to converge, with the error code ",
-                     opt$convergence)
+                    opt$convergence)
             return(list(estimate = rep(NA, length(vstart)), 
                         convergence = opt$convergence,
                         loglik = NA, 
@@ -7517,7 +7517,7 @@ rriskFitdist.cont <- function(data, distr,
             if (all(!is.na(mle$hessian))) {
                 varcovar <- solve(mle$hessian)
                 sd <- sqrt(diag(varcovar))
-                correl <- cov2cor(varcovar)
+                correl <- stats::cov2cor(varcovar)
             } else {
                 varcovar <- NA
                 sd <- NA
@@ -7610,9 +7610,9 @@ rriskFitdist.cont <- function(data, distr,
             adtest <- ifelse(a2mod > 1.321, "rejected", "not rejected")
         } else if (distname == "gamma" & n >= 5) {
             m <- as.list(estimate)$shape
-            interp <- approxfun(c(1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20), 
-                                c(0.786, 0.768, 0.762, 0.759, 0.758, 0.757, 0.755, 0.754, 0.754, 0.754, 0.753), 
-                                yright = 0.752)
+            interp <- stats::approxfun(c(1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20), 
+                                       c(0.786, 0.768, 0.762, 0.759, 0.758, 0.757, 0.755, 0.754, 0.754, 0.754, 0.753), 
+                                       yright = 0.752)
             adtest <- ifelse(ad > interp(m), "rejected", "not rejected")
         } else if (distname == "weibull" & n >= 5) {
             a2mod <- ad * (1 + 0.2/sqrt(n))
@@ -7621,10 +7621,10 @@ rriskFitdist.cont <- function(data, distr,
             a2mod <- ad * (1 + 0.25/n)
             adtest <- ifelse(a2mod > 0.66, "rejected", "not rejected")
         } else if (distname == "cauchy" & n >= 5) {
-            interp <- approxfun(c(5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 100), 
-                                c(1.77, 3.2, 3.77, 4.14, 4.25,
-                                  4.05, 3.57, 3.09, 2.48, 2.14, 1.92, 1.52), 
-                                yright = 1.225)
+            interp <- stats::approxfun(c(5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 100), 
+                                       c(1.77, 3.2, 3.77, 4.14, 4.25,
+                                         4.05, 3.57, 3.09, 2.48, 2.14, 1.92, 1.52), 
+                                       yright = 1.225)
             adtest <- ifelse(ad > interp(n), "rejected", "not rejected")
         } else adtest <- NULL
         if (length(table(data)) != length(data)) {
