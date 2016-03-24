@@ -4,6 +4,7 @@ r:
   - oldrel
   - release
   - devel
-apt_packages: r-cran-tkrplot
+apt_packages:
+  - r-cran-tkrplot
 warnings_are_errors: true
 r_check_args: --as-cran --run-donttest
