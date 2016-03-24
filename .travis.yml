@@ -6,5 +6,6 @@ r:
   - devel
 apt_packages:
   - r-cran-tkrplot
+sudo: required
 warnings_are_errors: true
 r_check_args: --as-cran --run-donttest
