@@ -2,7 +2,7 @@
 rriskDistributions
 ==================
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rriskDistributions)](http://cran.r-project.org/package=rriskDistributions)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rriskDistributions)](http://cran.r-project.org/package=rriskDistributions) [![travis\_build\_badge\_for\_dev\_branch](https://travis-ci.org/mattflor/rriskDistributions.svg?branch=dev)](https://travis-ci.org/mattflor/rriskDistributions)
 
 `rriskDistributions` is a collection of functions for fitting distributions to given data or known quantiles.
 
