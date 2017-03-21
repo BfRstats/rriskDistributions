@@ -23,17 +23,17 @@ SystemRequirements: Tcl/Tk (>= 8.5), Tktable (>= 2.9)
 Authors@R: c(person(given="Natalia", family="Belgorodski", email="belgorodski@stat-up.de",
              role=c("aut"), comment="STAT-UP Statistical Consulting"),
       person(given="Matthias", family="Greiner", email="matthias.greiner@bfr.bund.de",
-             role=c("aut"), comment="Federal Institute for Risk Assessment, Germany"),
+             role=c("aut", "cre"), comment="Federal Institute for Risk Assessment, Germany"),
       person(given="Kristin", family="Tolksdorf", email="kristin.tolksdorf@bfr.bund.de",
              role=c("aut"), comment="Federal Institute for Risk Assessment, Germany"),
       person(given="Katharina", family="Schueller", email="schueller@stat-up.de",
              role=c("aut"), comment="STAT-UP Statistical Consulting"),
       person(given="Matthias", family="Flor", email="Matthias.Flor@bfr.bund.de",
-             role=c("ctb", "cre"), comment="Federal Institute for Risk Assessment, Germany"),  
+             role=c("ctb"), comment="Federal Institute for Risk Assessment, Germany"),  
       person(given="Lutz", family="Göhring", email="lutz.goehring@gmx.de",
              role=c("ctb"), comment="Lutz Göhring Consulting"))
-Version: 2.1.1.9000
-Date: 2016-03-22
+Version: 2.1.1
+Date: 2016-04-20
 Encoding: UTF-8
 Collate:
     'rriskDistributions-package.R'
