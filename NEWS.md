@@ -1,3 +1,11 @@
+# rriskDistributions 2.1.2
+
+This release provides no new functionality and only contains two minor changes:
+
+- moved the development repository to a new organizational github account
+- moved the screenshot image in the README to the subdirectory 'tools' as requested by the CRAN maintainers
+
+
 # rriskDistributions 2.1.1
 
 This release provides no new functionality but fixes some issues:
