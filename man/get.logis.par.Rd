@@ -104,13 +104,12 @@ get.logis.par(p = c(0.025, 0.975), q = q, fit.weights = c(10, 1))
 graphics::par(old.par)
 
 }
+\seealso{
+See \code{plogis} for distribution implementation details.
+}
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr
 Katharina Schueller \email{schueller@stat-up.de} (\acronym{STAT-UP} Statistical Consulting), \cr
 Natalia Belgorodski \email{belgorodski@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 }
-\seealso{
-See \code{plogis} for distribution implementation details.
-}
 \keyword{fitpercentiles}
-

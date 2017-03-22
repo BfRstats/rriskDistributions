@@ -32,10 +32,10 @@ Authors@R: c(person(given="Natalia", family="Belgorodski", email="belgorodski@st
              role=c("ctb"), comment="Federal Institute for Risk Assessment, Germany"),  
       person(given="Lutz", family="Göhring", email="lutz.goehring@gmx.de",
              role=c("ctb"), comment="Lutz Göhring Consulting"))
-Version: 2.1.1.9000
-Date: 2017-03-21
+Version: 2.1.2
+Date: 2017-03-22
 Encoding: UTF-8
 Collate:
     'rriskDistributions-package.R'
     'rriskDistributions_functions.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

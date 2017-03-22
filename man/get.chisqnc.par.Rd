@@ -115,13 +115,12 @@ get.chisqnc.par(p = c(0.025, 0.975), q = q, fit.weights = c(1, 10))
 graphics::par(old.par)
 
 }
+\seealso{
+See \code{pchisq} for distribution implementation details.
+}
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr
 Katharina Schueller \email{schueller@stat-up.de} (\acronym{STAT-UP} Statistical Consulting), \cr
 Natalia Belgorodski \email{belgorodski@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 }
-\seealso{
-See \code{pchisq} for distribution implementation details.
-}
 \keyword{fitpercentiles}
-

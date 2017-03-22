@@ -63,4 +63,3 @@ Marie-Laure Delignette-Muller (coauthor of the package \pkg{fitdistrplus}), \cr
 Christophe Dutang (coauthor of the package \pkg{fitdistrplus})
 }
 \keyword{fitdistrplus}
-

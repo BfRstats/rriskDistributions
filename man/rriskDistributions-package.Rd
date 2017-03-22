@@ -2,8 +2,8 @@
 % Please edit documentation in R/rriskDistributions-package.R
 \docType{package}
 \name{rriskDistributions-package}
-\alias{rriskDistributions}
 \alias{rriskDistributions-package}
+\alias{rriskDistributions}
 \title{Fitting distributions to given data or known quantiles}
 \description{
 This packages provides a collection of functions for estimation parameters of
@@ -67,4 +67,3 @@ Beta, Normal, Lognormal, Cauhy, Chi-Quadrat, Logistic, Student's t,
 Exponential, F, Gamma, Weibull, rrisk, stat-up
 }
 \keyword{package}
-

@@ -106,13 +106,12 @@ q <- stats::qnorm(p = c(0.025, 0.5, 0.975), mean = 0.01, sd = 0.1)
 get.norm.sd(q = q)
 
 }
+\seealso{
+See \code{pnorm} for distribution implementation details.
+}
 \author{
 Matthias Greiner \email{matthias.greiner@bfr.bund.de} (BfR), \cr
 Katharina Schueller \email{schueller@stat-up.de} (\acronym{STAT-UP} Statistical Consulting), \cr
 Natalia Belgorodski \email{belgorodski@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 }
-\seealso{
-See \code{pnorm} for distribution implementation details.
-}
 \keyword{fitpercentiles}
-

@@ -67,4 +67,3 @@ Katharina Schueller \email{schueller@stat-up.de} (\acronym{STAT-UP} Statistical 
 Natalia Belgorodski \email{belgorodski@stat-up.de} (\acronym{STAT-UP} Statistical Consulting)
 }
 \keyword{fitdistrplus}
-
